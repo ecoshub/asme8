@@ -63,8 +63,8 @@ func (c *Comp) Run() {
 			if c.step == 0 {
 				fmt.Println(" --- ")
 			}
-			c.clearBusses()
 		}
+		c.clearBusses()
 	}
 }
 

@@ -4,6 +4,8 @@ import (
 	"emu/src/mem"
 	"emu/src/register"
 	"fmt"
+
+	"github.com/ecoshub/breakx"
 )
 
 const (
@@ -18,7 +20,7 @@ type Comp struct {
 	mar       uint16
 	registers register.Module
 	mem       mem.Mem
-	memBus    uint16
+	addrBus   uint16
 	dataBus   byte
 }
 
@@ -37,7 +39,7 @@ func (c *Comp) run(command uint64) {
 	for i := 0; i < 64; i++ {
 		mask := uint64(1) << i
 		if command&mask > 0 {
-			functions[mask](c)
+			microInstructions[mask](c)
 		}
 	}
 }
@@ -47,10 +49,11 @@ func (c *Comp) Run() {
 		fmt.Printf("step: %d, inst: 0x%x\n", c.step, c.inst)
 		if c.step == 0 {
 			c.PrintRegisters()
-			c.run(CMD_FETCH)
+			c.run(M_INST_FETCH)
 			continue
 		}
-		command := control[c.step][c.inst]
+		command := control[c.inst][c.step]
+		breakx.Point(c.inst, c.step, command)
 		c.run(command)
 	}
 }

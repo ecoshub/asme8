@@ -24,9 +24,9 @@ func (m Module) Write(index uint8, val byte) {
 }
 
 func (m Module) String() string {
-	str := "# registers: "
+	str := ""
 	for i, r := range m {
-		str += fmt.Sprintf("0x%x", r)
+		str += fmt.Sprintf("%02x", r)
 		if i != len(m)-1 {
 			str += " "
 		}

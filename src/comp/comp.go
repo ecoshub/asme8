@@ -71,6 +71,7 @@ func (c *Comp) Run() {
 	}
 }
 
+// I am not a fun of that...
 func (c *Comp) clearBusses() {
 	c.dataBus = 0
 	c.busX = 0

@@ -13,26 +13,27 @@ const (
 )
 
 type Comp struct {
-	pc        uint16
-	step      byte
-	inst      byte
-	operand   byte
-	mar       uint16
-	registers register.Module
-	mem       mem.Mem
-	addrBus   uint16
-	dataBus   byte
+	registers             register.Module
+	ram                   mem.Mem
+	step                  uint8
+	instructionRegister   uint8
+	operandRegister       uint8
+	programCounter        uint16
+	memoryAddressRegister uint16
+	addrBus               uint16
+	memoryDataRegister    uint8
+	dataBus               uint8
 }
 
 func New() *Comp {
 	return &Comp{
 		registers: register.NewModule(),
-		mem:       mem.New(DefaultMemorySize),
+		ram:       mem.New(DefaultMemorySize),
 	}
 }
 
-func (c *Comp) Put(offset int, program []byte) {
-	copy(c.mem[offset:offset+len(program)], program[:])
+func (c *Comp) Put(offset int, program []uint8) {
+	copy(c.ram[offset:offset+len(program)], program[:])
 }
 
 func (c *Comp) run(command uint64) {
@@ -46,14 +47,14 @@ func (c *Comp) run(command uint64) {
 
 func (c *Comp) Run() {
 	for {
-		fmt.Printf("step: %d, inst: 0x%x\n", c.step, c.inst)
+		fmt.Printf("step: %d, inst: 0x%x\n", c.step, c.instructionRegister)
 		if c.step == 0 {
 			c.PrintRegisters()
 			c.run(M_INST_FETCH)
 			continue
 		}
-		command := control[c.inst][c.step]
-		breakx.Point(c.inst, c.step, command)
+		command := control[c.instructionRegister][c.step]
+		breakx.Point(c.instructionRegister, c.step, command)
 		c.run(command)
 	}
 }

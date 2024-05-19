@@ -57,17 +57,14 @@ func (c *Comp) Run() {
 		c.run(command)
 		if c.debug {
 			if c.verbose {
-				fmt.Printf("# command: %024b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
-			} else {
-				fmt.Printf("# step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.step, c.instructionRegister, c.operandRegister, c.registers)
+				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
 			}
-		}
-		if c.step == 0 {
-			if c.debug {
+			fmt.Printf("# step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.step, c.instructionRegister, c.operandRegister, c.registers)
+			if c.step == 0 {
 				fmt.Println(" --- ")
 			}
+			c.clearBusses()
 		}
-		c.clearBusses()
 	}
 }
 

@@ -20,6 +20,7 @@ const (
 	MI_MDR_OUT
 	MI_ONES_OUT_X
 	MI_ONES_OUT_Y
+	MI_MAR_OUT
 
 	// FLAG SECTION
 	MI_BRIDGE_ENABLE
@@ -34,8 +35,11 @@ const (
 	MI_REG_OPERAND_1_IN
 	MI_REG_OPERAND_2_IN
 	MI_MDR_IN
+	MI_MAR_L_IN
+	MI_MAR_H_IN
 
 	// OTHER SECTION
+	MI_PC_IN
 	MI_PC_INC
 	MI_STEP_INC
 	MI_STEP_CLR
@@ -68,6 +72,10 @@ var (
 		MI_MDR_OUT:             mInstMdrOut,
 		MI_ONES_OUT_X:          mInstOnesOutX,
 		MI_ONES_OUT_Y:          mInstOnesOutY,
+		MI_MAR_OUT:             mInstMar,
+		MI_MAR_L_IN:            mInstMar,
+		MI_MAR_H_IN:            mInstMar,
+		MI_PC_IN:               mInstProgramCounterIn,
 	}
 )
 
@@ -79,6 +87,10 @@ func mInstInstructionRegisterIn(c *Comp, _ uint64, _ uint64) {
 
 func mInstOperandRegisterIn(c *Comp, _ uint64, _ uint64) {
 	c.operandRegister = c.dataBus
+}
+
+func mInstProgramCounterIn(c *Comp, _ uint64, _ uint64) {
+	c.programCounter = c.addrBus
 }
 
 func mInstProgramCounterOut(c *Comp, _ uint64, _ uint64) {
@@ -152,4 +164,18 @@ func mInstAlu(c *Comp, command uint64, mask uint64) {
 			c.dataBus = c.busX + c.busY
 		}
 	}
+}
+
+func mInstMar(c *Comp, command uint64, mask uint64) {
+	switch mask {
+	case MI_MAR_L_IN:
+		upper := c.memoryAddressRegister & 0xff00
+		c.memoryAddressRegister = upper | uint16(c.dataBus)
+	case MI_MAR_H_IN:
+		lower := c.memoryAddressRegister & 0x00ff
+		c.memoryAddressRegister = lower | (uint16(c.dataBus) << 8)
+	case MI_MAR_OUT:
+		c.addrBus = c.memoryAddressRegister
+	}
+
 }

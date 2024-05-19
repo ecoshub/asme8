@@ -54,6 +54,7 @@ func (c *Comp) run(command uint64) {
 func (c *Comp) Run() {
 	for {
 		command := control[c.instructionRegister][c.step]
+		c.run(command)
 		if c.debug {
 			if c.verbose {
 				fmt.Printf("# command: %024b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
@@ -61,13 +62,20 @@ func (c *Comp) Run() {
 				fmt.Printf("# step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.step, c.instructionRegister, c.operandRegister, c.registers)
 			}
 		}
-		c.run(command)
 		if c.step == 0 {
 			if c.debug {
 				fmt.Println(" --- ")
 			}
 		}
+		c.clearBusses()
 	}
+}
+
+func (c *Comp) clearBusses() {
+	c.dataBus = 0
+	c.busX = 0
+	c.busY = 0
+	c.addrBus = 0
 }
 
 func (c *Comp) SetDebug(val bool) {

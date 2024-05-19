@@ -20,18 +20,21 @@ var (
 			7: MI_BRK,
 		},
 		INST_MOV_INM_8: {
-			0: MI_FETCH,                                                        // fetch next instruction
-			1: MI_PC_OUT | MI_RAM_OUT | MI_OP_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
-			2: MI_PC_OUT | MI_RAM_OUT | MI_OPERAND_REG_1_IN | MI_PC_INC | MI_STEP_CLR,
+			0: MI_FETCH,                                                             // fetch next instruction
+			1: MI_PC_OUT | MI_RAM_OUT | MI_OPERAND_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
+			2: MI_PC_OUT | MI_RAM_OUT | MI_REG_OPERAND_1_IN | MI_PC_INC | MI_STEP_CLR,
 		},
 		INTS_MOV_REG_REG: {
-			0: MI_FETCH,                                                        // fetch next instruction
-			1: MI_PC_OUT | MI_RAM_OUT | MI_OP_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
-			2: MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_OUT | MI_OP_REG_1_OUT_Y | MI_OP_REG_2_IN | MI_STEP_CLR,
+			0: MI_FETCH,                                                             // fetch next instruction
+			1: MI_PC_OUT | MI_RAM_OUT | MI_OPERAND_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
+			2: MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_OUT | MI_REG_OPERAND_1_OUT_Y | MI_REG_OPERAND_2_IN | MI_STEP_CLR,
 		},
 		INST_ADD_RR: {
-			0: MI_FETCH,                                                        // fetch next instruction
-			1: MI_PC_OUT | MI_RAM_OUT | MI_OP_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
+			0: MI_FETCH,                                                             // fetch next instruction
+			1: MI_PC_OUT | MI_RAM_OUT | MI_OPERAND_REG_IN | MI_PC_INC | MI_STEP_INC, // load operation register
+			2: MI_REG_OPERAND_1_OUT_X | MI_REG_OPERAND_2_OUT_Y | MI_ALU_ENABLE | MI_ALU_ADD | MI_REG_OPERAND_1_IN | MI_STEP_CLR,
 		},
 	}
 )
+
+// reg8_2 OUT_X | reg8_ALU_1_OUT_Y | ALU_OPEN | ALU_ENABLE | ALU_ADD | reg8_1 IN | PC_INC

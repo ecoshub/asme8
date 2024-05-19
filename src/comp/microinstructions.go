@@ -9,23 +9,33 @@ const (
 	// NOTE ORDER IS IMPORTANT!
 	// *_OUT microinstructions must lesser mask than *_IN microinstructions
 	MI_BRK uint64 = 1 << iota
+
+	// OUT SECTION
 	MI_PC_OUT
 	MI_RAM_OUT
-	MI_OPERAND_REG_1_OUT_X
-	MI_OP_REG_1_OUT_Y
-	MI_OPERAND_REG_2_OUT_X
-	MI_OPERAND_REG_2_OUT_Y
+	MI_REG_OPERAND_1_OUT_X
+	MI_REG_OPERAND_1_OUT_Y
+	MI_REG_OPERAND_2_OUT_X
+	MI_REG_OPERAND_2_OUT_Y
 	MI_MDR_OUT
 	MI_ONES_OUT_X
 	MI_ONES_OUT_Y
+
+	// FLAG SECTION
 	MI_BRIDGE_ENABLE
 	MI_BRIDGE_DIR_OUT
 	MI_BRIDGE_DIR_IN
+	MI_ALU_ENABLE
+	MI_ALU_ADD
+
+	// IN SECTION
 	MI_INST_REG_IN
-	MI_OP_REG_IN
-	MI_OPERAND_REG_1_IN
-	MI_OP_REG_2_IN
+	MI_OPERAND_REG_IN
+	MI_REG_OPERAND_1_IN
+	MI_REG_OPERAND_2_IN
 	MI_MDR_IN
+
+	// OTHER SECTION
 	MI_PC_INC
 	MI_STEP_INC
 	MI_STEP_CLR
@@ -36,22 +46,24 @@ type runnerFunc func(c *Comp, command uint64, _ uint64)
 var (
 	microInstructions map[uint64]runnerFunc = map[uint64]runnerFunc{
 		MI_BRK:                 mInstBreak,
-		MI_BRIDGE_ENABLE:       nop,
-		MI_BRIDGE_DIR_IN:       nop,
-		MI_BRIDGE_DIR_OUT:      nop,
+		MI_BRIDGE_ENABLE:       mFlagInst,
+		MI_BRIDGE_DIR_IN:       mFlagInst,
+		MI_BRIDGE_DIR_OUT:      mFlagInst,
+		MI_ALU_ENABLE:          mFlagInst,
+		MI_ALU_ADD:             mInstAlu,
 		MI_PC_OUT:              mInstProgramCounterOut,
 		MI_RAM_OUT:             mInstRamOut,
 		MI_INST_REG_IN:         mInstInstructionRegisterIn,
-		MI_OP_REG_IN:           mInstOperandRegisterIn,
+		MI_OPERAND_REG_IN:      mInstOperandRegisterIn,
 		MI_PC_INC:              mInstProgramCounterIncrement,
 		MI_STEP_INC:            mInstStepIncrement,
 		MI_STEP_CLR:            mInstStepClear,
-		MI_OPERAND_REG_1_IN:    mInstReg1In,
-		MI_OP_REG_2_IN:         mInstReg2In,
-		MI_OPERAND_REG_1_OUT_X: mInstReg1OutX,
-		MI_OP_REG_1_OUT_Y:      mInstReg1OutY,
-		MI_OPERAND_REG_2_OUT_X: mInstReg2OutX,
-		MI_OPERAND_REG_2_OUT_Y: mInstReg2OutY,
+		MI_REG_OPERAND_1_IN:    mInstReg1In,
+		MI_REG_OPERAND_2_IN:    mInstReg2In,
+		MI_REG_OPERAND_1_OUT_X: mInstReg1OutX,
+		MI_REG_OPERAND_1_OUT_Y: mInstReg1OutY,
+		MI_REG_OPERAND_2_OUT_X: mInstReg2OutX,
+		MI_REG_OPERAND_2_OUT_Y: mInstReg2OutY,
 		MI_MDR_IN:              mInstMdrIn,
 		MI_MDR_OUT:             mInstMdrOut,
 		MI_ONES_OUT_X:          mInstOnesOutX,
@@ -59,7 +71,7 @@ var (
 	}
 )
 
-func nop(_ *Comp, _ uint64, _ uint64) {}
+func mFlagInst(_ *Comp, _ uint64, _ uint64) {}
 
 func mInstInstructionRegisterIn(c *Comp, _ uint64, _ uint64) {
 	c.instructionRegister = c.dataBus
@@ -132,4 +144,12 @@ func mInstOnesOutX(c *Comp, _ uint64, _ uint64) {
 
 func mInstOnesOutY(c *Comp, command uint64, _ uint64) {
 	c.PutToBusY(1, command)
+}
+
+func mInstAlu(c *Comp, command uint64, mask uint64) {
+	if command&MI_ALU_ENABLE > 0 {
+		if mask == MI_ALU_ADD {
+			c.dataBus = c.busX + c.busY
+		}
+	}
 }

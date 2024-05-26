@@ -1,4 +1,6 @@
-package comp
+package instruction
+
+type Type = uint8
 
 const (
 	INST_BREAK       byte = 0x00

@@ -1,0 +1,72 @@
+#  section .data
+#  '\t' -> variable_name -> ['db','dw','dd','dq']	 -> positive_integer(hex octal decimal)
+# 												 -> string
+# 												 -> string or/and comma sep char
+# 												 -> string or/and comma sep char or/and integer(hex octal decimal)
+# '\t' -> constant_name -> "equ" -> positive_integer(hex octal decimal)
+# 
+# section .bss
+# '\t' -> variable_name -> ['resb','resw','resd','resq'] -> positive_integer(hex octal decimal)
+
+$symbol_begin: {$_alpha_} + '_.'
+$symbol: {$_alpha_} + '_.'
+
+
+@_section_: [_start_ > 's' > . > 'e' > . > 'c' > . > 't' >  . > 'i' >  . > 'o' >  . > 'n' > _end_ ]
+@_section_data_: [_start_ > 'd' > . > 'a' > . > 't' > . > 'a' > _end_ ]
+@_section_bss_: [_start_ > 'b' > . > 's' > . > 's' > _end_ ]
+@_section_text_: [_start_ > 't' > . > 'e' > . > 'x' > . > 't' > _end_ ]
+@_global_: [_start_ > 'g' > . > 'l' > . > 'o' > . > 'b' > . > 'a' > . > 'l' > _end_ ]
+
+@_tab_: [
+	_start_ > ' ' > . > ' ' > . > ' ' > . > ' ' > _end_
+]
+
+@_comment_: [
+	_start_ > ';' > comment_start > . > comment_start,
+	comment_start > '\n' > _end_
+]
+
+@_text_section_: [
+	_start_ > '\n' > _start_,
+	_start_ > * > {@_tab_} > * > code_start > . > code > . > code > '\n' > code_end,
+	_start_ > * > {@_comment_} > * > _start_,
+	code_start > * > {@_comment_} > * > code_end,
+	code_end > * > _start_,
+	code_end > * > _end_,
+	_start_ > * > _end_
+]
+
+@_main_: [
+	
+	_start_ > '\n' > _start_,
+
+	_start_ > * > {@_section_} > ' ' > section_type_wait > '.' > section_type_start,
+	section_type_start > * > {@_section_data_} > * > {@_text_section_} > * > _start_,
+	section_type_start > * > {@_section_bss_}  > * > {@_text_section_} > * > _start_,
+	section_type_start > * > {@_section_text_} > * > {@_text_section_} > * > _start_,
+
+	_start_ > * > _end_
+]
+
+
+#	_start_ > '\n' > _start_,
+#	_start_ > ' ' > _start_,
+#	_start_ > * > {@_section_} > ' ' > . > '.' > section_type_start > * > _start_,
+#	section_type_start > * > {@_section_data_} > * > data_section_start,
+#	section_type_start > * > {@_section_bss_} > * > bss_section_start,
+#	section_type_start > * > {@_section_text_} > * > text_section_start,
+#	data_section_start > * > {@_comment_} > * > _start_,
+#	bss_section_start > * > {@_comment_} > * > _start_,
+#	_start_ > * > {@_tab_} > * > code_start,
+#	data_section_start > '\n' > _start_,
+#	bss_section_start > '\n' > _start_,
+#	_start_ > ';' > comment_1 > * > comment_1 > '\n' > _start_,
+#	global_name_start > {$symbol_begin} > global_name > {$symbol} > global_name,
+#	global_name > '\n' > global_name_end > '\n' > text_started,
+#	text_started > '\n' > text_started,
+#	text_started > ' ' > text_started,
+#	text_started > {$symbol_begin} > label_start > {$symbol} > label_start > ':' > label_end > '\n' > text_started,
+#	text_started > * > code_start > . > code > . > code > '\n' > code_end > * > _start_,
+#	text_started > * > {@_comment_},
+#	_start_ > * > _end_

@@ -25,8 +25,8 @@ var (
 		},
 		instruction.INST_JMP_INM: {
 			0: MI_CMD_FETCH_INST, // fetch next instruction
-			1: MI_PC_OUT | MI_RAM_OUT | MI_MAR_H_IN | MI_PC_INC | MI_STEP_INC,
-			2: MI_PC_OUT | MI_RAM_OUT | MI_MAR_L_IN | MI_PC_INC | MI_STEP_INC,
+			1: MI_PC_OUT | MI_RAM_OUT | MI_MAR_L_IN | MI_PC_INC | MI_STEP_INC,
+			2: MI_PC_OUT | MI_RAM_OUT | MI_MAR_H_IN | MI_PC_INC | MI_STEP_INC,
 			3: MI_MAR_OUT | MI_PC_IN | MI_STEP_CLR,
 		},
 		instruction.INST_MOV_INM_8: {

@@ -1,8 +1,0 @@
-@_main_: [
-    _start_ > '\n' > _start_,
-    _start_ > {$_alpha_} > mnemonic > {$_alpha_} > mnemonic > ' ' > mnemonic_end,
-    mnemonic_end > . > op_1 > . > op_1,
-    op_1 > '\n' > op_1_end > * > line_end > * > _start_,
-    op_1 > ',' > op_1_end > ' ' > op_2_start > . > op_2 > . > op_2 > '\n' > line_end > * > _start_,
-    _start_ > * > _end_
-]

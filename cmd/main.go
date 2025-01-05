@@ -2,13 +2,34 @@ package main
 
 import (
 	"emu/src/comp"
+	"flag"
+	"fmt"
+	"os"
+)
+
+var (
+	flagFileBin = flag.String("file-bin", "", "bin file of program")
 )
 
 func main() {
+	flag.Parse()
+
 	c := comp.New()
 	program := playGroundJump()
+	if *flagFileBin != "" {
+		var err error
+		program, err = os.ReadFile(*flagFileBin)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	fmt.Println(program)
+
 	c.SetDebug(true)
 	c.SetVerbose(true)
+	c.SetDelayMS(200)
 	c.Put(0, program)
 	c.Run()
 }
@@ -22,7 +43,7 @@ func playGroundJump() []byte {
 		// add a, b
 		0x30, 0x10,
 		// jmp #6
-		0x10, 0x00, 0x06,
+		0x10, 0x06, 0x00,
 	}
 }
 

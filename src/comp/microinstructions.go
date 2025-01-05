@@ -3,10 +3,10 @@ package comp
 const (
 	// NOTE ORDER IS IMPORTANT!
 	// *_OUT microinstructions must lesser mask than *_IN microinstructions
-	MI_BRK uint64 = 1 << iota
+	MI_BRK = 0
 
 	// OUT SECTION
-	MI_PC_OUT
+	MI_PC_OUT uint64 = 1 << iota
 	MI_RAM_OUT
 	MI_REG_OPERAND_1_OUT_X
 	MI_REG_OPERAND_1_OUT_Y

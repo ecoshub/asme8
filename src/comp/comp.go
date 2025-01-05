@@ -4,6 +4,7 @@ import (
 	"emu/src/mem"
 	"emu/src/register"
 	"fmt"
+	"time"
 )
 
 const (
@@ -29,6 +30,7 @@ type Comp struct {
 
 	debug   bool
 	verbose bool
+	delayMS int64
 }
 
 func New() *Comp {
@@ -52,8 +54,13 @@ func (c *Comp) run(command uint64) {
 }
 
 func (c *Comp) Run() {
-	for {
+	t := time.NewTicker(time.Duration(c.delayMS) * time.Millisecond)
+	for range t.C {
 		command := control[c.instructionRegister][c.step]
+		if command == MI_BRK {
+			fmt.Println(" ** BREAK ** ")
+			break
+		}
 		c.run(command)
 		if c.debug {
 			if c.verbose {
@@ -82,6 +89,10 @@ func (c *Comp) SetDebug(val bool) {
 
 func (c *Comp) SetVerbose(val bool) {
 	c.verbose = val
+}
+
+func (c *Comp) SetDelayMS(val int64) {
+	c.delayMS = val
 }
 
 func (c *Comp) PrintRegisters() {

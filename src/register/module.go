@@ -4,9 +4,9 @@ import "fmt"
 
 const (
 	RegA int = iota
-	RegB int = iota
-	RegC int = iota
-	RegD int = iota
+	RegB
+	RegC
+	RegD
 )
 
 type Module []byte

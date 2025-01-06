@@ -71,7 +71,7 @@ func (c *Comp) Run() {
 			if c.verbose {
 				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
 			}
-			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers)
+			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s, status: %08b\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers, c.status.Flag())
 		}
 		c.run(command)
 		c.clearBusses()

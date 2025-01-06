@@ -37,11 +37,13 @@ func mInstStatusControl(c *Comp, command, mask uint64) {
 		statusMask = status.STATUS_FLAG_ZERO
 	}
 	if c.status.IsSet(statusMask) {
+		fmt.Println(" > jump for condition")
 		return
 	}
 	mInstProgramCounterInc(c, command, mask)
 	mInstProgramCounterInc(c, command, mask)
 	mInstStepClr(c, command, mask)
+	fmt.Println(" > no jump")
 }
 
 func setFlags(status *status.StatusRegister, result uint16) {

@@ -61,5 +61,10 @@ var (
 			1: MI_CMD_FETCH_OPERAND, // load operation register
 			2: MI_REG_OPERAND_1_OUT_X | MI_REG_OPERAND_2_OUT_Y | MI_ALU_ENABLE | MI_ALU_CMP | MI_STEP_CLR,
 		},
+		instruction.INST_CMP_INM: {
+			0: MI_CMD_FETCH_INST,    // fetch next instruction
+			1: MI_CMD_FETCH_OPERAND, // load operation register
+			2: MI_PC_OUT | MI_RAM_OUT | MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_IN | MI_REG_OPERAND_1_OUT_X | MI_ALU_ENABLE | MI_ALU_CMP | MI_PC_INC | MI_STEP_CLR,
+		},
 	}
 )

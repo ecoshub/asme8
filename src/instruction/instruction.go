@@ -11,4 +11,5 @@ const (
 	INST_ADD_RR      byte = 0x30
 	INST_SUB_RR      byte = 0x35
 	INST_CMP_RR      byte = 0x3a
+	INST_CMP_INM     byte = 0x3b
 )

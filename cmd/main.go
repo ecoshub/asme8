@@ -29,7 +29,7 @@ func main() {
 
 	c.SetDebug(true)
 	c.SetVerbose(true)
-	c.SetDelayMS(200)
+	c.SetDelayMS(100)
 	c.Put(0, program)
 	c.Run()
 }

@@ -3,6 +3,7 @@ package comp
 import (
 	"emu/src/mem"
 	"emu/src/register"
+	"emu/src/status"
 	"fmt"
 	"time"
 )
@@ -14,6 +15,7 @@ const (
 type Comp struct {
 	registers register.Module
 	ram       mem.Mem
+	status    *status.StatusRegister
 	step      uint8
 
 	instructionRegister uint8
@@ -36,6 +38,7 @@ type Comp struct {
 func New() *Comp {
 	return &Comp{
 		registers: register.NewModule(),
+		status:    status.NewStatusRegister(),
 		ram:       mem.New(DefaultMemorySize),
 	}
 }
@@ -61,16 +64,16 @@ func (c *Comp) Run() {
 			fmt.Println(" ** BREAK ** ")
 			break
 		}
-		c.run(command)
 		if c.debug {
-			if c.verbose {
-				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
-			}
-			fmt.Printf("# step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.step, c.instructionRegister, c.operandRegister, c.registers)
 			if c.step == 0 {
 				fmt.Println(" --- ")
 			}
+			if c.verbose {
+				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
+			}
+			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers)
 		}
+		c.run(command)
 		c.clearBusses()
 	}
 }

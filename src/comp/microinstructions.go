@@ -23,6 +23,8 @@ const (
 	MI_BRIDGE_DIR_IN
 	MI_ALU_ENABLE
 	MI_ALU_ADD
+	MI_ALU_SUB
+	MI_ALU_CMP
 
 	// IN SECTION
 	MI_INST_REG_IN
@@ -38,6 +40,9 @@ const (
 	MI_PC_INC
 	MI_STEP_INC
 	MI_STEP_CLR
+
+	// STATUS SECTION
+	MI_JMP_CTRL
 )
 
 type runnerFunc func(c *Comp, command uint64, _ uint64)
@@ -50,6 +55,9 @@ var (
 		MI_BRIDGE_DIR_OUT:      mFlagInst,
 		MI_ALU_ENABLE:          mFlagInst,
 		MI_ALU_ADD:             mInstAluAdd,
+		MI_ALU_SUB:             mInstAluSub,
+		MI_ALU_CMP:             mInstAluCmp,
+		MI_JMP_CTRL:            mInstStatusControl,
 		MI_PC_OUT:              mInstProgramCounterOut,
 		MI_RAM_OUT:             mInstRamOut,
 		MI_INST_REG_IN:         mInstInstructionRegisterIn,

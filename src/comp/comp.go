@@ -1,6 +1,7 @@
 package comp
 
 import (
+	"emu/src/instruction"
 	"emu/src/mem"
 	"emu/src/register"
 	"emu/src/status"
@@ -18,7 +19,7 @@ type Comp struct {
 	status    *status.StatusRegister
 	step      uint8
 
-	instructionRegister uint8
+	instructionRegister instruction.Type
 	operandRegister     uint8
 
 	programCounter        uint16
@@ -32,7 +33,7 @@ type Comp struct {
 
 	debug   bool
 	verbose bool
-	delayMS int64
+	delay   time.Duration
 }
 
 func New() *Comp {
@@ -57,7 +58,7 @@ func (c *Comp) run(command uint64) {
 }
 
 func (c *Comp) Run() {
-	t := time.NewTicker(time.Duration(c.delayMS) * time.Millisecond)
+	t := time.NewTicker(c.delay)
 	for range t.C {
 		command := control[c.instructionRegister][c.step]
 		if command == MI_BRK {
@@ -94,8 +95,8 @@ func (c *Comp) SetVerbose(val bool) {
 	c.verbose = val
 }
 
-func (c *Comp) SetDelayMS(val int64) {
-	c.delayMS = val
+func (c *Comp) SetDelayMS(delay time.Duration) {
+	c.delay = delay
 }
 
 func (c *Comp) PrintRegisters() {

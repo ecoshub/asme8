@@ -1,7 +1,9 @@
 package comp
 
+import "emu/src/instruction"
+
 func mInstInstructionRegisterIn(c *Comp, _ uint64, _ uint64) {
-	c.instructionRegister = c.dataBus
+	c.instructionRegister = instruction.Type(c.dataBus)
 }
 
 func mInstOperandRegisterIn(c *Comp, _ uint64, _ uint64) {

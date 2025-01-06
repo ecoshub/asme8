@@ -37,13 +37,17 @@ func mInstStatusControl(c *Comp, command, mask uint64) {
 		statusMask = status.STATUS_FLAG_ZERO
 	}
 	if c.status.IsSet(statusMask) {
-		fmt.Println(" > jump for condition")
+		if c.debug {
+			fmt.Println(" > jump for condition")
+		}
 		return
 	}
 	mInstProgramCounterInc(c, command, mask)
 	mInstProgramCounterInc(c, command, mask)
 	mInstStepClr(c, command, mask)
-	fmt.Println(" > no jump")
+	if c.debug {
+		fmt.Println(" > no jump")
+	}
 }
 
 func setFlags(status *status.StatusRegister, result uint16) {
@@ -73,6 +77,4 @@ func setFlags(status *status.StatusRegister, result uint16) {
 	if result&1 == 0 {
 		status.SetParityFlag()
 	}
-
-	fmt.Printf("flags: %08b\n", status.Flag())
 }

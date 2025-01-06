@@ -5,10 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 var (
 	flagFileBin = flag.String("file-bin", "", "bin file of program")
+	flagDebug   = flag.Bool("debug", false, "enable debug mode")
+	flagVerbose = flag.Bool("verbose", false, "enable verbosity")
+	flagDelay   = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 )
 
 func main() {
@@ -21,14 +25,14 @@ func main() {
 
 	program, err := os.ReadFile(*flagFileBin)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("executable read error", err)
 		return
 	}
 
 	c := comp.New()
-	c.SetDebug(true)
-	c.SetVerbose(true)
-	c.SetDelayMS(100)
+	c.SetDebug(*flagDebug)
+	c.SetVerbose(*flagVerbose)
+	c.SetDelayMS(*flagDelay)
 	c.Put(0, program)
 	c.Run()
 }

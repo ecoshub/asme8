@@ -33,6 +33,6 @@ func main() {
 	c.SetDebug(*flagDebug)
 	c.SetVerbose(*flagVerbose)
 	c.SetDelayMS(*flagDelay)
-	c.Put(0, program)
+	c.Load(0, program)
 	c.Run()
 }

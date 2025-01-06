@@ -15,7 +15,7 @@ const (
 
 type Comp struct {
 	registers register.Module
-	ram       mem.Mem
+	ram       *mem.Mem
 	status    *status.StatusRegister
 	step      uint8
 
@@ -44,8 +44,28 @@ func New() *Comp {
 	}
 }
 
-func (c *Comp) Put(offset int, program []uint8) {
-	copy(c.ram[offset:offset+len(program)], program[:])
+func (c *Comp) Load(offset int, program []uint8) {
+	c.ram.Load(offset, program)
+}
+
+func (c *Comp) SetDebug(val bool) {
+	c.debug = val
+}
+
+func (c *Comp) SetVerbose(val bool) {
+	c.verbose = val
+}
+
+func (c *Comp) SetDelayMS(delay time.Duration) {
+	c.delay = delay
+}
+
+func (c *Comp) PrintRegisters() {
+	fmt.Println(c.registers)
+}
+
+func (c *Comp) PrintBusses() {
+	fmt.Printf("busses, data: %x, x: %x, y:%x\n", c.dataBus, c.busX, c.busY)
 }
 
 func (c *Comp) run(command uint64) {
@@ -79,30 +99,9 @@ func (c *Comp) Run() {
 	}
 }
 
-// I am not a fun of that...
 func (c *Comp) clearBusses() {
 	c.dataBus = 0
 	c.busX = 0
 	c.busY = 0
 	c.addrBus = 0
-}
-
-func (c *Comp) SetDebug(val bool) {
-	c.debug = val
-}
-
-func (c *Comp) SetVerbose(val bool) {
-	c.verbose = val
-}
-
-func (c *Comp) SetDelayMS(delay time.Duration) {
-	c.delay = delay
-}
-
-func (c *Comp) PrintRegisters() {
-	fmt.Println(c.registers)
-}
-
-func (c *Comp) PrintBusses() {
-	fmt.Printf("busses, data: %x, x: %x, y:%x\n", c.dataBus, c.busX, c.busY)
 }

@@ -16,6 +16,16 @@ var (
 )
 
 func main() {
+
+	// peripheral.TerminalClear()
+	// peripheral.TerminalCharOut(5, 20, '<')
+	// peripheral.TerminalCharErase(5, 20)
+	// peripheral.ListenKeys(func(e keyboard.KeyEvent) {
+	// 	fmt.Println(e.Err, e.Key, string(e.Rune))
+	// })
+	// fmt.Println()
+	// select {}
+
 	flag.Parse()
 
 	if *flagFileBin == "" {

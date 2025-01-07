@@ -46,6 +46,20 @@ var (
 			1: MI_CMD_FETCH_OPERAND, // load operation register
 			2: MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_OUT | MI_REG_OPERAND_2_OUT_Y | MI_REG_OPERAND_1_IN | MI_STEP_CLR,
 		},
+		instruction.INST_MOV_MEM_REG: {
+			0: MI_CMD_FETCH_INST,    // fetch next instruction
+			1: MI_CMD_FETCH_OPERAND, // load operation register
+			2: MI_PC_OUT | MI_RAM_OUT | MI_MAR_L_IN | MI_PC_INC | MI_STEP_INC,
+			3: MI_PC_OUT | MI_RAM_OUT | MI_MAR_H_IN | MI_PC_INC | MI_STEP_INC,
+			4: MI_MAR_OUT | MI_RAM_OUT | MI_REG_OPERAND_1_IN | MI_STEP_CLR,
+		},
+		instruction.INST_MOV_REG_MEM: {
+			0: MI_CMD_FETCH_INST,    // fetch next instruction
+			1: MI_CMD_FETCH_OPERAND, // load operation register
+			2: MI_PC_OUT | MI_RAM_OUT | MI_MAR_L_IN | MI_PC_INC | MI_STEP_INC,
+			3: MI_PC_OUT | MI_RAM_OUT | MI_MAR_H_IN | MI_PC_INC | MI_STEP_INC,
+			4: MI_REG_OPERAND_1_OUT_Y | MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_OUT | MI_MAR_OUT | MI_RAM_IN | MI_STEP_CLR,
+		},
 		instruction.INST_ADD_RR: {
 			0: MI_CMD_FETCH_INST,    // fetch next instruction
 			1: MI_CMD_FETCH_OPERAND, // load operation register

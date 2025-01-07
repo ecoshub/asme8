@@ -81,10 +81,6 @@ func (c *Comp) Run() {
 	t := time.NewTicker(c.delay)
 	for range t.C {
 		command := control[c.instructionRegister][c.step]
-		if command == MI_BRK {
-			fmt.Println(" ** BREAK ** ")
-			break
-		}
 		if c.debug {
 			if c.step == 0 {
 				fmt.Println(" --- ")
@@ -93,6 +89,10 @@ func (c *Comp) Run() {
 				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
 			}
 			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s, status: %08b\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers, c.status.Flag())
+		}
+		if command == MI_BRK {
+			fmt.Println(" ** BREAK ** ")
+			break
 		}
 		c.run(command)
 		c.clearBusses()

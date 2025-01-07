@@ -7,15 +7,15 @@ const (
 
 	// OUT SECTION
 	MI_PC_OUT uint64 = 1 << iota
+	MI_MAR_OUT
+	MI_MDR_OUT
 	MI_RAM_OUT
 	MI_REG_OPERAND_1_OUT_X
 	MI_REG_OPERAND_1_OUT_Y
 	MI_REG_OPERAND_2_OUT_X
 	MI_REG_OPERAND_2_OUT_Y
-	MI_MDR_OUT
 	MI_ONES_OUT_X
 	MI_ONES_OUT_Y
-	MI_MAR_OUT
 
 	// FLAG SECTION
 	MI_BRIDGE_ENABLE
@@ -36,6 +36,7 @@ const (
 	MI_MAR_H_IN
 
 	// OTHER SECTION
+	MI_RAM_IN
 	MI_PC_IN
 	MI_PC_INC
 	MI_STEP_INC
@@ -60,6 +61,7 @@ var (
 		MI_JMP_CTRL:            mInstStatusControl,
 		MI_PC_OUT:              mInstProgramCounterOut,
 		MI_RAM_OUT:             mInstRamOut,
+		MI_RAM_IN:              mInstRamIn,
 		MI_INST_REG_IN:         mInstInstructionRegisterIn,
 		MI_OPERAND_REG_IN:      mInstOperandRegisterIn,
 		MI_PC_INC:              mInstProgramCounterInc,

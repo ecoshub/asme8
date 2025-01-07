@@ -12,5 +12,7 @@ const (
 	INST_CMP_INM     Type = 0x3b
 	INTS_MOV_REG_REG Type = 0x40
 	INST_MOV_INM_8   Type = 0x41
+	INST_MOV_MEM_REG Type = 0x42
+	INST_MOV_REG_MEM Type = 0x43
 	INST_NOP         Type = 0xff
 )

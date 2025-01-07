@@ -37,11 +37,13 @@ type Comp struct {
 }
 
 func New() *Comp {
-	return &Comp{
+	c := &Comp{
 		registers: register.NewModule(),
 		status:    status.NewStatusRegister(),
 		ram:       mem.New(DefaultMemorySize),
 	}
+	ConfigureBIOS(c)
+	return c
 }
 
 func (c *Comp) Load(offset int, program []uint8) {
@@ -50,6 +52,7 @@ func (c *Comp) Load(offset int, program []uint8) {
 
 func (c *Comp) SetDebug(val bool) {
 	c.debug = val
+	c.ram.SetDebug(val)
 }
 
 func (c *Comp) SetVerbose(val bool) {
@@ -91,7 +94,9 @@ func (c *Comp) Run() {
 			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s, status: %08b\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers, c.status.Flag())
 		}
 		if command == MI_BRK {
-			fmt.Println(" ** BREAK ** ")
+			if c.debug {
+				fmt.Println(" ** BREAK ** ")
+			}
 			break
 		}
 		c.run(command)

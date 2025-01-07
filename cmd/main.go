@@ -2,6 +2,7 @@ package main
 
 import (
 	"emu/src/comp"
+	"emu/src/peripheral"
 	"flag"
 	"fmt"
 	"os"
@@ -16,17 +17,12 @@ var (
 )
 
 func main() {
-
-	// peripheral.TerminalClear()
-	// peripheral.TerminalCharOut(5, 20, '<')
-	// peripheral.TerminalCharErase(5, 20)
-	// peripheral.ListenKeys(func(e keyboard.KeyEvent) {
-	// 	fmt.Println(e.Err, e.Key, string(e.Rune))
-	// })
-	// fmt.Println()
-	// select {}
-
 	flag.Parse()
+
+	if !*flagDebug {
+		peripheral.TerminalClear()
+		peripheral.TerminalGoToFirstBlock()
+	}
 
 	if *flagFileBin == "" {
 		fmt.Println("error no input file. please provide a executable (bin)")

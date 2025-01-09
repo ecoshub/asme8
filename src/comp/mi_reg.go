@@ -1,33 +1,33 @@
 package comp
 
 func mInstReg1In(c *Comp, _ uint64, _ uint64) {
-	c.registers.Write(c.operandRegister&0xf, c.dataBus)
+	c.registers.Write(c.operandRegister&0xf, uint8(c.dataBus.Read()))
 }
 
 func mInstReg2In(c *Comp, _ uint64, _ uint64) {
-	c.registers.Write((c.operandRegister&0xf0)>>4, c.dataBus)
+	c.registers.Write((c.operandRegister&0xf0)>>4, uint8(c.dataBus.Read()))
 }
 
 func mInstReg1OutX(c *Comp, _ uint64, _ uint64) {
-	c.busX = c.registers.Read(c.operandRegister & 0xf)
+	c.busX.Write(uint16(c.registers.Read(c.operandRegister & 0xf)))
 }
 
-func mInstReg1OutY(c *Comp, command uint64, _ uint64) {
-	c.PutToBusY(c.registers.Read(c.operandRegister&0xf), command)
+func mInstReg1OutData(c *Comp, command uint64, _ uint64) {
+	c.dataBus.Write(uint16(c.registers.Read(c.operandRegister & 0xf)))
 }
 
 func mInstReg2OutX(c *Comp, _ uint64, _ uint64) {
-	c.busX = c.registers.Read((c.operandRegister & 0xf0) >> 4)
+	c.busX.Write(uint16(c.registers.Read((c.operandRegister & 0xf0) >> 4)))
 }
 
-func mInstReg2OutY(c *Comp, command uint64, _ uint64) {
-	c.PutToBusY(c.registers.Read((c.operandRegister&0xf0)>>4), command)
+func mInstReg2OutData(c *Comp, command uint64, _ uint64) {
+	c.dataBus.Write(uint16(c.registers.Read((c.operandRegister & 0xf0) >> 4)))
 }
 
 func mInstOnesOutX(c *Comp, _ uint64, _ uint64) {
-	c.busX = 1
+	c.busX.Write(1)
 }
 
-func mInstOnesOutY(c *Comp, command uint64, _ uint64) {
-	c.PutToBusY(1, command)
+func mInstOnesOutData(c *Comp, command uint64, _ uint64) {
+	c.dataBus.Write(1)
 }

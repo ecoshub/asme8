@@ -1,8 +1,9 @@
 package comp
 
 import (
+	"emu/src/bus"
+	"emu/src/connectable"
 	"emu/src/instruction"
-	"emu/src/mem"
 	"emu/src/register"
 	"emu/src/status"
 	"fmt"
@@ -17,7 +18,6 @@ const (
 
 type Comp struct {
 	registers register.Module
-	ram       *mem.Mem
 	status    *status.StatusRegister
 	step      uint8
 
@@ -29,10 +29,11 @@ type Comp struct {
 	stackPointer          uint16
 	memoryDataRegister    uint8
 
-	busX    uint8
-	busY    uint8
-	dataBus uint8
-	addrBus uint16
+	busX    *bus.Bus
+	dataBus *bus.Bus
+	addrBus *bus.Bus
+	rw      uint8 // read 1 write 0
+	devices []connectable.Connectable
 
 	debug   bool
 	verbose bool
@@ -44,23 +45,21 @@ func New() *Comp {
 		registers:    register.NewModule(),
 		status:       status.NewStatusRegister(),
 		stackPointer: StackStart,
-		ram:          mem.New(DefaultMemorySize),
+		busX:         bus.New(),
+		dataBus:      bus.New(),
+		addrBus:      bus.New(),
+		devices:      make([]connectable.Connectable, 0, 1),
 	}
-	ConfigureBIOS(c)
+	// ConfigureBIOS(c)
 	return c
 }
 
-func (c *Comp) Load(offset int, program []uint8) {
-	c.ram.Load(offset, program)
+func (c *Comp) SetDebug(enable bool) {
+	c.debug = enable
 }
 
-func (c *Comp) SetDebug(val bool) {
-	c.debug = val
-	c.ram.SetDebug(val)
-}
-
-func (c *Comp) SetVerbose(val bool) {
-	c.verbose = val
+func (c *Comp) SetVerbose(enable bool) {
+	c.verbose = enable
 }
 
 func (c *Comp) SetDelayMS(delay time.Duration) {
@@ -72,7 +71,47 @@ func (c *Comp) PrintRegisters() {
 }
 
 func (c *Comp) PrintBusses() {
-	fmt.Printf("busses, data: %x, x: %x, y:%x\n", c.dataBus, c.busX, c.busY)
+	fmt.Printf("busses, data: %x, x: %x\n", c.dataBus.Read(), c.busX.Read())
+}
+
+func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, rangeEnd uint16) {
+	if dev == nil {
+		return
+	}
+	dev.Attach(c.addrBus, c.dataBus, rangeStart, rangeEnd)
+	c.devices = append(c.devices, dev)
+}
+
+func (c *Comp) Run() {
+	t := time.NewTicker(c.delay)
+	for range t.C {
+		keep := c.tick()
+		if !keep {
+			return
+		}
+	}
+}
+
+func (c *Comp) tick() bool {
+	defer c.clearBusses()
+
+	command := control[c.instructionRegister][c.step]
+	if c.debug {
+		if c.step == 0 {
+			fmt.Println(" --- ")
+		}
+		if c.verbose {
+			fmt.Printf("# pc: %02x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, status: %08b, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.status.Flag(), c.registers)
+		}
+	}
+	if command == MI_BRK {
+		if c.debug {
+			fmt.Println(" ** BREAK ** ")
+		}
+		return false
+	}
+	c.run(command)
+	return true
 }
 
 func (c *Comp) run(command uint64) {
@@ -84,33 +123,14 @@ func (c *Comp) run(command uint64) {
 	}
 }
 
-func (c *Comp) Run() {
-	t := time.NewTicker(c.delay)
-	for range t.C {
-		command := control[c.instructionRegister][c.step]
-		if c.debug {
-			if c.step == 0 {
-				fmt.Println(" --- ")
-			}
-			if c.verbose {
-				fmt.Printf("# command: %028b, step: %d, r_inst: %02x, r_op:%02x, bus_a: %04x, bus_d: %02x, bus_x: %02x, bus_y: %02x, registers: %s\n", command, c.step, c.instructionRegister, c.operandRegister, c.addrBus, c.dataBus, c.busX, c.busY, c.registers)
-			}
-			fmt.Printf("# pc: %02x, step: %d, r_inst: %02x, r_op:%02x, registers: %s, status: %08b\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.registers, c.status.Flag())
-		}
-		if command == MI_BRK {
-			if c.debug {
-				fmt.Println(" ** BREAK ** ")
-			}
-			break
-		}
-		c.run(command)
-		c.clearBusses()
+func (c *Comp) tickDevices() {
+	for _, dev := range c.devices {
+		dev.Tick(c.rw)
 	}
 }
 
 func (c *Comp) clearBusses() {
-	c.dataBus = 0
-	c.busX = 0
-	c.busY = 0
-	c.addrBus = 0
+	c.dataBus.Clear()
+	c.busX.Clear()
+	c.addrBus.Clear()
 }

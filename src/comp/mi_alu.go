@@ -10,24 +10,23 @@ func mInstAluAdd(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	c.dataBus = c.busX + c.busY
-	setFlags(c.status, uint16(c.busX)+uint16(c.busY))
+	c.dataBus.Write(c.busX.Read() + c.dataBus.Read())
+	setFlags(c.status, c.busX.Read()+c.dataBus.Read())
 }
 
 func mInstAluSub(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	c.dataBus = c.busX - c.busY
-	setFlags(c.status, uint16(c.busX)-uint16(c.busY))
+	c.dataBus.Write(c.busX.Read() - c.dataBus.Read())
+	setFlags(c.status, c.busX.Read()-c.dataBus.Read())
 }
 
 func mInstAluCmp(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	// fmt.Println("c.busX, c.busY", c.busX, c.busY)
-	setFlags(c.status, uint16(c.busX)-uint16(c.busY))
+	setFlags(c.status, c.busX.Read()-c.dataBus.Read())
 }
 
 func mInstStatusControl(c *Comp, command, mask uint64) {

@@ -11,6 +11,8 @@ import (
 
 const (
 	DefaultMemorySize = 1 << 16
+
+	StackStart uint16 = 0x7fff
 )
 
 type Comp struct {
@@ -24,6 +26,7 @@ type Comp struct {
 
 	programCounter        uint16
 	memoryAddressRegister uint16
+	stackPointer          uint16
 	memoryDataRegister    uint8
 
 	busX    uint8
@@ -38,9 +41,10 @@ type Comp struct {
 
 func New() *Comp {
 	c := &Comp{
-		registers: register.NewModule(),
-		status:    status.NewStatusRegister(),
-		ram:       mem.New(DefaultMemorySize),
+		registers:    register.NewModule(),
+		status:       status.NewStatusRegister(),
+		stackPointer: StackStart,
+		ram:          mem.New(DefaultMemorySize),
 	}
 	ConfigureBIOS(c)
 	return c

@@ -3,10 +3,15 @@ package comp
 const (
 	// NOTE ORDER IS IMPORTANT!
 	// *_OUT microinstructions must lesser mask than *_IN microinstructions
+	// because those micro instructions run by sequence and must output instructions run before
+	// input ones
 	MI_BRK = 0
 
 	// OUT SECTION
 	MI_PC_OUT uint64 = 1 << iota
+	MI_SP_OUT
+	MI_SPL_OUT_X
+	MI_SPH_OUT_X
 	MI_MAR_OUT
 	MI_MDR_OUT
 	MI_RAM_OUT
@@ -34,11 +39,14 @@ const (
 	MI_MDR_IN
 	MI_MAR_L_IN
 	MI_MAR_H_IN
+	MI_SP_L_IN
+	MI_SP_H_IN
 
 	// OTHER SECTION
 	MI_RAM_IN
 	MI_PC_IN
 	MI_PC_INC
+	MI_SP_INC
 	MI_STEP_INC
 	MI_STEP_CLR
 
@@ -60,11 +68,15 @@ var (
 		MI_ALU_CMP:             mInstAluCmp,
 		MI_JMP_CTRL:            mInstStatusControl,
 		MI_PC_OUT:              mInstProgramCounterOut,
+		MI_SP_OUT:              mInstStackPointerOut,
+		MI_SPL_OUT_X:           mInstStackPointerLowOutX,
+		MI_SPH_OUT_X:           mInstStackPointerHighOutX,
 		MI_RAM_OUT:             mInstRamOut,
 		MI_RAM_IN:              mInstRamIn,
 		MI_INST_REG_IN:         mInstInstructionRegisterIn,
 		MI_OPERAND_REG_IN:      mInstOperandRegisterIn,
 		MI_PC_INC:              mInstProgramCounterInc,
+		MI_SP_INC:              mInstStackPointerInc,
 		MI_STEP_INC:            mInstStepInc,
 		MI_STEP_CLR:            mInstStepClr,
 		MI_REG_OPERAND_1_IN:    mInstReg1In,

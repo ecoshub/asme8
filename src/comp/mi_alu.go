@@ -6,6 +6,17 @@ import (
 	"fmt"
 )
 
+func mInstAluStore(c *Comp, command uint64, _ uint64) {
+	if command&MI_ALU_ENABLE <= 0 {
+		return
+	}
+	c.store = uint8(c.dataBus.Read())
+}
+
+func mInstAluOut(c *Comp, command uint64, _ uint64) {
+	c.dataBus.Write(uint16(c.store))
+}
+
 func mInstAluAdd(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return

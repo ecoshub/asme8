@@ -7,6 +7,7 @@ import (
 	"emu/src/register"
 	"emu/src/status"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -32,6 +33,7 @@ type Comp struct {
 	busX    *bus.Bus
 	dataBus *bus.Bus
 	addrBus *bus.Bus
+	store   uint8
 	rw      uint8 // read 1 write 0
 	devices []connectable.Connectable
 
@@ -105,9 +107,8 @@ func (c *Comp) tick() bool {
 		}
 	}
 	if command == MI_BRK {
-		if c.debug {
-			fmt.Println(" ** BREAK ** ")
-		}
+		fmt.Println(" # BREAK # ")
+		os.Exit(0)
 		return false
 	}
 	c.run(command)

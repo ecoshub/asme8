@@ -7,6 +7,7 @@ const (
 	INST_JMP_INM     Type = 0x10
 	INST_JZ_INM      Type = 0x15
 	INST_ADD_RR      Type = 0x30
+	INST_ADD_INM     Type = 0x31
 	INST_SUB_RR      Type = 0x35
 	INST_CMP_RR      Type = 0x3a
 	INST_CMP_INM     Type = 0x3b

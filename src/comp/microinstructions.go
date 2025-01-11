@@ -15,6 +15,7 @@ const (
 	MI_MAR_OUT
 	MI_MDR_OUT
 	MI_IO_READ
+	MI_ALU_OUT
 	MI_REG_OPERAND_1_OUT_X
 	MI_REG_OPERAND_1_OUT_DATA
 	MI_REG_OPERAND_2_OUT_X
@@ -27,6 +28,9 @@ const (
 	MI_ALU_ADD
 	MI_ALU_SUB
 	MI_ALU_CMP
+
+	// MUST BE LAST
+	MI_ALU_STORE
 
 	// IN SECTION
 	MI_IO_WRITE
@@ -57,6 +61,8 @@ var (
 	microInstructions map[uint64]runnerFunc = map[uint64]runnerFunc{
 		MI_BRK:                    mInstBreak,
 		MI_ALU_ENABLE:             mFlagInst,
+		MI_ALU_STORE:              mInstAluStore,
+		MI_ALU_OUT:                mInstAluOut,
 		MI_ALU_ADD:                mInstAluAdd,
 		MI_ALU_SUB:                mInstAluSub,
 		MI_ALU_CMP:                mInstAluCmp,

@@ -3,6 +3,7 @@ package main
 import (
 	"emu/src/comp"
 	"emu/src/peripheral"
+	"emu/src/ram"
 	"emu/src/rom"
 	"flag"
 	"fmt"
@@ -37,12 +38,16 @@ func main() {
 	}
 
 	rom := rom.New(0x8000)
-	rom.Load(program)
+	rom.Load(0, program)
+
+	ram := ram.New(0x8000)
 
 	c := comp.New()
 	c.ConnectDevice(rom, 0x0000, 0x8000)
+	c.ConnectDevice(ram, 0x8000, 0xffff)
 	c.SetDebug(*flagDebug)
 	c.SetVerbose(*flagVerbose)
 	c.SetDelayMS(*flagDelay)
 	c.Run()
+
 }

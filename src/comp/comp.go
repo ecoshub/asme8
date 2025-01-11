@@ -98,6 +98,7 @@ func (c *Comp) tick() bool {
 	defer c.clearBusses()
 
 	command := control[c.instructionRegister][c.step]
+	c.run(command)
 	if c.debug {
 		if c.step == 0 {
 			fmt.Println(" --- ")
@@ -111,7 +112,6 @@ func (c *Comp) tick() bool {
 		os.Exit(0)
 		return false
 	}
-	c.run(command)
 	return true
 }
 

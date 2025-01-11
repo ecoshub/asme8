@@ -5,7 +5,7 @@ func mInstProgramCounterIn(c *Comp, _ uint64, _ uint64) {
 }
 
 func mInstProgramCounterOut(c *Comp, _ uint64, _ uint64) {
-	c.addrBus.Write(c.programCounter)
+	c.addrBus.Write_16(c.programCounter)
 }
 
 func mInstProgramCounterInc(c *Comp, _ uint64, _ uint64) {

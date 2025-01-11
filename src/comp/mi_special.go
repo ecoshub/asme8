@@ -29,5 +29,5 @@ func mInstMarHighIn(c *Comp, _ uint64, _ uint64) {
 }
 
 func mInstMarOut(c *Comp, _ uint64, _ uint64) {
-	c.addrBus.Write(c.memoryAddressRegister)
+	c.addrBus.Write_16(c.memoryAddressRegister)
 }

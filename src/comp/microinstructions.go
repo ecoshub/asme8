@@ -26,6 +26,7 @@ const (
 	// FLAG SECTION
 	MI_ALU_ENABLE
 	MI_ALU_ADD
+	MI_ALU_ADC
 	MI_ALU_SUB
 	MI_ALU_CMP
 
@@ -64,6 +65,7 @@ var (
 		MI_ALU_STORE:              mInstAluStore,
 		MI_ALU_OUT:                mInstAluOut,
 		MI_ALU_ADD:                mInstAluAdd,
+		MI_ALU_ADC:                mInstAluAdc,
 		MI_ALU_SUB:                mInstAluSub,
 		MI_ALU_CMP:                mInstAluCmp,
 		MI_JMP_CTRL:               mInstStatusControl,

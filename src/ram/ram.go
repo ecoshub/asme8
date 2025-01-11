@@ -25,7 +25,7 @@ func New(size uint16) *Ram {
 }
 
 func (r *Ram) Load(offset int, data []byte) {
-	copy(r.data[offset:len(data)], data[:])
+	copy(r.data[offset:offset+len(data)], data[:])
 }
 
 func (r *Ram) Attach(addrBus, dataBus *bus.Bus, rangeStart, rangeEnd uint16) {
@@ -51,7 +51,7 @@ func (r *Ram) ReadRequest() {
 		return
 	}
 	addr := val - r.rangeStart
-	r.dataBus.Write(uint16(r.data[addr]))
+	r.dataBus.Write_8(r.data[addr])
 }
 
 func (r *Ram) WriteRequest() {

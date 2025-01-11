@@ -9,25 +9,25 @@ func mInstReg2In(c *Comp, _ uint64, _ uint64) {
 }
 
 func mInstReg1OutX(c *Comp, _ uint64, _ uint64) {
-	c.busX.Write(uint16(c.registers.Read(c.operandRegister & 0xf)))
+	c.busX.Write_8(c.registers.Read(c.operandRegister & 0xf))
 }
 
 func mInstReg1OutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write(uint16(c.registers.Read(c.operandRegister & 0xf)))
+	c.dataBus.Write_8(c.registers.Read(c.operandRegister & 0xf))
 }
 
 func mInstReg2OutX(c *Comp, _ uint64, _ uint64) {
-	c.busX.Write(uint16(c.registers.Read((c.operandRegister & 0xf0) >> 4)))
+	c.busX.Write_8(c.registers.Read((c.operandRegister & 0xf0) >> 4))
 }
 
 func mInstReg2OutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write(uint16(c.registers.Read((c.operandRegister & 0xf0) >> 4)))
+	c.dataBus.Write_8(c.registers.Read((c.operandRegister & 0xf0) >> 4))
 }
 
 func mInstOnesOutX(c *Comp, _ uint64, _ uint64) {
-	c.busX.Write(1)
+	c.busX.Write_8(1)
 }
 
 func mInstOnesOutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write(1)
+	c.dataBus.Write_8(1)
 }

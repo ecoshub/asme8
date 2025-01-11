@@ -16,10 +16,11 @@ import (
 )
 
 var (
-	flagFileBin = flag.String("file-bin", "", "bin file of program")
-	flagDebug   = flag.Bool("debug", false, "enable debug mode")
-	flagVerbose = flag.Bool("verbose", false, "enable verbosity")
-	flagDelay   = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
+	flagFileBin     = flag.String("file-bin", "", "bin file of program")
+	flagDebug       = flag.Bool("debug", false, "enable debug mode")
+	flagVerbose     = flag.Bool("verbose", false, "enable verbosity")
+	flagDelay       = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
+	flagEnableVideo = flag.Bool("enable-video", false, "enable video output")
 )
 
 func main() {
@@ -45,6 +46,7 @@ func main() {
 	rom.Load(0, program)
 
 	ram := ram.New(0x8000)
+	ram.Load(0x10ff, []byte{0x90, 0x91, 0x92, 0x93, 0x94})
 
 	vram := video.New()
 
@@ -57,8 +59,10 @@ func main() {
 	c.SetVerbose(*flagVerbose)
 	c.SetDelayMS(*flagDelay)
 
-	vram.Reset()
-	go vram.Run()
+	if *flagEnableVideo {
+		vram.Reset()
+		go vram.Run()
+	}
 
 	go c.Run()
 

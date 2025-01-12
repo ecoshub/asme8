@@ -30,6 +30,8 @@ type Comp struct {
 	stackPointer          uint16
 	memoryDataRegister    uint8
 
+	aluDirectOut bool
+	aluEnable    bool
 	bridgeEnable bool
 	bridgeDir    uint8
 
@@ -100,20 +102,28 @@ func (c *Comp) Run() {
 }
 
 func (c *Comp) tick() bool {
-	defer c.clearBusses()
-
-	command := control[c.instructionRegister][c.step]
-	step := c.step
-	c.run(command)
-	if c.debug {
-		if step == 0 {
-			fmt.Println(" --- ")
+	defer c.clear()
+	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
+	for i, mi := range microinstructions {
+		keep := c.run(mi)
+		if !keep {
+			fmt.Printf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
+			break
 		}
-		if c.verbose {
-			fmt.Printf("# pc: %04x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, registers: %s\n", c.programCounter, step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
+		if c.debug {
+			if c.verbose {
+				fmt.Printf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
+			}
 		}
 	}
-	if command == MI_BRK {
+	if c.debug {
+		if !c.verbose {
+			fmt.Printf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
+		} else {
+			fmt.Println("--")
+		}
+	}
+	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
 		fmt.Println(" # BREAK # ")
 		os.Exit(0)
 		return false
@@ -121,13 +131,13 @@ func (c *Comp) tick() bool {
 	return true
 }
 
-func (c *Comp) run(command uint64) {
-	for i := 0; i < 64; i++ {
-		mask := uint64(1) << i
-		if command&mask > 0 {
-			microInstructions[mask](c, command, mask)
-		}
+func (c *Comp) run(mi uint64) bool {
+	f, ok := microinstructionFunctions[mi]
+	if ok {
+		f(c, mi)
+		return true
 	}
+	return false
 }
 
 func (c *Comp) tickDevices() {
@@ -136,11 +146,13 @@ func (c *Comp) tickDevices() {
 	}
 }
 
-func (c *Comp) clearBusses() {
+func (c *Comp) clear() {
 	c.dataBus.Clear()
 	c.busX.Clear()
 	c.busY.Clear()
 	c.addrBus.Clear()
 	c.bridgeDir = BRIDGE_DIR_IN
 	c.bridgeEnable = false
+	c.aluEnable = false
+	c.aluDirectOut = false
 }

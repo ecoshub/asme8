@@ -12,53 +12,63 @@ const (
 	OPERATION_MINUS   uint8 = 2
 )
 
-func mInstAluStore(c *Comp, command uint64, _ uint64) {
-	if command&MI_ALU_ENABLE <= 0 {
+func mInstAluStore(c *Comp, mi uint64) {
+	if !c.aluEnable {
 		return
 	}
 	c.store = uint8(c.dataBus.Read())
 }
 
-func mInstAluOut(c *Comp, command uint64, _ uint64) {
+func mInstAluOut(c *Comp, mi uint64) {
+	c.aluDirectOut = true
+}
+
+func mInstAluStoreOut(c *Comp, mi uint64) {
 	c.dataBus.Write_8(c.store)
 	triggerBridge(c)
 }
 
-func mInstAluAdd(c *Comp, command uint64, _ uint64) {
-	if command&MI_ALU_ENABLE <= 0 {
+func mInstAluAdd(c *Comp, mi uint64) {
+	if !c.aluEnable {
 		return
 	}
 	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), false)
-	c.dataBus.Write_8(result)
-	triggerBridge(c)
+	if c.aluDirectOut {
+		c.dataBus.Write_8(result)
+		triggerBridge(c)
+	}
 }
 
-func mInstAluAdc(c *Comp, command uint64, _ uint64) {
-	if command&MI_ALU_ENABLE <= 0 {
+func mInstAluAdc(c *Comp, mi uint64) {
+	if !c.aluEnable {
 		return
 	}
 	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), true)
-	c.dataBus.Write_8(result)
-	triggerBridge(c)
+	if c.aluDirectOut {
+		c.dataBus.Write_8(result)
+		triggerBridge(c)
+	}
 }
 
-func mInstAluSub(c *Comp, command uint64, _ uint64) {
-	if command&MI_ALU_ENABLE <= 0 {
+func mInstAluSub(c *Comp, mi uint64) {
+	if !c.aluEnable {
 		return
 	}
 	result := doOperation(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
-	c.dataBus.Write_8(result)
-	triggerBridge(c)
+	if c.aluDirectOut {
+		c.dataBus.Write_8(result)
+		triggerBridge(c)
+	}
 }
 
-func mInstAluCmp(c *Comp, command uint64, _ uint64) {
-	if command&MI_ALU_ENABLE <= 0 {
+func mInstAluCmp(c *Comp, mi uint64) {
+	if !c.aluEnable {
 		return
 	}
 	setFlags(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
 }
 
-func mInstStatusControl(c *Comp, command, mask uint64) {
+func mInstStatusControl(c *Comp, mi uint64) {
 	statusMask := uint8(0)
 	switch c.instructionRegister {
 	case instruction.INST_JZ_INM:
@@ -70,9 +80,9 @@ func mInstStatusControl(c *Comp, command, mask uint64) {
 		}
 		return
 	}
-	mInstProgramCounterInc(c, command, mask)
-	mInstProgramCounterInc(c, command, mask)
-	mInstStepClr(c, command, mask)
+	mInstProgramCounterInc(c, mi)
+	mInstProgramCounterInc(c, mi)
+	mInstStepClr(c, mi)
 	if c.debug {
 		fmt.Println(" > no jump")
 	}

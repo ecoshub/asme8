@@ -1,13 +1,13 @@
 package comp
 
-func mInstProgramCounterIn(c *Comp, _ uint64, _ uint64) {
+func mInstProgramCounterIn(c *Comp, _ uint64) {
 	c.programCounter = c.addrBus.Read()
 }
 
-func mInstProgramCounterOut(c *Comp, _ uint64, _ uint64) {
+func mInstProgramCounterOut(c *Comp, _ uint64) {
 	c.addrBus.Write_16(c.programCounter)
 }
 
-func mInstProgramCounterInc(c *Comp, _ uint64, _ uint64) {
+func mInstProgramCounterInc(c *Comp, _ uint64) {
 	c.programCounter++
 }

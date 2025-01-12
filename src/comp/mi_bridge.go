@@ -5,11 +5,11 @@ const (
 	BRIDGE_DIR_IN  uint8 = 1
 )
 
-func mInstBridgeDIR_OUT(c *Comp, _ uint64, _ uint64) {
+func mInstBridgeDIR_OUT(c *Comp, _ uint64) {
 	c.bridgeDir = BRIDGE_DIR_OUT
 }
 
-func mInstBridgeEnable(c *Comp, _ uint64, _ uint64) {
+func mInstBridgeEnable(c *Comp, _ uint64) {
 	c.bridgeEnable = true
 }
 

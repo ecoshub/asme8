@@ -99,5 +99,15 @@ var (
 			0: MI_CMD_FETCH_INST, // fetch next instruction
 			1: MI_STEP_CLR,
 		},
+		instruction.INST_PUSH_REG: {
+			0: MI_CMD_FETCH_INST,    // fetch next instruction
+			1: MI_CMD_FETCH_OPERAND, // load operation register
+			2: MI_REG_OPERAND_1_OUT_Y | MI_BRIDGE_ENABLE | MI_BRIDGE_DIR_OUT | MI_SP_OUT | MI_IO_WRITE | MI_SP_DEC | MI_STEP_CLR,
+		},
+		instruction.INST_POP_REG: {
+			0: MI_CMD_FETCH_INST,    // fetch next instruction
+			1: MI_CMD_FETCH_OPERAND, // load operation register
+			2: MI_SP_INC | MI_SP_OUT | MI_IO_READ | MI_REG_OPERAND_1_IN | MI_STEP_CLR,
+		},
 	}
 )

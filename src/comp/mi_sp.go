@@ -1,17 +1,23 @@
 package comp
 
 func mInstStackPointerOut(c *Comp, _ uint64, _ uint64) {
-	// c.addrBus = c.stackPointer
+	c.addrBus.Write_16(c.stackPointer)
 }
 
-func mInstStackPointerLowOutX(c *Comp, _ uint64, _ uint64) {
-	// c.addrBus = c.stackPointer
+func mInstStackPointerLowIn(c *Comp, _ uint64, _ uint64) {
+	upper := c.stackPointer & 0xff00
+	c.stackPointer = upper | c.dataBus.Read()
 }
 
-func mInstStackPointerHighOutX(c *Comp, _ uint64, _ uint64) {
-	// c.addrBus = c.stackPointer
+func mInstStackPointerHighIn(c *Comp, _ uint64, _ uint64) {
+	lower := c.stackPointer & 0x00ff
+	c.stackPointer = lower | (c.dataBus.Read() << 8)
 }
 
 func mInstStackPointerInc(c *Comp, _ uint64, _ uint64) {
-	// c.stackPointer++
+	c.stackPointer++
+}
+
+func mInstStackPointerDec(c *Comp, _ uint64, _ uint64) {
+	c.stackPointer--
 }

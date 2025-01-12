@@ -17,8 +17,9 @@ const (
 	INST_MOV_REG_MEM        Type = 0x43
 	INST_MOV_REG_MEM_OFFSET Type = 0x44
 	INST_NOP                Type = 0xff
-	INST_PUSH               Type = 0xf0
-	INST_POP                Type = 0xf1
-	INST_JSR                Type = 0xf2
-	INST_RTS                Type = 0xf3
+	INST_PUSH_REG           Type = 0xf0
+	INST_PUSH_INM           Type = 0xf1
+	INST_POP_REG            Type = 0xf2
+	INST_JSR                Type = 0xf3
+	INST_RTS                Type = 0xf4
 )

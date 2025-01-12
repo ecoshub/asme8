@@ -14,7 +14,7 @@ import (
 const (
 	DefaultMemorySize = 1 << 16
 
-	StackStart uint16 = 0x7fff
+	StackStart uint16 = 0x80ff
 )
 
 type Comp struct {
@@ -103,13 +103,14 @@ func (c *Comp) tick() bool {
 	defer c.clearBusses()
 
 	command := control[c.instructionRegister][c.step]
+	step := c.step
 	c.run(command)
 	if c.debug {
-		if c.step == 0 {
+		if step == 0 {
 			fmt.Println(" --- ")
 		}
 		if c.verbose {
-			fmt.Printf("# pc: %02x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, status: %08b, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.status.Flag(), c.registers)
+			fmt.Printf("# pc: %04x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, registers: %s\n", c.programCounter, step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
 		}
 	}
 	if command == MI_BRK {

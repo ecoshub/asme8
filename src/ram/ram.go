@@ -56,10 +56,12 @@ func (r *Ram) ReadRequest() {
 
 func (r *Ram) WriteRequest() {
 	addr := r.addressBus.Read()
+	// fmt.Printf("WriteRequest arrived. addr: %04x\n", addr)
 	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, addr) {
 		return
 	}
 	addr = addr - r.rangeStart
 	data := r.dataBus.Read()
+	// fmt.Printf("Writing. addr: %04x, data: %02x\n", addr, data)
 	r.data[addr] = uint8(data)
 }

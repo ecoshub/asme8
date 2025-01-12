@@ -4,6 +4,7 @@ import (
 	"emu/src/comp"
 	"emu/src/ram"
 	"emu/src/rom"
+	"emu/src/terminal"
 	"emu/src/video"
 	"flag"
 	"fmt"
@@ -11,8 +12,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/ecoshub/termium/utils/ansi"
 )
 
 var (
@@ -25,11 +24,6 @@ var (
 
 func main() {
 	flag.Parse()
-
-	if !*flagDebug {
-		// peripheral.TerminalClear()
-		// peripheral.TerminalGoToFirstBlock()
-	}
 
 	if *flagFileBin == "" {
 		fmt.Println("error no input file. please provide a executable (bin)")
@@ -45,6 +39,7 @@ func main() {
 	rom := rom.New(0x8000)
 	rom.Load(0, program)
 
+	// NOTE: for testing offset memory read logic. can be removed
 	ram := ram.New(0x8000)
 	ram.Load(0x10ff, []byte{0x90, 0x91, 0x92, 0x93, 0x94})
 
@@ -70,8 +65,5 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
 
-	print(ansi.ResetAllModes)
-	print(ansi.MakeCursorVisible)
-	print(ansi.SetBlink)
-
+	terminal.ResetTerminal()
 }

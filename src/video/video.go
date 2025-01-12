@@ -6,19 +6,6 @@ import (
 	"emu/src/utils"
 )
 
-const (
-	SCREEN_WIDTH  uint8 = 80
-	SCREEN_HEIGHT uint8 = 24
-)
-
-const (
-	RESET_CHAR rune = ' '
-)
-
-const (
-	REFRESH_RATE_HZ float64 = 10
-)
-
 var _ connectable.Connectable = &Video{}
 
 type Video struct {
@@ -27,27 +14,15 @@ type Video struct {
 	rangeStart uint16
 	rangeEnd   uint16
 	buffer     *Buffer
+	running    bool
+	stopChan   chan struct{}
 }
 
 func New() *Video {
-	size := int(SCREEN_WIDTH) * int(SCREEN_HEIGHT)
-	buffer := &Buffer{
-		width:  SCREEN_WIDTH,
-		height: SCREEN_HEIGHT,
-		size:   size,
-		buffer: make([]rune, size),
-	}
 	return &Video{
-		buffer: buffer,
+		buffer:   NewBuffer(),
+		stopChan: make(chan struct{}, 1),
 	}
-}
-
-func (v *Video) Reset() {
-	v.buffer.reset()
-}
-
-func (v *Video) Run() {
-	v.buffer.run()
 }
 
 // Attach implements connectable.Connectable.
@@ -72,5 +47,5 @@ func (v *Video) WriteRequest() {
 	}
 	addr = addr - v.rangeStart
 	data := v.dataBus.Read()
-	v.buffer.write(addr, data)
+	v.buffer.write(addr, rune(data))
 }

@@ -12,22 +12,25 @@ func mInstReg1OutX(c *Comp, _ uint64, _ uint64) {
 	c.busX.Write_8(c.registers.Read(c.operandRegister & 0xf))
 }
 
-func mInstReg1OutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write_8(c.registers.Read(c.operandRegister & 0xf))
+func mInstReg1OutY(c *Comp, _ uint64, _ uint64) {
+	c.busY.Write_8(c.registers.Read(c.operandRegister & 0xf))
+	triggerBridge(c)
 }
 
 func mInstReg2OutX(c *Comp, _ uint64, _ uint64) {
 	c.busX.Write_8(c.registers.Read((c.operandRegister & 0xf0) >> 4))
 }
 
-func mInstReg2OutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write_8(c.registers.Read((c.operandRegister & 0xf0) >> 4))
+func mInstReg2OutY(c *Comp, _ uint64, _ uint64) {
+	c.busY.Write_8(c.registers.Read((c.operandRegister & 0xf0) >> 4))
+	triggerBridge(c)
 }
 
 func mInstOnesOutX(c *Comp, _ uint64, _ uint64) {
 	c.busX.Write_8(1)
 }
 
-func mInstOnesOutData(c *Comp, command uint64, _ uint64) {
-	c.dataBus.Write_8(1)
+func mInstOnesOutY(c *Comp, _ uint64, _ uint64) {
+	c.busY.Write_8(1)
+	triggerBridge(c)
 }

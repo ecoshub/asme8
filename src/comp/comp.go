@@ -30,7 +30,11 @@ type Comp struct {
 	stackPointer          uint16
 	memoryDataRegister    uint8
 
+	bridgeEnable bool
+	bridgeDir    uint8
+
 	busX    *bus.Bus
+	busY    *bus.Bus
 	dataBus *bus.Bus
 	addrBus *bus.Bus
 	store   uint8
@@ -48,6 +52,7 @@ func New() *Comp {
 		status:       status.NewStatusRegister(),
 		stackPointer: StackStart,
 		busX:         bus.New(),
+		busY:         bus.New(),
 		dataBus:      bus.New(),
 		addrBus:      bus.New(),
 		devices:      make([]connectable.Connectable, 0, 1),
@@ -73,7 +78,7 @@ func (c *Comp) PrintRegisters() {
 }
 
 func (c *Comp) PrintBusses() {
-	fmt.Printf("busses, data: %x, x: %x\n", c.dataBus.Read(), c.busX.Read())
+	fmt.Printf("busses, data: %x, x: %x, y: %x\n", c.dataBus.Read(), c.busX.Read(), c.busY.Read())
 }
 
 func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, rangeEnd uint16) {
@@ -104,7 +109,7 @@ func (c *Comp) tick() bool {
 			fmt.Println(" --- ")
 		}
 		if c.verbose {
-			fmt.Printf("# pc: %02x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, status: %08b, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.status.Flag(), c.registers)
+			fmt.Printf("# pc: %02x, step: %d, inst: %02x, operand:%02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, status: %08b, registers: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.status.Flag(), c.registers)
 		}
 	}
 	if command == MI_BRK {
@@ -133,5 +138,8 @@ func (c *Comp) tickDevices() {
 func (c *Comp) clearBusses() {
 	c.dataBus.Clear()
 	c.busX.Clear()
+	c.busY.Clear()
 	c.addrBus.Clear()
+	c.bridgeDir = BRIDGE_DIR_IN
+	c.bridgeEnable = false
 }

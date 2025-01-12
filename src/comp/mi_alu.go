@@ -21,37 +21,41 @@ func mInstAluStore(c *Comp, command uint64, _ uint64) {
 
 func mInstAluOut(c *Comp, command uint64, _ uint64) {
 	c.dataBus.Write_8(c.store)
+	triggerBridge(c)
 }
 
 func mInstAluAdd(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.dataBus.Read_8(), false)
+	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), false)
 	c.dataBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluAdc(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.dataBus.Read_8(), true)
+	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), true)
 	c.dataBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluSub(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	result := doOperation(c.status, OPERATION_MINUS, c.busX.Read_8(), c.dataBus.Read_8(), false)
+	result := doOperation(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
 	c.dataBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluCmp(c *Comp, command uint64, _ uint64) {
 	if command&MI_ALU_ENABLE <= 0 {
 		return
 	}
-	setFlags(c.status, OPERATION_MINUS, c.busX.Read_8(), c.dataBus.Read_8(), false)
+	setFlags(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
 }
 
 func mInstStatusControl(c *Comp, command, mask uint64) {

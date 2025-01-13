@@ -84,6 +84,7 @@ func mInstStatusControl(c *Comp, mi uint64) {
 		if c.debug {
 			fmt.Println(" > jump for condition")
 		}
+		mInstStepInc(c, mi)
 		return
 	}
 	mInstProgramCounterInc(c, mi)

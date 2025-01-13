@@ -7,10 +7,11 @@ const (
 	INST_JMP_INM            Type = 0x10
 	INST_JZ_INM             Type = 0x15
 	INST_ADD_RR             Type = 0x30
-	INST_ADD_INM            Type = 0x31
+	INST_ADD_REG_INM        Type = 0x31
 	INST_SUB_RR             Type = 0x35
+	INST_SUB_REG_INM        Type = 0x36
 	INST_CMP_RR             Type = 0x3a
-	INST_CMP_INM            Type = 0x3b
+	INST_CMP_REG_INM        Type = 0x3b
 	INTS_MOV_REG_REG        Type = 0x40
 	INST_MOV_INM_8          Type = 0x41
 	INST_MOV_MEM_REG        Type = 0x42
@@ -21,6 +22,8 @@ const (
 	INST_PUSH_REG           Type = 0xf0
 	INST_PUSH_INM           Type = 0xf1
 	INST_POP_REG            Type = 0xf2
-	INST_JSR                Type = 0xf3
-	INST_RTS                Type = 0xf4
+
+	// NOTE: NOT IMPLEMENTED
+	INST_JSR Type = 0xf3
+	INST_RTS Type = 0xf4
 )

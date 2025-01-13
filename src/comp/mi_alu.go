@@ -13,13 +13,10 @@ const (
 )
 
 func mInstAluStore(c *Comp, mi uint64) {
-	if !c.aluEnable {
-		return
-	}
-	c.store = uint8(c.dataBus.Read())
+	c.aluStoreEnable = true
 }
 
-func mInstAluOut(c *Comp, mi uint64) {
+func mInstAluOut(c *Comp, _ uint64) {
 	c.aluDirectOut = true
 }
 
@@ -37,6 +34,9 @@ func mInstAluAdd(c *Comp, mi uint64) {
 		c.dataBus.Write_8(result)
 		triggerBridge(c)
 	}
+	if c.aluStoreEnable {
+		c.store = result
+	}
 }
 
 func mInstAluAdc(c *Comp, mi uint64) {
@@ -48,6 +48,9 @@ func mInstAluAdc(c *Comp, mi uint64) {
 		c.dataBus.Write_8(result)
 		triggerBridge(c)
 	}
+	if c.aluStoreEnable {
+		c.store = result
+	}
 }
 
 func mInstAluSub(c *Comp, mi uint64) {
@@ -58,6 +61,9 @@ func mInstAluSub(c *Comp, mi uint64) {
 	if c.aluDirectOut {
 		c.dataBus.Write_8(result)
 		triggerBridge(c)
+	}
+	if c.aluStoreEnable {
+		c.store = result
 	}
 }
 

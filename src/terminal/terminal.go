@@ -46,6 +46,12 @@ func (t *Terminal) WriteRequest() {
 
 }
 
+func (t *Terminal) Read(addr uint16) uint8 {
+	return 0
+}
+
+func (t *Terminal) Clear() {}
+
 func ResetTerminal() {
 	print(ansi.ResetAllModes)
 	print(ansi.MakeCursorVisible)

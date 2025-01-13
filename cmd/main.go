@@ -52,18 +52,26 @@ func main() {
 
 	c.SetDebug(*flagDebug)
 	c.SetVerbose(*flagVerbose)
-	c.SetDelayMS(*flagDelay)
+	c.SetDelay(*flagDelay)
 
 	if *flagEnableVideo {
 		vram.Reset()
 		go vram.Run()
 	}
 
-	go c.Run()
+	chDone := make(chan struct{}, 1)
+	go func() {
+		c.Run()
+		chDone <- struct{}{}
+	}()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	<-stop
+
+	select {
+	case <-stop:
+	case <-chDone:
+	}
 
 	terminal.ResetTerminal()
 }

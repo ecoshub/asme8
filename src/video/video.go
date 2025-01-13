@@ -49,3 +49,16 @@ func (v *Video) WriteRequest() {
 	data := v.dataBus.Read()
 	v.buffer.write(addr, rune(data))
 }
+
+func (v *Video) Read(addr uint16) uint8 {
+	if !connectable.IsMyRange(v.rangeStart, v.rangeEnd, addr) {
+		return 0
+	}
+	addr = addr - v.rangeStart
+	return uint8(v.buffer.buffer[addr])
+}
+
+func (v *Video) Clear() {
+	v.buffer.clear()
+	v.Reset()
+}

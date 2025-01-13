@@ -28,6 +28,10 @@ func (r *Rom) Load(offset int, data []byte) {
 	copy(r.data[offset:len(data)], data[:])
 }
 
+func (r *Rom) GetData() []byte {
+	return r.data
+}
+
 func (r *Rom) Attach(addrBus, dataBus *bus.Bus, rangeStart, rangeEnd uint16) {
 	r.addressBus = addrBus
 	r.dataBus = dataBus
@@ -49,4 +53,16 @@ func (r *Rom) ReadRequest() {
 	}
 	addr := val - r.rangeStart
 	r.dataBus.Write_8(r.data[addr])
+}
+
+func (r *Rom) Read(addr uint16) uint8 {
+	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, addr) {
+		return 0
+	}
+	addr = addr - r.rangeStart
+	return r.data[addr]
+}
+
+func (r *Rom) Clear() {
+	r.data = make([]byte, r.size)
 }

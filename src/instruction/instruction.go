@@ -1,6 +1,6 @@
 package instruction
 
-type Type uint8
+type Type = uint8
 
 const (
 	INST_BREAK              Type = 0x00

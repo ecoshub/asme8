@@ -65,3 +65,15 @@ func (r *Ram) WriteRequest() {
 	// fmt.Printf("Writing. addr: %04x, data: %02x\n", addr, data)
 	r.data[addr] = uint8(data)
 }
+
+func (r *Ram) Read(addr uint16) uint8 {
+	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, addr) {
+		return 0
+	}
+	addr = addr - r.rangeStart
+	return r.data[addr]
+}
+
+func (r *Ram) Clear() {
+	r.data = make([]byte, r.size)
+}

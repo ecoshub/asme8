@@ -95,7 +95,7 @@ var (
 		MI_BRIDGE_DIR_OUT: mInstBridgeDIR_OUT,
 		MI_ALU_ENABLE:     mFlagInst,
 		MI_ALU_STR:        mInstAluStore,
-		MI_ALU_OUT:        mInstAluStoreOut,
+		MI_ALU_OUT:        mInstAluOut,
 		MI_ALU_STR_OUT:    mInstAluStoreOut,
 		MI_ALU_ADD:        mInstAluAdd,
 		MI_ALU_ADC:        mInstAluAdc,

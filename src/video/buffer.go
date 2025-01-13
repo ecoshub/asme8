@@ -24,3 +24,7 @@ func (b *Buffer) write(addr uint16, data rune) {
 func (b *Buffer) read(addr uint16) rune {
 	return b.buffer[addr]
 }
+
+func (b *Buffer) clear() {
+	b.buffer = make([]rune, b.size)
+}

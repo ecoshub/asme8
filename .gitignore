@@ -4,3 +4,6 @@ notes
 debug
 bin
 file.bin
+assembler/TODO.md
+assembler/test.asm
+assembler/playground.asm

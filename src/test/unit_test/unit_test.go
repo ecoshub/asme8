@@ -97,7 +97,7 @@ var (
 			// mov [0x9001], a
 			// mov a, 0x92
 			// mov [0x9002], a
-			Name: "mov reg data",
+			Name: "mov reg mem",
 			Program: []uint8{
 				instruction.INST_MOV_INM_8, register.IndexRegA, 0x90,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
@@ -118,7 +118,7 @@ var (
 			// mov a, 0x90
 			// mov [0x9000], a
 			// mov b, [0x9000]
-			Name: "mov reg data",
+			Name: "mov reg mem",
 			Program: []uint8{
 				instruction.INST_MOV_INM_8, register.IndexRegA, 0x90,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
@@ -138,12 +138,12 @@ var (
 			// mov b, 0x2
 			// mov [0x9002], a
 			// mov c, [0x9000+b]
-			Name: "mov reg data offset",
+			Name: "mov mem reg data offset",
 			Program: []uint8{
 				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
 				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x02, 0x90,
-				instruction.INST_MOV_REG_MEM_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0x00, 0x90,
+				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -161,12 +161,36 @@ var (
 			// mov b, 0x2
 			// mov [0x9101], a
 			// mov c, [0x90ff+b]
-			Name: "mov reg data offset",
+			Name: "mov mem reg data offset",
 			Program: []uint8{
 				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
 				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x01, 0x91,
-				instruction.INST_MOV_REG_MEM_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0xff, 0x90,
+				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0xff, 0x90,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x10},
+					{Index: register.IndexRegB, Data: 0x2},
+					{Index: register.IndexRegC, Data: 0x10},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9101, Data: 0x10},
+				},
+			},
+		},
+		{
+			// mov a, 0x10
+			// mov b, 0x2
+			// mov [0x90ff+b], a
+			// mov c, [0x90ff+b]
+			Name: "mov reg mem data offset",
+			Program: []uint8{
+				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
+				instruction.INST_MOV_INM_8, register.IndexRegC, 0x0,
+				instruction.INST_MOV_REG_MEM_OFFSET, register.IndexRegA<<4 | register.IndexRegB, 0xff, 0x90,
+				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0xff, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -183,6 +207,8 @@ var (
 )
 
 func TestCore(t *testing.T) {
+	// c := test.GetComp()
+	// c.SetDebug(true)
 	for _, tc := range Tests {
 		test.RunCase(t, tc)
 	}

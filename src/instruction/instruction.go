@@ -15,7 +15,8 @@ const (
 	INST_MOV_INM_8          Type = 0x41
 	INST_MOV_MEM_REG        Type = 0x42
 	INST_MOV_REG_MEM        Type = 0x43
-	INST_MOV_REG_MEM_OFFSET Type = 0x44
+	INST_MOV_MEM_REG_OFFSET Type = 0x44
+	INST_MOV_REG_MEM_OFFSET Type = 0x45
 	INST_NOP                Type = 0xff
 	INST_PUSH_REG           Type = 0xf0
 	INST_PUSH_INM           Type = 0xf1

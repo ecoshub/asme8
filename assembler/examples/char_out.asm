@@ -1,9 +1,9 @@
 start:
     mov a, 65
-    jmp print
+    jmp char_out
 loop:
     add a, 1
-print:
+char_out:
     cmp a, 91
     jz done
     mov [0x7000], a

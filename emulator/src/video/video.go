@@ -4,6 +4,8 @@ import (
 	"asme8/emulator/src/bus"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/utils"
+
+	"github.com/ecoshub/termium/utils/ansi"
 )
 
 var _ connectable.Connectable = &Video{}
@@ -61,4 +63,9 @@ func (v *Video) Read(addr uint16) uint8 {
 func (v *Video) Clear() {
 	v.buffer.clear()
 	v.Reset()
+}
+
+func (v *Video) ResetScreen() {
+	print(ansi.ResetAllModes)
+	print(ansi.MakeCursorVisible)
 }

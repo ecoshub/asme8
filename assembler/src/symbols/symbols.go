@@ -1,36 +1,6 @@
 package symbols
 
 const (
-	/*
-		; mov, add, adc, sub, sbb, and, or, xor, cmp
-		mov
-		    mov bl, cl          ; [1] r8 → r8
-		    mov d, a            ; [1] r16 → r16
-		    mov dl, #10         ; [8] imm8 → r8
-		    mov c, #10fe        ; [8] imm16 → r16
-		    mov [#10fe], al     ; [8] r8 → m8
-		    mov bh, [#10fe]     ; [8] m8 → r8
-		    mov cl, [a]         ; [1] ptr16 → r8
-		    mov [b], ch         ; [1] r8 → ptr16
-		; 9 operation (36) opcode
-
-		; jmp, jmpz, jmpc, jmpv, jmpnz, jmpnc, jmpnv, call
-		jmp
-		    jmp #10fe           ; [1] imm16
-		    jmp #10fe + 0x7f    ; [1] imm16 + offset
-		    jmp #10fe + 0x7fff  ; [1] imm16 + offset
-		    jmp sp              ; [1] r16
-		; 7 operation (4) opcode
-
-
-		; ret, rfi, hlt, nop
-		ret
-		    hlt
-		    nop
-		; 4 operation (4) opcode
-
-	*/
-
 	REGISTER_SYMBOL_A string = "a"
 	REGISTER_SYMBOL_B string = "b"
 	REGISTER_SYMBOL_C string = "c"

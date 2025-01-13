@@ -1,7 +1,6 @@
 package video
 
 import (
-	"asme8/emulator/src/peripheral"
 	"time"
 
 	"github.com/ecoshub/termium/utils/ansi"
@@ -22,16 +21,15 @@ const (
 
 func (v *Video) Reset() {
 	print(ansi.MakeCursorInvisible)
-	print(ansi.ResetBlink)
-	peripheral.TerminalClear()
+	TerminalGoToFirstBlock()
+	TerminalClear()
 	for i := 0; i < int(v.buffer.height); i++ {
 		for j := 0; j < int(v.buffer.width); j++ {
-			peripheral.TerminalCharOut(i+1, j+1, RESET_CHAR)
+			TerminalCharOut(i+1, j, RESET_CHAR)
 			addr := uint16(i*int(v.buffer.height) + j)
 			v.buffer.write(addr, RESET_CHAR)
 		}
 	}
-	peripheral.TerminalGoToFirstBlock()
 }
 
 func (v *Video) Run() {
@@ -60,6 +58,24 @@ func (v *Video) refresh() {
 		row := i / int(v.buffer.width)
 		column := i - row*int(v.buffer.width)
 		r := v.buffer.buffer[i]
-		peripheral.TerminalCharOut(row+1, column+1, r)
+		TerminalCharOut(row+1, column, r)
 	}
+}
+
+func TerminalClear() {
+	print(ansi.ClearScreen)
+}
+
+func TerminalGoToFirstBlock() {
+	print(ansi.GoToFirstBlock)
+}
+
+func TerminalCharOut(row, column int, char rune) {
+	ansi.GotoRowAndColumn(row, column)
+	print(string(char))
+}
+
+func TerminalCharErase(row, column int) {
+	ansi.GotoRowAndColumn(row, column)
+	print(ansi.EscapeChar + "[0K")
 }

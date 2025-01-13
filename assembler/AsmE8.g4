@@ -4,8 +4,8 @@ prog: instruction EOF;
 
 instruction: line+ LINE_COMMENT? ;
 
-line: '\t' inst
-    | '    ' inst
+line: variable
+	| ('\t' | '    ' | '  ' ) inst
     | label
     | '\n'
     ;
@@ -48,6 +48,9 @@ inst_single: mnemonic;
 mnemonic:
 	'mov'
 	| 'add'
+	| 'adc'
+	| 'sub'
+	| 'sbb'
 	| 'cmp'
 	| 'inc'
 	| 'jmp'
@@ -61,10 +64,13 @@ mnemonic:
 
 reg: 'a' | 'b' | 'c' | 'd';
 
-ptr: '[' WHITE_SPACE? inm WHITE_SPACE? ']';
+ptr: '[' WHITE_SPACE? inm WHITE_SPACE? ']'
+	| '[' WHITE_SPACE? tag WHITE_SPACE? ']';
 
-ptr_offset:
-	'[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']';
+ptr_offset: '[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
+	| '[' WHITE_SPACE? tag WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']';
+
+variable: tag ' = ' inm;
 
 inm: INT | HEX;
 
@@ -73,6 +79,6 @@ tag: STR;
 LINE_COMMENT: WHITE_SPACE* ';' ~[\r\n]* -> skip;
 
 INT: [0-9]+;
-STR: [a-z_][a-z_0-9]*;
+STR: [a-zA-Z_][a-zA-Z0-9_]*;
 HEX: '0x' ([a-fA-F0-9])+;
 WHITE_SPACE: [ ]+ -> skip;

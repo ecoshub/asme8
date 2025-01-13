@@ -19,16 +19,18 @@ type Assembler struct {
 	lastTag       string
 	missingLabels map[uint16]string
 	inmSize       uint8
+	inmRaw        uint16
+	variables     map[string]uint16
+	ptrVariable   bool
 }
 
 func NewAssembler() *Assembler {
 	return &Assembler{
-		offset:        0,
 		labels:        make(map[string]uint16),
 		out:           make([]byte, 0, 32),
 		ops:           make([]uint8, 0, 2),
 		missingLabels: make(map[uint16]string),
-		lastInst:      "",
+		variables:     make(map[string]uint16),
 	}
 }
 
@@ -59,6 +61,9 @@ func (a *Assembler) EnterInm(c *InmContext) {}
 
 // EnterInst implements AsmE8Listener.
 func (a *Assembler) EnterInst(c *InstContext) {}
+
+// EnterVariable implements AsmE8Listener.
+func (a *Assembler) EnterVariable(c *VariableContext) {}
 
 // EnterInst_reg_inm implements AsmE8Listener.
 func (a *Assembler) EnterInst_reg_inm(c *Inst_reg_inmContext) {}
@@ -199,27 +204,52 @@ func (a *Assembler) ExitInst_reg_ptr(c *Inst_reg_ptrContext) {
 func (a *Assembler) ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext) {
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG_OFFSET)
 	a.AddOpCode(opcode)
-	var val uint8 = a.ops[3] | (a.ops[0] << 4)
-	a.AddOpCode(val)
-	a.AddOpCode(a.ops[1])
-	a.AddOpCode(a.ops[2])
+	if !a.ptrVariable {
+		var val uint8 = a.ops[3] | (a.ops[0] << 4)
+		a.AddOpCode(val)
+		a.AddOpCode(a.ops[1])
+		a.AddOpCode(a.ops[2])
+	} else {
+		var val uint8 = a.ops[1] | (a.ops[0] << 4)
+		a.AddOpCode(val)
+		a.AddOpCode(a.ops[2])
+		a.AddOpCode(a.ops[3])
+	}
 }
 
 // ExitInst_ptr_offset_reg implements AsmE8Listener.
 func (a *Assembler) ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext) {
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_MEM_OFFSET)
 	a.AddOpCode(opcode)
-	var val uint8 = a.ops[2] | (a.ops[3] << 4)
-	a.AddOpCode(val)
-	a.AddOpCode(a.ops[0])
-	a.AddOpCode(a.ops[1])
+	if !a.ptrVariable {
+		var val uint8 = a.ops[2] | (a.ops[3] << 4)
+		a.AddOpCode(val)
+		a.AddOpCode(a.ops[0])
+		a.AddOpCode(a.ops[1])
+	} else {
+		var val uint8 = a.ops[0] | (a.ops[1] << 4)
+		a.AddOpCode(val)
+		a.AddOpCode(a.ops[3])
+		a.AddOpCode(a.ops[2])
+	}
 }
 
 // ExitPtr_offset implements AsmE8Listener.
-func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {}
+func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {
+	if a.lastTag == "" {
+		return
+	}
+	a.setInm(int64(a.variables[a.lastTag]))
+	a.ptrVariable = true
+}
 
 // ExitInstruction implements AsmE8Listener.
 func (a *Assembler) ExitInstruction(c *InstructionContext) {}
+
+// ExitVariable implements AsmE8Listener.
+func (a *Assembler) ExitVariable(c *VariableContext) {
+	a.variables[a.lastTag] = a.inmRaw
+}
 
 // ExitLabel implements AsmE8Listener.
 func (a *Assembler) ExitLabel(c *LabelContext) {
@@ -235,7 +265,13 @@ func (a *Assembler) ExitMnemonic(c *MnemonicContext) {
 func (a *Assembler) ExitProg(c *ProgContext) {}
 
 // ExitPtr implements AsmE8Listener.
-func (a *Assembler) ExitPtr(c *PtrContext) {}
+func (a *Assembler) ExitPtr(c *PtrContext) {
+	if a.lastTag == "" {
+		return
+	}
+	a.setInm(int64(a.variables[a.lastTag]))
+	a.ptrVariable = true
+}
 
 // VisitErrorNode implements AsmE8Listener.
 func (a *Assembler) VisitErrorNode(node antlr.ErrorNode) {}
@@ -255,14 +291,37 @@ func (a *Assembler) EnterLine(c *LineContext) {
 
 // ExitInm implements instListener.
 func (a *Assembler) ExitInm(c *InmContext) {
-	var val int64
 	text := c.GetText()
+	a.parseInm(text)
+}
+
+// ExitLine implements instListener.
+func (a *Assembler) ExitLine(c *LineContext) {
+	a.inmRaw = 0
+	a.inmSize = 0
+	a.lastTag = ""
+	a.ptrVariable = false
+}
+
+// ExitReg implements instListener.
+func (a *Assembler) ExitReg(c *RegContext) {
+	regOP := symbols.REGISTER_OPCODE[strings.ToLower(c.GetText())]
+	a.ops = append(a.ops, regOP)
+}
+
+func (a *Assembler) parseInm(text string) {
+	var val int64
 	if strings.HasPrefix(text, "0x") {
 		text = strings.TrimPrefix(text, "0x")
 		val, _ = strconv.ParseInt(text, 16, 64)
 	} else {
 		val, _ = strconv.ParseInt(text, 10, 64)
 	}
+	a.setInm(val)
+}
+
+func (a *Assembler) setInm(val int64) {
+	a.inmRaw = uint16(val)
 	if val > 0xff {
 		a.inmSize = 16
 	} else {
@@ -270,13 +329,4 @@ func (a *Assembler) ExitInm(c *InmContext) {
 	}
 	a.ops = append(a.ops, uint8(val))
 	a.ops = append(a.ops, uint8(val>>8))
-}
-
-// ExitLine implements instListener.
-func (a *Assembler) ExitLine(c *LineContext) {}
-
-// ExitReg implements instListener.
-func (a *Assembler) ExitReg(c *RegContext) {
-	regOP := symbols.REGISTER_OPCODE[strings.ToLower(c.GetText())]
-	a.ops = append(a.ops, regOP)
 }

@@ -65,6 +65,9 @@ type AsmE8Listener interface {
 	// EnterPtr_offset is called when entering the ptr_offset production.
 	EnterPtr_offset(c *Ptr_offsetContext)
 
+	// EnterVariable is called when entering the variable production.
+	EnterVariable(c *VariableContext)
+
 	// EnterInm is called when entering the inm production.
 	EnterInm(c *InmContext)
 
@@ -127,6 +130,9 @@ type AsmE8Listener interface {
 
 	// ExitPtr_offset is called when exiting the ptr_offset production.
 	ExitPtr_offset(c *Ptr_offsetContext)
+
+	// ExitVariable is called when exiting the variable production.
+	ExitVariable(c *VariableContext)
 
 	// ExitInm is called when exiting the inm production.
 	ExitInm(c *InmContext)

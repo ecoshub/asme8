@@ -20,7 +20,7 @@ var (
 	flagVerbose        = flag.Bool("verbose", false, "enable verbosity")
 	flagDelay          = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 	flagEnableVideo    = flag.Bool("enable-video", false, "enable video output")
-	flagEnableKeyboard = flag.Bool("enable-keyboard", false, "enable keyboard output")
+	flagEnableKeyboard = flag.Bool("enable-keyboard", false, "enable keyboard input")
 )
 
 func main() {

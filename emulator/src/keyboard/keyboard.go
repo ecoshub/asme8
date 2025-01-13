@@ -98,7 +98,7 @@ func (k *Keyboard) ListenKeys() {
 			k.consumed = false
 			if event.Key == keyboard.KeyCtrlC {
 				print(ansi.ResetAllModes)
-				// print(ansi.MakeCursorVisible)
+				print(ansi.MakeCursorVisible)
 				os.Exit(0)
 			}
 		}

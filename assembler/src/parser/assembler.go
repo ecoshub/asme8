@@ -11,24 +11,23 @@ import (
 
 // Assembler is a complete listener for a parse tree produced by instParser.
 type Assembler struct {
-	offset        int
-	labels        map[string]uint16
-	out           []byte
-	ops           []uint8
+	offset        uint64
+	inm           uint16
+	inmSize       uint8
 	lastInst      string
 	lastTag       string
-	missingLabels map[uint16]string
-	inmSize       uint8
-	inmRaw        uint16
+	out           []byte
+	regs          []uint8
+	labels        map[string]uint16
 	variables     map[string]uint16
-	ptrVariable   bool
+	missingLabels map[uint16]string
 }
 
 func NewAssembler() *Assembler {
 	return &Assembler{
-		labels:        make(map[string]uint16),
 		out:           make([]byte, 0, 32),
-		ops:           make([]uint8, 0, 2),
+		regs:          make([]uint8, 0, 2),
+		labels:        make(map[string]uint16),
 		missingLabels: make(map[uint16]string),
 		variables:     make(map[string]uint16),
 	}
@@ -51,6 +50,177 @@ func (a *Assembler) Out() ([]byte, error) {
 func (a *Assembler) AddOpCode(opCode uint8) {
 	a.out = append(a.out, opCode)
 	a.offset++
+}
+
+// ExitInst_reg_inm implements AsmE8Listener.
+func (a *Assembler) ExitInst_reg_inm(c *Inst_reg_inmContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_8)
+	a.AddOpCode(opcode)
+	a.AddOpCode(a.regs[0])
+	a.AddOpCode(uint8(a.inm))
+}
+
+// ExitInst_reg_reg implements AsmE8Listener.
+func (a *Assembler) ExitInst_reg_reg(c *Inst_reg_regContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_RR_8)
+	a.AddOpCode(opcode)
+	var val uint8 = a.regs[0] | (a.regs[1] << 4)
+	a.AddOpCode(val)
+}
+
+// ExitInst_single implements AsmE8Listener.
+func (a *Assembler) ExitInst_single(c *Inst_singleContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL)
+	a.AddOpCode(opcode)
+}
+
+// ExitInst_single_inm implements AsmE8Listener.
+func (a *Assembler) ExitInst_single_inm(c *Inst_single_inmContext) {
+	var mode uint8
+	if a.inmSize == 16 {
+		mode = symbols.ADDRESSING_MODE_INM_16
+	} else {
+		mode = symbols.ADDRESSING_MODE_INM_8
+	}
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), mode)
+	a.AddOpCode(opcode)
+	a.AddOpCode(uint8(a.inm))
+	if a.inmSize == 16 {
+		a.AddOpCode(uint8(a.inm >> 8))
+	}
+}
+
+// ExitInst_single_reg implements AsmE8Listener.
+func (a *Assembler) ExitInst_single_reg(c *Inst_single_regContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_REG)
+	a.AddOpCode(opcode)
+	a.AddOpCode(a.regs[0])
+}
+
+// ExitInst_single_tag implements AsmE8Listener.
+func (a *Assembler) ExitInst_single_tag(c *Inst_single_tagContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_16)
+	val, exists := a.labels[a.lastTag]
+	if !exists {
+		a.missingLabels[uint16(a.offset+1)] = a.lastTag
+	}
+	a.AddOpCode(opcode)
+	a.AddOpCode(uint8(val))
+	a.AddOpCode(uint8(val >> 8))
+}
+
+// ExitInst_ptr_reg implements AsmE8Listener.
+func (a *Assembler) ExitInst_ptr_reg(c *Inst_ptr_regContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_MEM)
+	a.AddOpCode(opcode)
+	a.AddOpCode(a.regs[0])
+	a.AddOpCode(uint8(a.inm))
+	a.AddOpCode(uint8(a.inm >> 8))
+}
+
+// ExitInst_reg_ptr implements AsmE8Listener.
+func (a *Assembler) ExitInst_reg_ptr(c *Inst_reg_ptrContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG)
+	a.AddOpCode(opcode)
+	a.AddOpCode(a.regs[0])
+	a.AddOpCode(uint8(a.inm))
+	a.AddOpCode(uint8(a.inm >> 8))
+}
+
+// ExitInst_reg_ptr_offset implements AsmE8Listener.
+func (a *Assembler) ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG_OFFSET)
+	a.AddOpCode(opcode)
+	var val uint8 = a.regs[0] | (a.regs[1] << 4)
+	a.AddOpCode(val)
+	a.AddOpCode(uint8(a.inm))
+	a.AddOpCode(uint8(a.inm >> 8))
+}
+
+// ExitInst_ptr_offset_reg implements AsmE8Listener.
+func (a *Assembler) ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext) {
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_MEM_OFFSET)
+	a.AddOpCode(opcode)
+	var val uint8 = a.regs[0] | (a.regs[1] << 4)
+	a.AddOpCode(val)
+	a.AddOpCode(uint8(a.inm))
+	a.AddOpCode(uint8(a.inm >> 8))
+}
+
+// ExitPtr_offset implements AsmE8Listener.
+func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {
+	if a.lastTag == "" {
+		return
+	}
+	a.setInm(int64(a.variables[a.lastTag]))
+}
+
+// ExitVariable implements AsmE8Listener.
+func (a *Assembler) ExitVariable(c *VariableContext) {
+	a.variables[a.lastTag] = a.inm
+}
+
+// ExitLabel implements AsmE8Listener.
+func (a *Assembler) ExitLabel(c *LabelContext) {
+	a.labels[a.lastTag] = uint16(a.offset)
+}
+
+// ExitMnemonic implements AsmE8Listener.
+func (a *Assembler) ExitMnemonic(c *MnemonicContext) {
+	a.lastInst = c.GetText()
+}
+
+// ExitPtr implements AsmE8Listener.
+func (a *Assembler) ExitPtr(c *PtrContext) {
+	if a.lastTag == "" {
+		return
+	}
+	a.setInm(int64(a.variables[a.lastTag]))
+}
+
+// ExitTag implements instListener.
+func (a *Assembler) ExitTag(c *TagContext) {
+	a.lastTag = c.GetText()
+}
+
+// ExitInm implements instListener.
+func (a *Assembler) ExitInm(c *InmContext) {
+	text := c.GetText()
+	a.parseInm(text)
+}
+
+// ExitLine implements instListener.
+func (a *Assembler) ExitLine(c *LineContext) {
+	a.inm = 0
+	a.inmSize = 0
+	a.lastTag = ""
+	a.regs = make([]uint8, 0, 2)
+}
+
+// ExitReg implements instListener.
+func (a *Assembler) ExitReg(c *RegContext) {
+	regOP := symbols.REGISTER_OPCODE[strings.ToLower(c.GetText())]
+	a.regs = append(a.regs, regOP)
+}
+
+func (a *Assembler) parseInm(text string) {
+	var val int64
+	if strings.HasPrefix(text, "0x") {
+		text = strings.TrimPrefix(text, "0x")
+		val, _ = strconv.ParseInt(text, 16, 64)
+	} else {
+		val, _ = strconv.ParseInt(text, 10, 64)
+	}
+	a.setInm(val)
+}
+
+func (a *Assembler) setInm(val int64) {
+	a.inm = uint16(val)
+	if val > 0xff {
+		a.inmSize = 16
+	} else {
+		a.inmSize = 8
+	}
 }
 
 // EnterEveryRule implements AsmE8Listener.
@@ -125,153 +295,11 @@ func (a *Assembler) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitInst implements AsmE8Listener.
 func (a *Assembler) ExitInst(c *InstContext) {}
 
-// ExitInst_reg_inm implements AsmE8Listener.
-func (a *Assembler) ExitInst_reg_inm(c *Inst_reg_inmContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_8)
-	a.AddOpCode(opcode)
-	a.AddOpCode(a.ops[0])
-	a.AddOpCode(a.ops[1])
-}
-
-// ExitInst_reg_reg implements AsmE8Listener.
-func (a *Assembler) ExitInst_reg_reg(c *Inst_reg_regContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_RR_8)
-	a.AddOpCode(opcode)
-	var val uint8 = a.ops[0] | (a.ops[1] << 4)
-	a.AddOpCode(val)
-}
-
-// ExitInst_single implements AsmE8Listener.
-func (a *Assembler) ExitInst_single(c *Inst_singleContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL)
-	a.AddOpCode(opcode)
-}
-
-// ExitInst_single_inm implements AsmE8Listener.
-func (a *Assembler) ExitInst_single_inm(c *Inst_single_inmContext) {
-	var mode uint8
-	if a.inmSize == 16 {
-		mode = symbols.ADDRESSING_MODE_INM_16
-	} else {
-		mode = symbols.ADDRESSING_MODE_INM_8
-	}
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), mode)
-	a.AddOpCode(opcode)
-	a.AddOpCode(a.ops[0])
-	if a.inmSize == 16 {
-		a.AddOpCode(a.ops[1])
-	}
-}
-
-// ExitInst_single_reg implements AsmE8Listener.
-func (a *Assembler) ExitInst_single_reg(c *Inst_single_regContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_REG)
-	a.AddOpCode(opcode)
-	a.AddOpCode(a.ops[0])
-}
-
-// ExitInst_single_tag implements AsmE8Listener.
-func (a *Assembler) ExitInst_single_tag(c *Inst_single_tagContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_16)
-	val, exists := a.labels[a.lastTag]
-	if !exists {
-		a.missingLabels[uint16(a.offset+1)] = a.lastTag
-	}
-	a.AddOpCode(opcode)
-	a.AddOpCode(uint8(val))
-	a.AddOpCode(uint8(val >> 8))
-}
-
-// ExitInst_ptr_reg implements AsmE8Listener.
-func (a *Assembler) ExitInst_ptr_reg(c *Inst_ptr_regContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_MEM)
-	a.AddOpCode(opcode)
-	a.AddOpCode(a.ops[2])
-	a.AddOpCode(a.ops[0])
-	a.AddOpCode(a.ops[1])
-}
-
-// ExitInst_reg_ptr implements AsmE8Listener.
-func (a *Assembler) ExitInst_reg_ptr(c *Inst_reg_ptrContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG)
-	a.AddOpCode(opcode)
-	a.AddOpCode(a.ops[0])
-	a.AddOpCode(a.ops[1])
-	a.AddOpCode(a.ops[2])
-}
-
-// ExitInst_reg_ptr_offset implements AsmE8Listener.
-func (a *Assembler) ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG_OFFSET)
-	a.AddOpCode(opcode)
-	if !a.ptrVariable {
-		var val uint8 = a.ops[3] | (a.ops[0] << 4)
-		a.AddOpCode(val)
-		a.AddOpCode(a.ops[1])
-		a.AddOpCode(a.ops[2])
-	} else {
-		var val uint8 = a.ops[1] | (a.ops[0] << 4)
-		a.AddOpCode(val)
-		a.AddOpCode(a.ops[2])
-		a.AddOpCode(a.ops[3])
-	}
-}
-
-// ExitInst_ptr_offset_reg implements AsmE8Listener.
-func (a *Assembler) ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_MEM_OFFSET)
-	a.AddOpCode(opcode)
-	if !a.ptrVariable {
-		var val uint8 = a.ops[2] | (a.ops[3] << 4)
-		a.AddOpCode(val)
-		a.AddOpCode(a.ops[0])
-		a.AddOpCode(a.ops[1])
-	} else {
-		var val uint8 = a.ops[0] | (a.ops[1] << 4)
-		a.AddOpCode(val)
-		a.AddOpCode(a.ops[3])
-		a.AddOpCode(a.ops[2])
-	}
-}
-
-// ExitPtr_offset implements AsmE8Listener.
-func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {
-	if a.lastTag == "" {
-		return
-	}
-	a.setInm(int64(a.variables[a.lastTag]))
-	a.ptrVariable = true
-}
-
 // ExitInstruction implements AsmE8Listener.
 func (a *Assembler) ExitInstruction(c *InstructionContext) {}
 
-// ExitVariable implements AsmE8Listener.
-func (a *Assembler) ExitVariable(c *VariableContext) {
-	a.variables[a.lastTag] = a.inmRaw
-}
-
-// ExitLabel implements AsmE8Listener.
-func (a *Assembler) ExitLabel(c *LabelContext) {
-	a.labels[a.lastTag] = uint16(a.offset)
-}
-
-// ExitMnemonic implements AsmE8Listener.
-func (a *Assembler) ExitMnemonic(c *MnemonicContext) {
-	a.lastInst = c.GetText()
-}
-
 // ExitProg implements AsmE8Listener.
 func (a *Assembler) ExitProg(c *ProgContext) {}
-
-// ExitPtr implements AsmE8Listener.
-func (a *Assembler) ExitPtr(c *PtrContext) {
-	if a.lastTag == "" {
-		return
-	}
-	a.setInm(int64(a.variables[a.lastTag]))
-	a.ptrVariable = true
-}
 
 // VisitErrorNode implements AsmE8Listener.
 func (a *Assembler) VisitErrorNode(node antlr.ErrorNode) {}
@@ -279,54 +307,5 @@ func (a *Assembler) VisitErrorNode(node antlr.ErrorNode) {}
 // VisitTerminal implements AsmE8Listener.
 func (a *Assembler) VisitTerminal(node antlr.TerminalNode) {}
 
-// ExitTag implements instListener.
-func (a *Assembler) ExitTag(c *TagContext) {
-	a.lastTag = c.GetText()
-}
-
 // EnterLine implements instListener.
-func (a *Assembler) EnterLine(c *LineContext) {
-	a.ops = make([]uint8, 0, 2)
-}
-
-// ExitInm implements instListener.
-func (a *Assembler) ExitInm(c *InmContext) {
-	text := c.GetText()
-	a.parseInm(text)
-}
-
-// ExitLine implements instListener.
-func (a *Assembler) ExitLine(c *LineContext) {
-	a.inmRaw = 0
-	a.inmSize = 0
-	a.lastTag = ""
-	a.ptrVariable = false
-}
-
-// ExitReg implements instListener.
-func (a *Assembler) ExitReg(c *RegContext) {
-	regOP := symbols.REGISTER_OPCODE[strings.ToLower(c.GetText())]
-	a.ops = append(a.ops, regOP)
-}
-
-func (a *Assembler) parseInm(text string) {
-	var val int64
-	if strings.HasPrefix(text, "0x") {
-		text = strings.TrimPrefix(text, "0x")
-		val, _ = strconv.ParseInt(text, 16, 64)
-	} else {
-		val, _ = strconv.ParseInt(text, 10, 64)
-	}
-	a.setInm(val)
-}
-
-func (a *Assembler) setInm(val int64) {
-	a.inmRaw = uint16(val)
-	if val > 0xff {
-		a.inmSize = 16
-	} else {
-		a.inmSize = 8
-	}
-	a.ops = append(a.ops, uint8(val))
-	a.ops = append(a.ops, uint8(val>>8))
-}
+func (a *Assembler) EnterLine(c *LineContext) {}

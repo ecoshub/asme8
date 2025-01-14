@@ -1,14 +1,12 @@
 package main
 
 import (
-	"asme8/assembler/src/parser"
+	"asme8/assembler/src/assembler"
 	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/antlr4-go/antlr/v4"
 )
 
 var (
@@ -25,20 +23,7 @@ func main() {
 		return
 	}
 
-	input, err := antlr.NewFileStream(*flagFile)
-	if err != nil {
-		fmt.Println("file stream error", err)
-		return
-	}
-	lexer := parser.NewAsmE8Lexer(input)
-	stream := antlr.NewCommonTokenStream(lexer, 0)
-	p := parser.NewAsmE8Parser(stream)
-	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	tree := p.Instruction()
-	l := parser.NewAssembler()
-	antlr.ParseTreeWalkerDefault.Walk(l, tree)
-
-	out, err := l.Out()
+	assembler, err := assembler.AssembleFile(*flagFile)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -51,7 +36,13 @@ func main() {
 	defer f.Close()
 
 	if *flagPrint {
-		fmt.Println(l)
+		fmt.Println(assembler)
+	}
+
+	out, err := assembler.Out()
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	err = binary.Write(f, binary.BigEndian, out)

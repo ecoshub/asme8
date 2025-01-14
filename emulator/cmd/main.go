@@ -1,6 +1,7 @@
 package main
 
 import (
+	"asme8/assembler/src/assembler"
 	"asme8/emulator/src/comp"
 	"asme8/emulator/src/keyboard"
 	"asme8/emulator/src/ram"
@@ -15,7 +16,8 @@ import (
 )
 
 var (
-	flagFileBin        = flag.String("file-bin", "", "bin file of program")
+	flagFileBin        = flag.String("file-bin", "", "bin file path")
+	flagFileAsm        = flag.String("file-asm", "", "asm file path")
 	flagDebug          = flag.Bool("debug", false, "enable debug mode")
 	flagVerbose        = flag.Bool("verbose", false, "enable verbosity")
 	flagDelay          = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
@@ -27,15 +29,32 @@ func main() {
 
 	flag.Parse()
 
-	if *flagFileBin == "" {
-		fmt.Println("error no input file. please provide a executable (bin)")
-		return
-	}
+	var program []uint8
+	var err error
 
-	program, err := os.ReadFile(*flagFileBin)
-	if err != nil {
-		fmt.Println("executable read error", err)
-		return
+	if *flagFileBin != "" {
+		program, err = os.ReadFile(*flagFileBin)
+		if err != nil {
+			fmt.Println("executable read error", err)
+			return
+		}
+	} else {
+		if *flagFileAsm != "" {
+			assembler, err := assembler.AssembleFile(*flagFileAsm)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			program, err = assembler.Out()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		} else {
+			fmt.Println("Error. No input file. Please provide an executable (bin), or and assemble file (asm)")
+			flag.PrintDefaults()
+			os.Exit(0)
+		}
 	}
 
 	keyboard := keyboard.New()

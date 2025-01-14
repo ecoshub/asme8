@@ -57,7 +57,7 @@ func (v *Video) refresh() {
 	for i := 0; i < v.buffer.size; i++ {
 		row := i / int(v.buffer.width)
 		column := i - row*int(v.buffer.width)
-		r := v.buffer.buffer[i]
+		r := v.buffer.read(uint16(i))
 		TerminalCharOut(row+1, column, r)
 	}
 }

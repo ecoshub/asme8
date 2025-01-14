@@ -57,7 +57,7 @@ func (v *Video) Read(addr uint16) uint8 {
 		return 0
 	}
 	addr = addr - v.rangeStart
-	return uint8(v.buffer.buffer[addr])
+	return uint8(v.buffer.read(addr))
 }
 
 func (v *Video) Clear() {

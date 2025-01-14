@@ -127,7 +127,7 @@ var (
 		},
 		INST_JSR: {
 			// jsr
-			ADDRESSING_MODE_IMPL: 0xf3,
+			ADDRESSING_MODE_IMPL_INM_16: 0xf3,
 		},
 		INST_RTS: {
 			// rts

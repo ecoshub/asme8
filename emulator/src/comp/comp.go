@@ -203,4 +203,5 @@ func (c *Comp) clear() {
 	c.aluDirectOut = false
 	c.bridgeEnable = false
 	c.bridgeDir = BRIDGE_DIR_IN
+	c.rw = utils.IO_READ
 }

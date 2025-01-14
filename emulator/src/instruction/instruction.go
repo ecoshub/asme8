@@ -4,8 +4,8 @@ type Type = uint8
 
 const (
 	// Special
-	INST_BREAK Type = 0x00
-	INST_NOP   Type = 0xff
+	INST_BRK Type = 0x00
+	INST_NOP Type = 0xff
 
 	// Branching
 	INST_JMP_INM     Type = 0x10

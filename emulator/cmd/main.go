@@ -26,7 +26,6 @@ var (
 )
 
 func main() {
-
 	flag.Parse()
 
 	var program []uint8

@@ -40,6 +40,8 @@ const (
 	MI_STEP_INC       uint64 = 36
 	MI_STEP_CLR       uint64 = 37
 	MI_JMP_CTRL       uint64 = 38
+	MI_PC_L_OUT_DATA  uint64 = 39
+	MI_PC_H_OUT_DATA  uint64 = 40
 )
 
 var (
@@ -83,6 +85,8 @@ var (
 		MI_STEP_INC:       "STEP_INC",
 		MI_STEP_CLR:       "STEP_CLR",
 		MI_JMP_CTRL:       "JMP_CTRL",
+		MI_PC_L_OUT_DATA:  "PC_L_OUT_DATA",
+		MI_PC_H_OUT_DATA:  "PC_H_OUT_DATA",
 	}
 )
 
@@ -129,5 +133,7 @@ var (
 		MI_SP_L_IN:        mInstStackPointerLowIn,
 		MI_SP_H_IN:        mInstStackPointerHighIn,
 		MI_PC_IN:          mInstProgramCounterIn,
+		MI_PC_L_OUT_DATA:  mInstProgramCounterLowOutData,
+		MI_PC_H_OUT_DATA:  mInstProgramCounterHighOutData,
 	}
 )

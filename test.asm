@@ -1,8 +1,6 @@
+VAL = 0x31          ; test value
+ADDR = 0x80ff       ; test addr
+
 start:
-    mov a, 16
-    mov a, 0x20
-    mov a, 0b01000000
-    mov a, 'A'
-    mov b, "'"
-    mov c, '*'
-    brk
+    mov a, VAL
+    jmp ADDR

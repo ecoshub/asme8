@@ -1,9 +1,12 @@
+ADDR = 0x90ff
+TEST_ADDR = 0x9100
+
 start:
-    mov b, 0
+    mov b, 5
 loop:
-    mov a, [0x90ff+b]
-    add b, 1
-    cmp b, 5
+    mov a, [ADDR+b]
+    mov c, [TEST_ADDR+b]
+    dec b
     jz done
     jmp loop
 

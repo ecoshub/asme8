@@ -29,6 +29,9 @@ type AsmE8Listener interface {
 	// EnterInst_reg_inm is called when entering the inst_reg_inm production.
 	EnterInst_reg_inm(c *Inst_reg_inmContext)
 
+	// EnterInst_reg_inm_variable is called when entering the inst_reg_inm_variable production.
+	EnterInst_reg_inm_variable(c *Inst_reg_inm_variableContext)
+
 	// EnterInst_ptr_reg is called when entering the inst_ptr_reg production.
 	EnterInst_ptr_reg(c *Inst_ptr_regContext)
 
@@ -94,6 +97,9 @@ type AsmE8Listener interface {
 
 	// ExitInst_reg_inm is called when exiting the inst_reg_inm production.
 	ExitInst_reg_inm(c *Inst_reg_inmContext)
+
+	// ExitInst_reg_inm_variable is called when exiting the inst_reg_inm_variable production.
+	ExitInst_reg_inm_variable(c *Inst_reg_inm_variableContext)
 
 	// ExitInst_ptr_reg is called when exiting the inst_ptr_reg production.
 	ExitInst_ptr_reg(c *Inst_ptr_regContext)

@@ -4,7 +4,8 @@ prog: instruction EOF;
 
 instruction: line+ LINE_COMMENT? ;
 
-line: variable
+line: 
+	variable
 	| ('\t' | '    ' | '  ' ) inst
     | label
     | '\n'
@@ -12,9 +13,10 @@ line: variable
 
 label: tag  ':';
 
-inst:
+inst: 
 	inst_reg_reg
 	| inst_reg_inm
+	| inst_reg_inm_variable
 	| inst_single_reg
 	| inst_single_inm
 	| inst_single_tag 
@@ -28,6 +30,8 @@ inst:
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
 
 inst_reg_inm: mnemonic ' ' reg  ', ' inm;
+
+inst_reg_inm_variable: mnemonic ' ' reg  ', ' tag;
 
 inst_ptr_reg: mnemonic ' ' ptr ', ' reg;
 
@@ -45,7 +49,7 @@ inst_single_tag: mnemonic ' ' tag;
 
 inst_single: mnemonic;
 
-mnemonic:
+mnemonic: 
 	'mov'
 	| 'add'
 	| 'adc'
@@ -62,22 +66,33 @@ mnemonic:
 	| 'brk'
 	| 'nop'
 	| 'push'
-	| 'pop';
+	| 'pop'
+	;
 
-reg: 'a' | 'b' | 'c' | 'd';
+reg: 
+	'a' 
+	| 'b' 
+	| 'c'
+	| 'd'
+	;
 
-ptr: '[' WHITE_SPACE? inm WHITE_SPACE? ']'
-	| '[' WHITE_SPACE? tag WHITE_SPACE? ']';
+ptr: 
+	'[' WHITE_SPACE? inm WHITE_SPACE? ']'
+	| '[' WHITE_SPACE? tag WHITE_SPACE? ']'
+	;
 
-ptr_offset: '[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
-	| '[' WHITE_SPACE? tag WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']';
+ptr_offset: 
+	'[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
+	| '[' WHITE_SPACE? tag WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
+	;
 
-variable: tag ' = ' inm;
+variable: tag  WHITE_SPACE? '=' WHITE_SPACE? inm;
 
 inm: INT 
 	| HEX 
 	| BINARY 
 	| '\'' CHAR '\'' 
+	| '\' \'' 
 	| '"\'"' 
 	;
 
@@ -90,4 +105,4 @@ CHAR: ~[\r\n];
 STR: [a-zA-Z_][a-zA-Z0-9_]*;
 HEX: '0x' ([a-fA-F0-9])+;
 BINARY: '0b' ([0-1])+;
-WHITE_SPACE: [ ]+ -> skip;
+WHITE_SPACE: [ ]+;

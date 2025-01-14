@@ -85,8 +85,18 @@ func (a *Assembler) AddOpCode(opCode uint8) {
 	a.offset++
 }
 
+// ExitInst_reg_inm_variable implements AsmE8Listener.
+func (a *Assembler) ExitInst_reg_inm_variable(c *Inst_reg_inm_variableContext) {
+	a.setInm(int64(a.variables[a.lastTag]))
+	a.ExitInst_reg_inm_core()
+}
+
 // ExitInst_reg_inm implements AsmE8Listener.
 func (a *Assembler) ExitInst_reg_inm(c *Inst_reg_inmContext) {
+	a.ExitInst_reg_inm_core()
+}
+
+func (a *Assembler) ExitInst_reg_inm_core() {
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_INM_8)
 	a.AddOpCode(opcode)
 	a.AddOpCode(a.regs[0])
@@ -109,6 +119,10 @@ func (a *Assembler) ExitInst_single(c *Inst_singleContext) {
 
 // ExitInst_single_inm implements AsmE8Listener.
 func (a *Assembler) ExitInst_single_inm(c *Inst_single_inmContext) {
+	a.ExitInst_single_inm_core()
+}
+
+func (a *Assembler) ExitInst_single_inm_core() {
 	var mode uint8
 	if a.inmSize == 16 {
 		mode = symbols.ADDRESSING_MODE_IMPL_INM_16
@@ -132,14 +146,21 @@ func (a *Assembler) ExitInst_single_reg(c *Inst_single_regContext) {
 
 // ExitInst_single_tag implements AsmE8Listener.
 func (a *Assembler) ExitInst_single_tag(c *Inst_single_tagContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_INM_16)
-	val, exists := a.labels[a.lastTag]
+	val, exists := a.variables[a.lastTag]
+	if exists {
+		a.setInm(int64(val))
+		a.ExitInst_single_inm_core()
+		return
+	}
+
+	val64, exists := a.labels[a.lastTag]
 	if !exists {
 		a.missingLabels[uint16(a.offset+1)] = a.lastTag
 	}
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_INM_16)
 	a.AddOpCode(opcode)
-	a.AddOpCode(uint8(val))
-	a.AddOpCode(uint8(val >> 8))
+	a.AddOpCode(uint8(val64))
+	a.AddOpCode(uint8(val64 >> 8))
 }
 
 // ExitInst_ptr_reg implements AsmE8Listener.
@@ -164,7 +185,7 @@ func (a *Assembler) ExitInst_reg_ptr(c *Inst_reg_ptrContext) {
 func (a *Assembler) ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext) {
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_MEM_REG_OFFSET)
 	a.AddOpCode(opcode)
-	var val uint8 = a.regs[0] | (a.regs[1] << 4)
+	var val uint8 = a.regs[1] | (a.regs[0] << 4)
 	a.AddOpCode(val)
 	a.AddOpCode(uint8(a.inm))
 	a.AddOpCode(uint8(a.inm >> 8))
@@ -287,6 +308,9 @@ func (a *Assembler) ExitInst(c *InstContext) {
 	a.linesEndings = append(a.linesEndings, a.offset)
 	a.lines = append(a.lines, c.GetText())
 }
+
+// EnterInst_reg_inm_variable implements AsmE8Listener.
+func (a *Assembler) EnterInst_reg_inm_variable(c *Inst_reg_inm_variableContext) {}
 
 // EnterEveryRule implements AsmE8Listener.
 func (a *Assembler) EnterEveryRule(ctx antlr.ParserRuleContext) {}

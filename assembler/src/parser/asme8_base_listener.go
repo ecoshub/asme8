@@ -63,6 +63,12 @@ func (s *BaseAsmE8Listener) EnterInst_reg_inm(ctx *Inst_reg_inmContext) {}
 // ExitInst_reg_inm is called when production inst_reg_inm is exited.
 func (s *BaseAsmE8Listener) ExitInst_reg_inm(ctx *Inst_reg_inmContext) {}
 
+// EnterInst_reg_inm_variable is called when production inst_reg_inm_variable is entered.
+func (s *BaseAsmE8Listener) EnterInst_reg_inm_variable(ctx *Inst_reg_inm_variableContext) {}
+
+// ExitInst_reg_inm_variable is called when production inst_reg_inm_variable is exited.
+func (s *BaseAsmE8Listener) ExitInst_reg_inm_variable(ctx *Inst_reg_inm_variableContext) {}
+
 // EnterInst_ptr_reg is called when production inst_ptr_reg is entered.
 func (s *BaseAsmE8Listener) EnterInst_ptr_reg(ctx *Inst_ptr_regContext) {}
 

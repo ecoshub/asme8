@@ -1,11 +1,11 @@
 CHAR_OUT_ADDR = 0x7000
-CHAR_READY_ADDR = 0x7100
+CHAR_RDY_ADDR = 0x7100
 CHAR_READ_ADDR = 0x7101
 
 start:
     mov c, 0                    ; char index for screen
 char_wait:
-    mov a, [CHAR_READY_ADDR]    ; char ready addr
+    mov a, [CHAR_RDY_ADDR]      ; char ready addr
     cmp a, 1                    ; char ready mean 1
     jz char_read                ; jump to read label if ready
     jmp char_wait               ; jump to char wait

@@ -4,7 +4,6 @@ import "fmt"
 
 func (a *Assembler) String() string {
 	a.process()
-	fmt.Println(a.linesEndings)
 	buffer := "\n"
 	if len(a.variables) > 0 {
 		for k, v := range a.variables {
@@ -25,14 +24,14 @@ func (a *Assembler) String() string {
 		if i < len(a.out) {
 			ops += " "
 		}
+		ok, label := isLabel(i, a.labels)
+		if ok {
+			buffer += fmt.Sprintf("%s:\n", label)
+		}
 		ok, li := isLineEnd(i, a.linesEndings)
 		if ok {
 			buffer += fmt.Sprintf("   %-32s; %s\n", a.lines[li], ops)
 			ops = ""
-		}
-		ok, label := isLabel(i, a.labels)
-		if ok {
-			buffer += fmt.Sprintf("%s:\n", label)
 		}
 	}
 	return buffer

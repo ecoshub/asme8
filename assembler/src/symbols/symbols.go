@@ -9,25 +9,28 @@ const (
 	INST_BRK  string = "brk"
 	INST_MOV  string = "mov"
 	INST_ADD  string = "add"
+	INST_ADC  string = "adc"
 	INST_SUB  string = "sub"
+	INST_SBB  string = "sbb"
 	INST_CMP  string = "cmp"
 	INST_JMP  string = "jmp"
 	INST_JZ   string = "jz"
 	INST_NOP  string = "nop"
 	INST_PUSH string = "push"
 	INST_POP  string = "pop"
+	INST_INC  string = "inc"
+	INST_DEC  string = "dec"
 	INST_JSR  string = "jsr"
 	INST_RTS  string = "rts"
 
 	ADDRESSING_MODE_NONE uint8 = iota
 	ADDRESSING_MODE_IMPL
-	ADDRESSING_MODE_INM_8
 	ADDRESSING_MODE_IMPL_REG
-	ADDRESSING_MODE_RR_8
-	ADDRESSING_MODE_INM_16
+	ADDRESSING_MODE_REG_INM_8
+	ADDRESSING_MODE_IMPL_INM_16
+	ADDRESSING_MODE_REG_REG
 	ADDRESSING_MODE_REG_MEM
 	ADDRESSING_MODE_MEM_REG
-	ADDRESSING_MODE_PTR
 	ADDRESSING_MODE_MEM_REG_OFFSET
 	ADDRESSING_MODE_REG_MEM_OFFSET
 )
@@ -42,18 +45,13 @@ var (
 
 	_MNEMONIC_TO_OPCODE = map[string]map[uint8]uint8{
 		INST_BRK: {
-			ADDRESSING_MODE_NONE:    0,
-			ADDRESSING_MODE_INM_8:   0,
-			ADDRESSING_MODE_RR_8:    0,
-			ADDRESSING_MODE_INM_16:  0,
-			ADDRESSING_MODE_REG_MEM: 0,
-			ADDRESSING_MODE_MEM_REG: 0,
+			ADDRESSING_MODE_IMPL: 0,
 		},
 		INST_MOV: {
 			// mov b, a
-			ADDRESSING_MODE_RR_8: 0x40,
+			ADDRESSING_MODE_REG_REG: 0x40,
 			// mov a, 4
-			ADDRESSING_MODE_INM_8: 0x41,
+			ADDRESSING_MODE_REG_INM_8: 0x41,
 			// mov a, [8000]
 			ADDRESSING_MODE_MEM_REG: 0x42,
 			// mov [8000], a
@@ -65,29 +63,49 @@ var (
 		},
 		INST_CMP: {
 			// cmp b, a
-			ADDRESSING_MODE_RR_8: 0x3a,
+			ADDRESSING_MODE_REG_REG: 0x1a,
 			// cmp a, 4
-			ADDRESSING_MODE_INM_8: 0x3b,
+			ADDRESSING_MODE_REG_INM_8: 0x1b,
 		},
 		INST_ADD: {
 			// add b, a
-			ADDRESSING_MODE_RR_8: 0x30,
+			ADDRESSING_MODE_REG_REG: 0x30,
 			// add a, 4
-			ADDRESSING_MODE_INM_8: 0x31,
+			ADDRESSING_MODE_REG_INM_8: 0x31,
+		},
+		INST_ADC: {
+			// adc b, a
+			ADDRESSING_MODE_REG_REG: 0x32,
+			// adc a, 4
+			ADDRESSING_MODE_REG_INM_8: 0x33,
 		},
 		INST_SUB: {
 			// sub b, a
-			ADDRESSING_MODE_RR_8: 0x35,
+			ADDRESSING_MODE_REG_REG: 0x34,
 			// sub a, 4
-			ADDRESSING_MODE_INM_8: 0x36,
+			ADDRESSING_MODE_REG_INM_8: 0x35,
+		},
+		INST_SBB: {
+			// sbb b, a
+			ADDRESSING_MODE_REG_REG: 0x36,
+			// sbb a, 4
+			ADDRESSING_MODE_REG_INM_8: 0x37,
+		},
+		INST_INC: {
+			// inc a
+			ADDRESSING_MODE_IMPL_REG: 0x38,
+		},
+		INST_DEC: {
+			// dec a
+			ADDRESSING_MODE_IMPL_REG: 0x39,
 		},
 		INST_JMP: {
 			// jmp 0x5500
-			ADDRESSING_MODE_INM_16: 0x10,
+			ADDRESSING_MODE_IMPL_INM_16: 0x10,
 		},
 		INST_JZ: {
 			// jmp 0x5500
-			ADDRESSING_MODE_INM_16: 0x15,
+			ADDRESSING_MODE_IMPL_INM_16: 0x15,
 		},
 		INST_NOP: {
 			ADDRESSING_MODE_IMPL: 0xff,
@@ -96,7 +114,7 @@ var (
 			// push a
 			ADDRESSING_MODE_IMPL_REG: 0xf0,
 			// push 0x10
-			ADDRESSING_MODE_INM_8: 0xf1,
+			ADDRESSING_MODE_REG_INM_8: 0xf1,
 		},
 		INST_POP: {
 			// pop a

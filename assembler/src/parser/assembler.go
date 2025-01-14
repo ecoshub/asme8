@@ -73,7 +73,7 @@ func isLineEnd(index int, linesEndings []uint64) (bool, int) {
 
 func isLabel(index int, labels map[string]uint64) (bool, string) {
 	for label, li := range labels {
-		if int(li-1) == index {
+		if int(li) == index {
 			return true, label
 		}
 	}
@@ -87,7 +87,7 @@ func (a *Assembler) AddOpCode(opCode uint8) {
 
 // ExitInst_reg_inm implements AsmE8Listener.
 func (a *Assembler) ExitInst_reg_inm(c *Inst_reg_inmContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_8)
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_INM_8)
 	a.AddOpCode(opcode)
 	a.AddOpCode(a.regs[0])
 	a.AddOpCode(uint8(a.inm))
@@ -95,7 +95,7 @@ func (a *Assembler) ExitInst_reg_inm(c *Inst_reg_inmContext) {
 
 // ExitInst_reg_reg implements AsmE8Listener.
 func (a *Assembler) ExitInst_reg_reg(c *Inst_reg_regContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_RR_8)
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_REG_REG)
 	a.AddOpCode(opcode)
 	var val uint8 = a.regs[0] | (a.regs[1] << 4)
 	a.AddOpCode(val)
@@ -111,9 +111,9 @@ func (a *Assembler) ExitInst_single(c *Inst_singleContext) {
 func (a *Assembler) ExitInst_single_inm(c *Inst_single_inmContext) {
 	var mode uint8
 	if a.inmSize == 16 {
-		mode = symbols.ADDRESSING_MODE_INM_16
+		mode = symbols.ADDRESSING_MODE_IMPL_INM_16
 	} else {
-		mode = symbols.ADDRESSING_MODE_INM_8
+		mode = symbols.ADDRESSING_MODE_REG_INM_8
 	}
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), mode)
 	a.AddOpCode(opcode)
@@ -132,7 +132,7 @@ func (a *Assembler) ExitInst_single_reg(c *Inst_single_regContext) {
 
 // ExitInst_single_tag implements AsmE8Listener.
 func (a *Assembler) ExitInst_single_tag(c *Inst_single_tagContext) {
-	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_INM_16)
+	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_INM_16)
 	val, exists := a.labels[a.lastTag]
 	if !exists {
 		a.missingLabels[uint16(a.offset+1)] = a.lastTag

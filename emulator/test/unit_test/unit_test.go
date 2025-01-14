@@ -530,6 +530,62 @@ var (
 				},
 			},
 		},
+		{
+			Name: "inc reg",
+			// mov a, 0x20
+			// inc a
+			Program: []uint8{
+				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_INC, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x21},
+				},
+			},
+		},
+		{
+			Name: "inc reg",
+			// mov a, 0xff
+			// inc a
+			Program: []uint8{
+				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
+				instruction.INST_INC, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x00},
+				},
+			},
+		},
+		{
+			Name: "dec reg",
+			// mov a, 0x20
+			// dec a
+			Program: []uint8{
+				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_DEC, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x1f},
+				},
+			},
+		},
+		{
+			Name: "dec reg",
+			// mov a, 0x00
+			// dec a
+			Program: []uint8{
+				instruction.INST_MOV_INM_8, register.IndexRegA, 0x00,
+				instruction.INST_DEC, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0xff},
+				},
+			},
+		},
 	}
 )
 

@@ -47,7 +47,8 @@ func main() {
 
 	err = binary.Write(f, binary.BigEndian, out)
 	if err != nil {
-		log.Fatal("Write failed")
+		fmt.Println("file write error", err)
+		return
 	}
 
 	fmt.Printf("assemble success. %d bytes assembled. output file: '%s'\n", len(out), *flagOutput)

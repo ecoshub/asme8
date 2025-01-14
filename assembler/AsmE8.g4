@@ -53,6 +53,7 @@ mnemonic:
 	| 'sbb'
 	| 'cmp'
 	| 'inc'
+	| 'dec'
 	| 'jmp'
 	| 'jz'
 	| 'jsr'

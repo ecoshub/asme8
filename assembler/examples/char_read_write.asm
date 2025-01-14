@@ -17,7 +17,7 @@ char_read:
     jmp char_out                ; jump to char out routine
 
 key_del:
-    cmp c, 1                    ; check if is there char to delete
+    cmp c, 0                    ; check if is there char to delete
     jz char_wait                ; if not jump to wait
     sub c, 1                    ; dec cursor index by 1
     mov a, 32                   ; store space char in to a

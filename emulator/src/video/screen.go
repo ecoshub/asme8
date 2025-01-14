@@ -23,13 +23,10 @@ func (v *Video) Reset() {
 	print(ansi.MakeCursorInvisible)
 	TerminalGoToFirstBlock()
 	TerminalClear()
-	for i := 0; i < int(v.buffer.height); i++ {
-		for j := 0; j < int(v.buffer.width); j++ {
-			TerminalCharOut(i+1, j, RESET_CHAR)
-			addr := uint16(i*int(v.buffer.height) + j)
-			v.buffer.write(addr, RESET_CHAR)
-		}
+	for i := 0; i < v.buffer.size; i++ {
+		v.buffer.write(uint16(i), RESET_CHAR)
 	}
+	v.refresh()
 }
 
 func (v *Video) Run() {
@@ -58,7 +55,7 @@ func (v *Video) refresh() {
 		row := i / int(v.buffer.width)
 		column := i - row*int(v.buffer.width)
 		r := v.buffer.read(uint16(i))
-		TerminalCharOut(row+1, column, r)
+		TerminalCharOut(row+1, column+1, r)
 	}
 }
 

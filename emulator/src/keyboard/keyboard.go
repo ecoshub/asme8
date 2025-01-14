@@ -18,7 +18,7 @@ type Keyboard struct {
 	rangeStart uint16
 	rangeEnd   uint16
 	input      uint8
-	consumed   bool
+	ready      bool
 }
 
 func New() *Keyboard {
@@ -64,20 +64,21 @@ func (k *Keyboard) ReadRequest() {
 		return
 	}
 	if addr == k.rangeStart {
-		if k.consumed {
-			k.dataBus.Write_8(0)
+		if k.ready {
+			k.dataBus.Write_8(1)
 			return
 		}
-		k.dataBus.Write_8(1)
+		k.dataBus.Write_8(0)
 		return
 	}
 	if addr == k.rangeStart+1 {
-		if k.consumed {
-			k.dataBus.Write_8(0)
+		if k.ready {
+			k.dataBus.Write_8(k.input)
+			k.ready = false
 			return
 		}
-		k.dataBus.Write_8(k.input)
-		k.consumed = true
+		k.dataBus.Write_8(0)
+		return
 	}
 }
 
@@ -94,13 +95,12 @@ func (k *Keyboard) ListenKeys() {
 			if event.Key == 0 {
 				k.input = uint8(event.Rune)
 			}
-			// fmt.Println("input", k.input, string(k.input))
-			k.consumed = false
 			if event.Key == keyboard.KeyCtrlC {
 				print(ansi.ResetAllModes)
 				print(ansi.MakeCursorVisible)
 				os.Exit(0)
 			}
+			k.ready = true
 		}
 	}(keyEvents)
 }

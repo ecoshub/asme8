@@ -74,13 +74,20 @@ ptr_offset: '[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? 
 
 variable: tag ' = ' inm;
 
-inm: INT | HEX;
+inm: INT 
+	| HEX 
+	| BINARY 
+	| '\'' CHAR '\'' 
+	| '"\'"' 
+	;
 
 tag: STR;
 
 LINE_COMMENT: WHITE_SPACE* ';' ~[\r\n]* -> skip;
 
 INT: [0-9]+;
+CHAR: ~[\r\n];
 STR: [a-zA-Z_][a-zA-Z0-9_]*;
 HEX: '0x' ([a-fA-F0-9])+;
+BINARY: '0b' ([0-1])+;
 WHITE_SPACE: [ ]+ -> skip;

@@ -238,12 +238,38 @@ func (a *Assembler) ExitReg(c *RegContext) {
 
 func (a *Assembler) parseInm(text string) {
 	var val int64
+
+	if strings.HasPrefix(text, "'") && strings.HasSuffix(text, "'") {
+		text = strings.TrimPrefix(text, "'")
+		text = strings.TrimSuffix(text, "'")
+		val := int64(text[0])
+		a.setInm(val)
+		return
+	}
+
+	if strings.HasPrefix(text, "\"") && strings.HasSuffix(text, "\"") {
+		text = strings.TrimPrefix(text, "\"")
+		text = strings.TrimSuffix(text, "\"")
+		val := int64(text[0])
+		a.setInm(val)
+		return
+	}
+
 	if strings.HasPrefix(text, "0x") {
 		text = strings.TrimPrefix(text, "0x")
 		val, _ = strconv.ParseInt(text, 16, 64)
-	} else {
-		val, _ = strconv.ParseInt(text, 10, 64)
+		a.setInm(val)
+		return
 	}
+
+	if strings.HasPrefix(text, "0b") {
+		text = strings.TrimPrefix(text, "0b")
+		val, _ = strconv.ParseInt(text, 2, 64)
+		a.setInm(val)
+		return
+	}
+
+	val, _ = strconv.ParseInt(text, 10, 64)
 	a.setInm(val)
 }
 

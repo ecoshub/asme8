@@ -1,14 +1,14 @@
 CHAR_OUT_ADDR = 0x7000
 
 start:
-    mov a, 65
+    mov a, 'A'
     jmp char_out
 loop:
-    add a, 1
+    inc a
 char_out:
-    cmp a, 91
-    jz done
     mov [CHAR_OUT_ADDR], a
+    cmp a, 'Z'
+    jz done
     jmp loop
 
 done:

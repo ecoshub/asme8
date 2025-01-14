@@ -19,12 +19,12 @@ char_read:
 key_del:
     cmp c, 0                    ; check if is there char to delete
     jz char_wait                ; if not jump to wait
-    sub c, 1                    ; dec cursor index by 1
-    mov a, 32                   ; store space char in to a
+    dec c                       ; dec cursor index by 1
+    mov a, ' '                  ; store space char in to a
     mov [CHAR_OUT_ADDR+c], a    ; write screen buffer to a with offset c
     jmp char_wait               ; jump to char wait
 
 char_out:
     mov [CHAR_OUT_ADDR+c], a    ; write content of a in to screen buffer with offset c
-    add c, 1                    ; increment cursor index by 1
+    inc c                       ; increment cursor index by 1
     jmp char_wait               ; jump to char out

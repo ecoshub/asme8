@@ -18,33 +18,66 @@ type Assembler struct {
 	lastTag       string
 	out           []byte
 	regs          []uint8
-	labels        map[string]uint16
+	labels        map[string]uint64
 	variables     map[string]uint16
 	missingLabels map[uint16]string
+	linesEndings  []uint64
+	lines         []string
+
+	processDone bool
 }
 
 func NewAssembler() *Assembler {
 	return &Assembler{
 		out:           make([]byte, 0, 32),
 		regs:          make([]uint8, 0, 2),
-		labels:        make(map[string]uint16),
+		labels:        make(map[string]uint64),
 		missingLabels: make(map[uint16]string),
 		variables:     make(map[string]uint16),
+		linesEndings:  make([]uint64, 0, 10),
+		lines:         make([]string, 0, 256),
 	}
 }
 
 var _ AsmE8Listener = &Assembler{}
 
-func (a *Assembler) Out() ([]byte, error) {
+func (a *Assembler) process() error {
+	if a.processDone {
+		return nil
+	}
 	for o, l := range a.missingLabels {
 		val, ok := a.labels[l]
 		if !ok {
-			return nil, fmt.Errorf("error unknown label '%s' at %d", l, o)
+			return fmt.Errorf("error unknown label '%s' at %d", l, o)
 		}
 		a.out[o] = uint8(val)
 		a.out[o+1] = uint8(val >> 8)
 	}
+	a.processDone = true
+	return nil
+}
+
+func (a *Assembler) Out() ([]byte, error) {
+	a.process()
 	return a.out, nil
+}
+
+func isLineEnd(index int, linesEndings []uint64) (bool, int) {
+	for li, le := range linesEndings {
+		if int(le-1) == index {
+			return true, li
+		}
+	}
+	return false, 0
+}
+
+func isLabel(index int, labels map[string]uint64) (bool, string) {
+	for label, li := range labels {
+		if int(li) == index {
+			return true, label
+		}
+	}
+	return false, ""
 }
 
 func (a *Assembler) AddOpCode(opCode uint8) {
@@ -162,7 +195,7 @@ func (a *Assembler) ExitVariable(c *VariableContext) {
 
 // ExitLabel implements AsmE8Listener.
 func (a *Assembler) ExitLabel(c *LabelContext) {
-	a.labels[a.lastTag] = uint16(a.offset)
+	a.labels[a.lastTag] = a.offset
 }
 
 // ExitMnemonic implements AsmE8Listener.
@@ -221,6 +254,12 @@ func (a *Assembler) setInm(val int64) {
 	} else {
 		a.inmSize = 8
 	}
+}
+
+// ExitInst implements AsmE8Listener.
+func (a *Assembler) ExitInst(c *InstContext) {
+	a.linesEndings = append(a.linesEndings, a.offset)
+	a.lines = append(a.lines, c.GetText())
 }
 
 // EnterEveryRule implements AsmE8Listener.
@@ -291,9 +330,6 @@ func (a *Assembler) EnterTag(c *TagContext) {}
 
 // ExitEveryRule implements AsmE8Listener.
 func (a *Assembler) ExitEveryRule(ctx antlr.ParserRuleContext) {}
-
-// ExitInst implements AsmE8Listener.
-func (a *Assembler) ExitInst(c *InstContext) {}
 
 // ExitInstruction implements AsmE8Listener.
 func (a *Assembler) ExitInstruction(c *InstructionContext) {}

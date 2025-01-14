@@ -2,7 +2,6 @@ package main
 
 import (
 	"asme8/assembler/src/parser"
-	"asme8/assembler/src/utils"
 	"encoding/binary"
 	"flag"
 	"fmt"
@@ -15,6 +14,7 @@ import (
 var (
 	flagOutput = flag.String("output", "a.bin", "output file name")
 	flagFile   = flag.String("file", "", "input file")
+	flagPrint  = flag.Bool("print", false, "print the code and the machine code")
 )
 
 func main() {
@@ -50,11 +50,15 @@ func main() {
 	}
 	defer f.Close()
 
-	fmt.Printf("assemble success. %d bytes assembled. output file: '%s'\n", len(out), *flagOutput)
-	fmt.Println("program:")
-	utils.PrintHexArray(out)
+	if *flagPrint {
+		fmt.Println(l)
+	}
+
 	err = binary.Write(f, binary.BigEndian, out)
 	if err != nil {
 		log.Fatal("Write failed")
 	}
+
+	fmt.Printf("assemble success. %d bytes assembled. output file: '%s'\n", len(out), *flagOutput)
+
 }

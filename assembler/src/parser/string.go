@@ -4,6 +4,7 @@ import "fmt"
 
 func (a *Assembler) String() string {
 	a.process()
+	fmt.Println(a.linesEndings)
 	buffer := "\n"
 	if len(a.variables) > 0 {
 		for k, v := range a.variables {

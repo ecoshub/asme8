@@ -1,10 +1,9 @@
 start:
     mov a, 0
-    mov b, 1
-
+    mov c, 10
 loop:
-    add a, b
-    cmp a, 5
+    add a, 1
+    cmp a, c
     jz end
     jmp loop
 

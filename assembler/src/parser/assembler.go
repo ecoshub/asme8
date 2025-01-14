@@ -73,7 +73,7 @@ func isLineEnd(index int, linesEndings []uint64) (bool, int) {
 
 func isLabel(index int, labels map[string]uint64) (bool, string) {
 	for label, li := range labels {
-		if int(li) == index {
+		if int(li-1) == index {
 			return true, label
 		}
 	}

@@ -56,6 +56,7 @@ mnemonic:
 	| 'dec'
 	| 'jmp'
 	| 'jz'
+	| 'jnz'
 	| 'jsr'
 	| 'rts'
 	| 'brk'

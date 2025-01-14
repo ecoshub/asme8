@@ -76,11 +76,15 @@ func mInstAluCmp(c *Comp, mi uint64) {
 
 func mInstStatusControl(c *Comp, mi uint64) {
 	statusMask := uint8(0)
+	isNot := false
 	switch c.instructionRegister {
 	case instruction.INST_JZ_INM:
 		statusMask = status.STATUS_FLAG_ZERO
+	case instruction.INST_JNZ_INM:
+		statusMask = status.STATUS_FLAG_ZERO
+		isNot = true
 	}
-	if c.status.IsSet(statusMask) {
+	if c.status.IsSet(statusMask) == !isNot {
 		if c.debug {
 			fmt.Println(" > jump for condition")
 		}

@@ -1,6 +1,8 @@
-VAL = 0x31          ; test value
-ADDR = 0x80ff       ; test addr
+VAL=31
 
 start:
-    mov a, VAL
-    jmp ADDR
+    jmp 0x6000
+
+.org 0x6000
+.byte 0x41 0x02 0x0a
+.byte 0x41 0x02 0x0a

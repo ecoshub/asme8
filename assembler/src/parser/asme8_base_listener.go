@@ -147,6 +147,18 @@ func (s *BaseAsmE8Listener) EnterVariable(ctx *VariableContext) {}
 // ExitVariable is called when production variable is exited.
 func (s *BaseAsmE8Listener) ExitVariable(ctx *VariableContext) {}
 
+// EnterDirectives is called when production directives is entered.
+func (s *BaseAsmE8Listener) EnterDirectives(ctx *DirectivesContext) {}
+
+// ExitDirectives is called when production directives is exited.
+func (s *BaseAsmE8Listener) ExitDirectives(ctx *DirectivesContext) {}
+
+// EnterInm_list is called when production inm_list is entered.
+func (s *BaseAsmE8Listener) EnterInm_list(ctx *Inm_listContext) {}
+
+// ExitInm_list is called when production inm_list is exited.
+func (s *BaseAsmE8Listener) ExitInm_list(ctx *Inm_listContext) {}
+
 // EnterInm is called when production inm is entered.
 func (s *BaseAsmE8Listener) EnterInm(ctx *InmContext) {}
 

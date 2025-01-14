@@ -16,26 +16,34 @@ type Assembler struct {
 	inmSize       uint8
 	lastInst      string
 	lastTag       string
-	out           []byte
+	codes         map[uint64]uint8
 	regs          []uint8
 	labels        map[string]uint64
 	variables     map[string]uint16
 	missingLabels map[uint16]string
+	directives    map[uint16]*Directive
 	linesEndings  []uint64
-	lines         []string
+	instructions  []string
+	inmList       []uint16
+	out           []uint8
+	max           uint64
+	blanks        []uint64
+	lastLine      string
 
 	processDone bool
 }
 
 func NewAssembler() *Assembler {
 	return &Assembler{
-		out:           make([]byte, 0, 32),
+		codes:         make(map[uint64]uint8, 32),
 		regs:          make([]uint8, 0, 2),
 		labels:        make(map[string]uint64),
 		missingLabels: make(map[uint16]string),
 		variables:     make(map[string]uint16),
+		directives:    make(map[uint16]*Directive),
 		linesEndings:  make([]uint64, 0, 10),
-		lines:         make([]string, 0, 256),
+		blanks:        make([]uint64, 0, 10),
+		instructions:  make([]string, 0, 256),
 	}
 }
 
@@ -50,9 +58,22 @@ func (a *Assembler) process() error {
 		if !ok {
 			return fmt.Errorf("error unknown label '%s' at %d", l, o)
 		}
-		a.out[o] = uint8(val)
-		a.out[o+1] = uint8(val >> 8)
+		a.codes[uint64(o)] = uint8(val)
+		a.codes[uint64(o+1)] = uint8(val >> 8)
 	}
+	max := uint64(0)
+	for offset := range a.codes {
+		if offset >= max {
+			max = offset
+		}
+	}
+	ordered := make([]uint8, max+1)
+	for i := uint64(0); i < max+1; i++ {
+		b := a.codes[uint64(i)]
+		ordered[i] = b
+	}
+	a.out = ordered
+	a.max = max
 	a.processDone = true
 	return nil
 }
@@ -62,26 +83,8 @@ func (a *Assembler) Out() ([]byte, error) {
 	return a.out, nil
 }
 
-func isLineEnd(index int, linesEndings []uint64) (bool, int) {
-	for li, le := range linesEndings {
-		if int(le-1) == index {
-			return true, li
-		}
-	}
-	return false, 0
-}
-
-func isLabel(index int, labels map[string]uint64) (bool, string) {
-	for label, li := range labels {
-		if int(li) == index {
-			return true, label
-		}
-	}
-	return false, ""
-}
-
 func (a *Assembler) AddOpCode(opCode uint8) {
-	a.out = append(a.out, opCode)
+	a.codes[a.offset] = opCode
 	a.offset++
 }
 
@@ -240,7 +243,8 @@ func (a *Assembler) ExitTag(c *TagContext) {
 // ExitInm implements instListener.
 func (a *Assembler) ExitInm(c *InmContext) {
 	text := c.GetText()
-	a.parseInm(text)
+	val := a.parseInm(text)
+	a.setInm(val)
 }
 
 // ExitLine implements instListener.
@@ -249,6 +253,12 @@ func (a *Assembler) ExitLine(c *LineContext) {
 	a.inmSize = 0
 	a.lastTag = ""
 	a.regs = make([]uint8, 0, 2)
+
+	text := c.GetText()
+	if text == "\n" && a.lastLine == "\n" {
+		a.blanks = append(a.blanks, a.offset)
+	}
+	a.lastLine = text
 }
 
 // ExitReg implements instListener.
@@ -257,41 +267,81 @@ func (a *Assembler) ExitReg(c *RegContext) {
 	a.regs = append(a.regs, regOP)
 }
 
-func (a *Assembler) parseInm(text string) {
+// ExitDirectives implements AsmE8Listener.
+func (a *Assembler) ExitDirectives(c *DirectivesContext) {
+	text := c.GetText()
+	if strings.HasPrefix(text, ".org") {
+		offset := uint64(a.inmList[0])
+		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".org", position: a.offset, offset: offset, single: true, inm: a.inmList}
+		a.offset = offset
+		return
+	}
+	if strings.HasPrefix(text, ".byte") {
+		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".byte", position: a.offset, offset: uint64(len(a.inmList)), single: false, inm: a.inmList}
+		for _, b := range a.inmList {
+			a.AddOpCode(uint8(b))
+		}
+		return
+	}
+	if strings.HasPrefix(text, ".word") {
+		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".word", position: a.offset, offset: uint64(len(a.inmList) * 2), single: false, inm: a.inmList}
+		for _, b := range a.inmList {
+			a.AddOpCode(uint8(b))
+			a.AddOpCode(uint8(b >> 8))
+		}
+		return
+	}
+}
+
+// ExitInm_list implements AsmE8Listener.
+func (a *Assembler) ExitInm_list(c *Inm_listContext) {
+	list := c.GetText()
+	tokens := strings.Split(list, ",")
+	inmList := make([]uint16, 0, len(tokens))
+	for _, tok := range tokens {
+		tok = strings.TrimSpace(tok)
+		val, ok := a.variables[tok]
+		if ok {
+			inmList = append(inmList, val)
+			continue
+		}
+		val64 := a.parseInm(tok)
+		inmList = append(inmList, uint16(val64))
+	}
+	a.inmList = inmList
+}
+
+func (a *Assembler) parseInm(text string) int64 {
 	var val int64
 
 	if strings.HasPrefix(text, "'") && strings.HasSuffix(text, "'") {
 		text = strings.TrimPrefix(text, "'")
 		text = strings.TrimSuffix(text, "'")
 		val := int64(text[0])
-		a.setInm(val)
-		return
+		return val
 	}
 
 	if strings.HasPrefix(text, "\"") && strings.HasSuffix(text, "\"") {
 		text = strings.TrimPrefix(text, "\"")
 		text = strings.TrimSuffix(text, "\"")
 		val := int64(text[0])
-		a.setInm(val)
-		return
+		return val
 	}
 
 	if strings.HasPrefix(text, "0x") {
 		text = strings.TrimPrefix(text, "0x")
 		val, _ = strconv.ParseInt(text, 16, 64)
-		a.setInm(val)
-		return
+		return val
 	}
 
 	if strings.HasPrefix(text, "0b") {
 		text = strings.TrimPrefix(text, "0b")
 		val, _ = strconv.ParseInt(text, 2, 64)
-		a.setInm(val)
-		return
+		return val
 	}
 
 	val, _ = strconv.ParseInt(text, 10, 64)
-	a.setInm(val)
+	return val
 }
 
 func (a *Assembler) setInm(val int64) {
@@ -306,7 +356,7 @@ func (a *Assembler) setInm(val int64) {
 // ExitInst implements AsmE8Listener.
 func (a *Assembler) ExitInst(c *InstContext) {
 	a.linesEndings = append(a.linesEndings, a.offset)
-	a.lines = append(a.lines, c.GetText())
+	a.instructions = append(a.instructions, c.GetText())
 }
 
 // EnterInst_reg_inm_variable implements AsmE8Listener.
@@ -395,3 +445,9 @@ func (a *Assembler) VisitTerminal(node antlr.TerminalNode) {}
 
 // EnterLine implements instListener.
 func (a *Assembler) EnterLine(c *LineContext) {}
+
+// EnterDirectives implements AsmE8Listener.
+func (a *Assembler) EnterDirectives(c *DirectivesContext) {}
+
+// EnterInm_list implements AsmE8Listener.
+func (a *Assembler) EnterInm_list(c *Inm_listContext) {}

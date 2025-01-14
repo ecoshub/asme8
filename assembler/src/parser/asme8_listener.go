@@ -71,6 +71,12 @@ type AsmE8Listener interface {
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
 
+	// EnterDirectives is called when entering the directives production.
+	EnterDirectives(c *DirectivesContext)
+
+	// EnterInm_list is called when entering the inm_list production.
+	EnterInm_list(c *Inm_listContext)
+
 	// EnterInm is called when entering the inm production.
 	EnterInm(c *InmContext)
 
@@ -139,6 +145,12 @@ type AsmE8Listener interface {
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)
+
+	// ExitDirectives is called when exiting the directives production.
+	ExitDirectives(c *DirectivesContext)
+
+	// ExitInm_list is called when exiting the inm_list production.
+	ExitInm_list(c *Inm_listContext)
 
 	// ExitInm is called when exiting the inm production.
 	ExitInm(c *InmContext)

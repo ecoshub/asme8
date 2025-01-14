@@ -8,6 +8,7 @@ line:
 	variable
 	| ('\t' | '    ' | '  ' ) inst
     | label
+    | directives
     | '\n'
     ;
 
@@ -88,12 +89,19 @@ ptr_offset:
 
 variable: tag  WHITE_SPACE? '=' WHITE_SPACE? inm;
 
+directives: '.org ' inm_list
+	| '.byte '  inm_list
+	| '.word '  inm_list
+	;
+
+inm_list: inm ((', '| ',') (inm | tag ))*
+	;
+
 inm: INT 
 	| HEX 
 	| BINARY 
 	| '\'' CHAR '\'' 
-	| '\' \'' 
-	| '"\'"' 
+	| '\' \''
 	;
 
 tag: STR;

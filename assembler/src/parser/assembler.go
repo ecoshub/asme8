@@ -11,39 +11,39 @@ import (
 
 // Assembler is a complete listener for a parse tree produced by instParser.
 type Assembler struct {
-	offset        uint64
-	inm           uint16
-	inmSize       uint8
-	lastInst      string
-	lastTag       string
-	codes         map[uint64]uint8
-	regs          []uint8
-	labels        map[string]uint64
-	variables     map[string]uint16
-	missingLabels map[uint16]string
-	directives    map[uint16]*Directive
-	linesEndings  []uint64
-	instructions  []string
-	inmList       []uint16
-	out           []uint8
-	max           uint64
-	blanks        []uint64
-	lastLine      string
+	offset       uint16
+	inm          uint16
+	inmSize      uint8
+	lastInst     string
+	lastTag      string
+	codes        map[uint16]uint8
+	regs         []uint8
+	labels       map[string]uint16
+	variables    map[string]uint16
+	missingTags  map[uint16]string
+	directives   map[uint16]*Directive
+	linesEndings []uint16
+	instructions []string
+	inmList      []uint16
+	out          []uint8
+	max          uint16
+	blanks       []uint16
+	lastLine     string
 
 	processDone bool
 }
 
 func NewAssembler() *Assembler {
 	return &Assembler{
-		codes:         make(map[uint64]uint8, 32),
-		regs:          make([]uint8, 0, 2),
-		labels:        make(map[string]uint64),
-		missingLabels: make(map[uint16]string),
-		variables:     make(map[string]uint16),
-		directives:    make(map[uint16]*Directive),
-		linesEndings:  make([]uint64, 0, 10),
-		blanks:        make([]uint64, 0, 10),
-		instructions:  make([]string, 0, 256),
+		codes:        make(map[uint16]uint8, 32),
+		regs:         make([]uint8, 0, 2),
+		labels:       make(map[string]uint16),
+		missingTags:  make(map[uint16]string),
+		variables:    make(map[string]uint16),
+		directives:   make(map[uint16]*Directive),
+		linesEndings: make([]uint16, 0, 10),
+		blanks:       make([]uint16, 0, 10),
+		instructions: make([]string, 0, 256),
 	}
 }
 
@@ -53,23 +53,26 @@ func (a *Assembler) process() error {
 	if a.processDone {
 		return nil
 	}
-	for o, l := range a.missingLabels {
+	for o, l := range a.missingTags {
 		val, ok := a.labels[l]
 		if !ok {
-			return fmt.Errorf("error unknown label '%s' at %d", l, o)
+			val, ok = a.variables[l]
+			if !ok {
+				return fmt.Errorf("error unknown label '%s' at %d", l, o)
+			}
 		}
-		a.codes[uint64(o)] = uint8(val)
-		a.codes[uint64(o+1)] = uint8(val >> 8)
+		a.codes[o] = uint8(val)
+		a.codes[o+1] = uint8(val >> 8)
 	}
-	max := uint64(0)
+	max := uint16(0)
 	for offset := range a.codes {
 		if offset >= max {
 			max = offset
 		}
 	}
 	ordered := make([]uint8, max+1)
-	for i := uint64(0); i < max+1; i++ {
-		b := a.codes[uint64(i)]
+	for i := uint16(0); i < max+1; i++ {
+		b := a.codes[i]
 		ordered[i] = b
 	}
 	a.out = ordered
@@ -90,7 +93,7 @@ func (a *Assembler) AddOpCode(opCode uint8) {
 
 // ExitInst_reg_inm_variable implements AsmE8Listener.
 func (a *Assembler) ExitInst_reg_inm_variable(c *Inst_reg_inm_variableContext) {
-	a.setInm(int64(a.variables[a.lastTag]))
+	a.setInm(a.variables[a.lastTag])
 	a.ExitInst_reg_inm_core()
 }
 
@@ -151,17 +154,17 @@ func (a *Assembler) ExitInst_single_reg(c *Inst_single_regContext) {
 func (a *Assembler) ExitInst_single_tag(c *Inst_single_tagContext) {
 	val, exists := a.variables[a.lastTag]
 	if exists {
-		a.setInm(int64(val))
+		a.setInm(val)
 		a.ExitInst_single_inm_core()
 		return
 	}
 
-	val64, exists := a.labels[a.lastTag]
-	if !exists {
-		a.missingLabels[uint16(a.offset+1)] = a.lastTag
-	}
 	opcode := symbols.GetOpCode(strings.ToLower(a.lastInst), symbols.ADDRESSING_MODE_IMPL_INM_16)
 	a.AddOpCode(opcode)
+	val64, exists := a.labels[a.lastTag]
+	if !exists {
+		a.missingTags[a.offset] = a.lastTag
+	}
 	a.AddOpCode(uint8(val64))
 	a.AddOpCode(uint8(val64 >> 8))
 }
@@ -190,6 +193,14 @@ func (a *Assembler) ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext) {
 	a.AddOpCode(opcode)
 	var val uint8 = a.regs[1] | (a.regs[0] << 4)
 	a.AddOpCode(val)
+	if a.lastTag != "" && a.inm == 0 {
+		val, ok := a.GetTagValue(a.lastTag)
+		if !ok {
+			a.missingTags[a.offset] = a.lastTag
+		} else {
+			a.setInm(val)
+		}
+	}
 	a.AddOpCode(uint8(a.inm))
 	a.AddOpCode(uint8(a.inm >> 8))
 }
@@ -200,8 +211,28 @@ func (a *Assembler) ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext) {
 	a.AddOpCode(opcode)
 	var val uint8 = a.regs[0] | (a.regs[1] << 4)
 	a.AddOpCode(val)
+	if a.lastTag != "" && a.inm == 0 {
+		val, ok := a.GetTagValue(a.lastTag)
+		if !ok {
+			a.missingTags[a.offset] = a.lastTag
+		} else {
+			a.setInm(val)
+		}
+	}
 	a.AddOpCode(uint8(a.inm))
 	a.AddOpCode(uint8(a.inm >> 8))
+}
+
+func (a *Assembler) GetTagValue(tag string) (uint16, bool) {
+	val, exists := a.variables[tag]
+	if exists {
+		return val, true
+	}
+	val, exists = a.labels[tag]
+	if exists {
+		return val, true
+	}
+	return 0, false
 }
 
 // ExitPtr_offset implements AsmE8Listener.
@@ -209,7 +240,7 @@ func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {
 	if a.lastTag == "" {
 		return
 	}
-	a.setInm(int64(a.variables[a.lastTag]))
+	a.setInm(a.variables[a.lastTag])
 }
 
 // ExitVariable implements AsmE8Listener.
@@ -232,7 +263,7 @@ func (a *Assembler) ExitPtr(c *PtrContext) {
 	if a.lastTag == "" {
 		return
 	}
-	a.setInm(int64(a.variables[a.lastTag]))
+	a.setInm(a.variables[a.lastTag])
 }
 
 // ExitTag implements instListener.
@@ -271,20 +302,20 @@ func (a *Assembler) ExitReg(c *RegContext) {
 func (a *Assembler) ExitDirectives(c *DirectivesContext) {
 	text := c.GetText()
 	if strings.HasPrefix(text, ".org") {
-		offset := uint64(a.inmList[0])
-		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".org", position: a.offset, offset: offset, single: true, inm: a.inmList}
+		offset := a.inmList[0]
+		a.directives[a.offset] = &Directive{raw: text, code: ".org", position: a.offset, offset: offset, single: true, inm: a.inmList}
 		a.offset = offset
 		return
 	}
 	if strings.HasPrefix(text, ".byte") {
-		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".byte", position: a.offset, offset: uint64(len(a.inmList)), single: false, inm: a.inmList}
+		a.directives[a.offset] = &Directive{raw: text, code: ".byte", position: a.offset, offset: uint16(len(a.inmList)), single: false, inm: a.inmList}
 		for _, b := range a.inmList {
 			a.AddOpCode(uint8(b))
 		}
 		return
 	}
 	if strings.HasPrefix(text, ".word") {
-		a.directives[uint16(a.offset)] = &Directive{raw: text, code: ".word", position: a.offset, offset: uint64(len(a.inmList) * 2), single: false, inm: a.inmList}
+		a.directives[a.offset] = &Directive{raw: text, code: ".word", position: a.offset, offset: uint16(len(a.inmList) * 2), single: false, inm: a.inmList}
 		for _, b := range a.inmList {
 			a.AddOpCode(uint8(b))
 			a.AddOpCode(uint8(b >> 8))
@@ -311,41 +342,41 @@ func (a *Assembler) ExitInm_list(c *Inm_listContext) {
 	a.inmList = inmList
 }
 
-func (a *Assembler) parseInm(text string) int64 {
+func (a *Assembler) parseInm(text string) uint16 {
 	var val int64
 
 	if strings.HasPrefix(text, "'") && strings.HasSuffix(text, "'") {
 		text = strings.TrimPrefix(text, "'")
 		text = strings.TrimSuffix(text, "'")
-		val := int64(text[0])
+		val := uint16(text[0])
 		return val
 	}
 
 	if strings.HasPrefix(text, "\"") && strings.HasSuffix(text, "\"") {
 		text = strings.TrimPrefix(text, "\"")
 		text = strings.TrimSuffix(text, "\"")
-		val := int64(text[0])
+		val := uint16(text[0])
 		return val
 	}
 
 	if strings.HasPrefix(text, "0x") {
 		text = strings.TrimPrefix(text, "0x")
 		val, _ = strconv.ParseInt(text, 16, 64)
-		return val
+		return uint16(val)
 	}
 
 	if strings.HasPrefix(text, "0b") {
 		text = strings.TrimPrefix(text, "0b")
 		val, _ = strconv.ParseInt(text, 2, 64)
-		return val
+		return uint16(val)
 	}
 
 	val, _ = strconv.ParseInt(text, 10, 64)
-	return val
+	return uint16(val)
 }
 
-func (a *Assembler) setInm(val int64) {
-	a.inm = uint16(val)
+func (a *Assembler) setInm(val uint16) {
+	a.inm = val
 	if val > 0xff {
 		a.inmSize = 16
 	} else {

@@ -1,8 +1,21 @@
-VAL=31
+ADDR_CHAR_OUT=0x7000
 
 start:
-    jmp 0x6000
+    mov b, 0
+loop:
+    mov a, [message+b]
+    cmp a, 0
+    jz done
+    jsr print_char
+    inc b
+    jmp loop
 
-.org 0x6000
-.byte 0x41 0x02 0x0a
-.byte 0x41 0x02 0x0a
+print_char:
+    mov [ADDR_CHAR_OUT+b], a
+    rts
+
+done:
+    brk
+
+message:
+.byte 'H', 'e', 'l', 'l', 'o', '!', 0

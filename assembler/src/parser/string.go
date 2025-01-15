@@ -65,7 +65,7 @@ func (a *Assembler) String() string {
 	return buffer
 }
 
-func isBlank(index int, blanks []uint64) bool {
+func isBlank(index int, blanks []uint16) bool {
 	for _, le := range blanks {
 		if int(le-1) == index {
 			return true
@@ -74,7 +74,7 @@ func isBlank(index int, blanks []uint64) bool {
 	return false
 }
 
-func isLineEnd(index int, linesEndings []uint64) (bool, int) {
+func isLineEnd(index int, linesEndings []uint16) (bool, int) {
 	for li, le := range linesEndings {
 		if int(le-1) == index {
 			return true, li
@@ -83,7 +83,7 @@ func isLineEnd(index int, linesEndings []uint64) (bool, int) {
 	return false, 0
 }
 
-func isLabel(index int, labels map[string]uint64) (bool, string) {
+func isLabel(index int, labels map[string]uint16) (bool, string) {
 	for label, li := range labels {
 		if int(li) == index {
 			return true, label
@@ -106,7 +106,7 @@ func isNotInDirective(index int, directives map[uint16]*Directive) bool {
 		if d.code == ".org" {
 			continue
 		}
-		if d.position > uint64(index+1) || (d.position+d.offset) < uint64(index+1) {
+		if d.position > uint16(index+1) || (d.position+d.offset) < uint16(index+1) {
 			continue
 		} else {
 			return false

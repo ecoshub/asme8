@@ -1,9 +1,9 @@
-ADDR_CHAR_OUT = 0x7000
-ADDR_CHAR_RDY = 0x7100
-ADDR_CHAR_READ = 0x7101
+ADDR_CHAR_OUT=0x7000
+ADDR_CHAR_RDY=0x7100
+ADDR_CHAR_READ=0x7101
 
-CHAR_DEL = 0x7f
-CHAR_SPACE = ' '
+CHAR_DEL=0x7f
+CHAR_SPACE=' '
 
 start:
     mov c, 0                    ; char index for screen

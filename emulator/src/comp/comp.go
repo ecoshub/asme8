@@ -6,6 +6,7 @@ import (
 	"asme8/emulator/src/instruction"
 	"asme8/emulator/src/register"
 	"asme8/emulator/src/status"
+	"asme8/emulator/src/terminal"
 	"asme8/emulator/utils"
 	"fmt"
 	"time"
@@ -44,6 +45,8 @@ type Comp struct {
 	rw      uint8 // read 1 write 0
 	devices []connectable.Connectable
 
+	terminalComponents *terminal.Components
+
 	stopChan chan struct{}
 	running  bool
 	debug    bool
@@ -65,6 +68,10 @@ func New() *Comp {
 	}
 	// ConfigureBIOS(c)
 	return c
+}
+
+func (c *Comp) AttachTerminalComponents(terminalComponents *terminal.Components) {
+	c.terminalComponents = terminalComponents
 }
 
 func (c *Comp) SetDebug(enable bool) {
@@ -129,25 +136,30 @@ func (c *Comp) tick() bool {
 	for i, mi := range microinstructions {
 		keep := c.run(mi)
 		if !keep {
-			fmt.Printf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
+			c.Logf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
+			// fmt.Printf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
 			break
 		}
 		if c.debug {
 			if c.verbose {
-				fmt.Printf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
+				c.Logf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
+				// fmt.Printf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
 			}
 		}
 	}
 	if c.debug {
 		if !c.verbose {
-			fmt.Printf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
+			c.Logf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
+			// fmt.Printf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
 		} else {
-			fmt.Println("--")
+			c.Logf("--")
+			// fmt.Println("--")
 		}
 	}
 	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
 		if c.debug {
-			fmt.Println(" ## BREAK ## ")
+			c.Logf(" ## BREAK ## ")
+			// fmt.Println(" ## BREAK ## ")
 		}
 		return false
 	}

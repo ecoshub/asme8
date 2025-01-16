@@ -1,4 +1,4 @@
-CHAR_OUT_ADDR = 0x7000
+CHAR_OUT_ADDR=0x7000
 
 start:
     mov a, 'A'

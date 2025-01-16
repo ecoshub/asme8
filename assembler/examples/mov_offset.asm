@@ -1,5 +1,5 @@
-ADDR = 0x90ff
-TEST_ADDR = 0x9100
+ADDR=0x90ff
+TEST_ADDR=0x9100
 
 start:
     mov b, 5

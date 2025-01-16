@@ -1,32 +1,52 @@
-package keyboard
+package terminal
 
 import (
 	"asme8/emulator/src/bus"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/utils"
-	"os"
 
-	"github.com/ecoshub/termium/utils/ansi"
+	"github.com/ecoshub/termium/component/palette"
 	"github.com/eiannone/keyboard"
 )
 
 var _ connectable.Connectable = &Keyboard{}
 
 type Keyboard struct {
-	addressBus *bus.Bus
-	dataBus    *bus.Bus
-	rangeStart uint16
-	rangeEnd   uint16
-	input      uint8
-	ready      bool
+	addressBus  *bus.Bus
+	dataBus     *bus.Bus
+	rangeStart  uint16
+	rangeEnd    uint16
+	input       uint8
+	ready       bool
+	cp          *palette.Palette
+	pipeInput   bool
+	pipeChanged func(pipeInput bool)
 }
 
-func New() *Keyboard {
-	return &Keyboard{}
-}
-
-func (k *Keyboard) Listen() {
-	k.ListenKeys()
+func NewKeyboard(cp *palette.Palette) *Keyboard {
+	k := &Keyboard{
+		cp:        cp,
+		pipeInput: false,
+	}
+	cp.AttachKeyEventHandler(func(event keyboard.KeyEvent) {
+		if event.Key == keyboard.KeyCtrlD {
+			k.pipeInput = !k.pipeInput
+			cp.SetBaseListener(k.pipeInput)
+			if k.pipeChanged != nil {
+				k.pipeChanged(k.pipeInput)
+			}
+		}
+		if !k.pipeInput {
+			return
+		}
+		input := uint8(event.Key)
+		if event.Key == 0 {
+			input = uint8(event.Rune)
+		}
+		k.input = uint8(input)
+		k.ready = true
+	})
+	return k
 }
 
 // Attach implements connectable.Connectable.
@@ -84,23 +104,9 @@ func (k *Keyboard) ReadRequest() {
 
 func (k *Keyboard) WriteRequest() {}
 
-func (k *Keyboard) ListenKeys() {
-	keyEvents, err := keyboard.GetKeys(1)
-	if err != nil {
+func (k *Keyboard) AttachPipeChange(f func(pipeInput bool)) {
+	if f == nil {
 		return
 	}
-	func(keyEvents <-chan keyboard.KeyEvent) {
-		for event := range keyEvents {
-			k.input = uint8(event.Key)
-			if event.Key == 0 {
-				k.input = uint8(event.Rune)
-			}
-			if event.Key == keyboard.KeyCtrlC {
-				print(ansi.ResetAllModes)
-				print(ansi.MakeCursorVisible)
-				os.Exit(0)
-			}
-			k.ready = true
-		}
-	}(keyEvents)
+	k.pipeChanged = f
 }

@@ -3,7 +3,6 @@ package comp
 import (
 	"asme8/emulator/src/instruction"
 	"asme8/emulator/src/status"
-	"fmt"
 )
 
 const (
@@ -86,7 +85,8 @@ func mInstStatusControl(c *Comp, mi uint64) {
 	}
 	if c.status.IsSet(statusMask) == !isNot {
 		if c.debug {
-			fmt.Println(" > jump for condition")
+			c.Logf(" > jump for condition")
+			// fmt.Println(" > jump for condition")
 		}
 		mInstStepInc(c, mi)
 		return
@@ -95,7 +95,8 @@ func mInstStatusControl(c *Comp, mi uint64) {
 	mInstProgramCounterInc(c, mi)
 	mInstStepClr(c, mi)
 	if c.debug {
-		fmt.Println(" > no jump")
+		c.Logf(" > no jump")
+		// fmt.Println(" > no jump")
 	}
 }
 

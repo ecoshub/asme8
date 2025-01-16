@@ -3,10 +3,9 @@ package main
 import (
 	"asme8/assembler/src/assembler"
 	"asme8/emulator/src/comp"
-	"asme8/emulator/src/keyboard"
 	"asme8/emulator/src/ram"
 	"asme8/emulator/src/rom"
-	"asme8/emulator/src/video"
+	"asme8/emulator/src/terminal"
 	"flag"
 	"fmt"
 	"os"
@@ -21,8 +20,7 @@ var (
 	flagDebug          = flag.Bool("debug", false, "enable debug mode")
 	flagVerbose        = flag.Bool("verbose", false, "enable verbosity")
 	flagDelay          = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
-	flagEnableVideo    = flag.Bool("enable-video", false, "enable video output")
-	flagEnableKeyboard = flag.Bool("enable-keyboard", false, "enable keyboard input")
+	flagEnableTerminal = flag.Bool("enable-term", false, "enable terminal. screen, panels and keyboard")
 )
 
 func main() {
@@ -56,8 +54,6 @@ func main() {
 		}
 	}
 
-	keyboard := keyboard.New()
-
 	rom := rom.New(0x8000)
 	rom.Load(0, program)
 
@@ -65,25 +61,31 @@ func main() {
 	ram := ram.New(0x8000)
 	ram.Load(0x10ff, []byte{0x90, 0x91, 0x92, 0x93, 0x94})
 
-	vram := video.New()
-
 	c := comp.New()
+
+	var term *terminal.Terminal
+	if *flagEnableTerminal {
+		term, err = terminal.New()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		c.AttachTerminalComponents(term.Components)
+
+		c.ConnectDevice(term.Screen, 0x7000, 0x70ff)
+		c.ConnectDevice(term.Keyboard, 0x7100, 0x7101)
+		*flagDebug = true
+	}
+
 	c.ConnectDevice(rom, 0x0000, 0x6fff)
-	c.ConnectDevice(vram, 0x7000, 0x70ff)
-	c.ConnectDevice(keyboard, 0x7100, 0x7101)
 	c.ConnectDevice(ram, 0x8000, 0xffff)
 
 	c.SetDebug(*flagDebug)
 	c.SetVerbose(*flagVerbose)
 	c.SetDelay(*flagDelay)
 
-	if *flagEnableVideo {
-		vram.Reset()
-		go vram.Run()
-	}
-
-	if *flagEnableKeyboard {
-		go keyboard.ListenKeys()
+	if *flagEnableTerminal {
+		go term.Run()
 	}
 
 	chDone := make(chan struct{}, 1)
@@ -100,6 +102,6 @@ func main() {
 	case <-chDone:
 	}
 
-	vram.ResetScreen()
+	terminal.ResetScreen()
 
 }

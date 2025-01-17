@@ -9,6 +9,7 @@ import (
 var _ connectable.Connectable = &Screen{}
 
 type Screen struct {
+	name       string
 	addressBus *bus.Bus
 	dataBus    *bus.Bus
 	rangeStart uint16
@@ -17,52 +18,61 @@ type Screen struct {
 	components *Components
 }
 
-// Clear implements connectable.Connectable.
-func (v *Screen) Clear() {
-	v.buffer.clear()
-	v.components.MainPanel.Clear()
-	v.components.DebugPanel.Clear()
-	v.components.MemoryPanel.Clear()
-	v.components.FlagPanel.Clear()
-}
-
 func NewScreen(components *Components) (*Screen, error) {
 	return &Screen{
+		name:       "SCREEN",
 		buffer:     NewScreenBuffer(),
 		components: components,
 	}, nil
 }
 
+func (s *Screen) GetName() string {
+	return s.name
+}
+
+func (s *Screen) GetRange() (uint16, uint16) {
+	return s.rangeStart, s.rangeEnd
+}
+
 // Attach implements connectable.Connectable.
-func (v *Screen) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, rangeEnd uint16) {
-	v.addressBus = addrBus
-	v.dataBus = dataBus
-	v.rangeStart = rangeStart
-	v.rangeEnd = rangeEnd
+func (s *Screen) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, rangeEnd uint16) {
+	s.addressBus = addrBus
+	s.dataBus = dataBus
+	s.rangeStart = rangeStart
+	s.rangeEnd = rangeEnd
 }
 
 // Tick implements connectable.Connectable.
-func (v *Screen) Tick(rw uint8) {
+func (s *Screen) Tick(rw uint8) {
 	if rw == utils.IO_WRITE {
-		v.WriteRequest()
+		s.WriteRequest()
 	}
 }
 
-func (v *Screen) WriteRequest() {
-	addr := v.addressBus.Read()
-	if !connectable.IsMyRange(v.rangeStart, v.rangeEnd, addr) {
+func (s *Screen) WriteRequest() {
+	addr := s.addressBus.Read_16()
+	if !connectable.IsMyRange(s.rangeStart, s.rangeEnd, addr) {
 		return
 	}
-	addr = addr - v.rangeStart
-	data := v.dataBus.Read()
-	v.buffer.write(addr, rune(data))
-	v.components.MainPanel.Write(int(addr), uint8(data))
+	addr = addr - s.rangeStart
+	data := s.dataBus.Read_16()
+	s.buffer.write(addr, rune(data))
+	s.components.MainPanel.Write(int(addr), rune(data))
 }
 
-func (v *Screen) Read(addr uint16) uint8 {
-	if !connectable.IsMyRange(v.rangeStart, v.rangeEnd, addr) {
+func (s *Screen) Read(addr uint16) uint8 {
+	if !connectable.IsMyRange(s.rangeStart, s.rangeEnd, addr) {
 		return 0
 	}
-	addr = addr - v.rangeStart
-	return uint8(v.buffer.read(addr))
+	addr = addr - s.rangeStart
+	return uint8(s.buffer.read(addr))
+}
+
+// Clear implements connectable.Connectable.
+func (s *Screen) Clear() {
+	s.buffer.clear()
+	s.components.MainPanel.Clear()
+	s.components.SysLogPanel.Clear()
+	s.components.FlagPanel.Clear()
+	s.components.MemoryPanel.Clear()
 }

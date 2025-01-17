@@ -13,12 +13,12 @@ var (
 
 var (
 	CONTROL_SIGNALS map[instruction.Type]map[step][]uint64 = map[instruction.Type]map[step][]uint64{
-		instruction.INST_MOV_INM_8: {
+		instruction.INST_MOV_INM: {
 			0: MI_CMD_FETCH_INST,
 			1: MI_CMD_FETCH_OPERAND,
 			2: {MI_PC_OUT, MI_IO_READ, MI_REG_OP_1_IN, MI_PC_INC, MI_STEP_CLR},
 		},
-		instruction.INTS_MOV_REG_REG: {
+		instruction.INST_MOV_REG_REG: {
 			0: MI_CMD_FETCH_INST,
 			1: MI_CMD_FETCH_OPERAND,
 			2: {MI_BRIDGE_ENABLE, MI_BRIDGE_DIR_OUT, MI_REG_OP_2_OUT_Y, MI_REG_OP_1_IN, MI_STEP_CLR},

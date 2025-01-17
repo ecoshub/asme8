@@ -12,7 +12,7 @@ var (
 		{
 			Name: "mov immediate reg a",
 			// mov a, 0x10
-			Program: []uint8{instruction.INST_MOV_INM_8, register.IndexRegA, 0x10},
+			Program: []uint8{instruction.INST_MOV_INM, register.IndexRegA, 0x10},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
 					{Index: register.IndexRegA, Data: 0x10},
@@ -25,7 +25,7 @@ var (
 		{
 			Name: "mov immediate reg a",
 			// mov a, 0xff
-			Program: []uint8{instruction.INST_MOV_INM_8, register.IndexRegA, 0xff},
+			Program: []uint8{instruction.INST_MOV_INM, register.IndexRegA, 0xff},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
 					{Index: register.IndexRegA, Data: 0xff},
@@ -40,8 +40,8 @@ var (
 			// mov b, a
 			Name: "mov reg reg",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INTS_MOV_REG_REG, register.IndexRegA<<1 | register.IndexRegB,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_REG_REG, register.IndexRegA<<1 | register.IndexRegB,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -59,10 +59,10 @@ var (
 			// mov d, a
 			Name: "mov reg reg",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
-				instruction.INTS_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegB,
-				instruction.INTS_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegC,
-				instruction.INTS_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegD,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegB,
+				instruction.INST_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegC,
+				instruction.INST_MOV_REG_REG, register.IndexRegA<<4 | register.IndexRegD,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -78,7 +78,7 @@ var (
 			// mov [0x9000], a
 			Name: "mov reg data",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
@@ -99,11 +99,11 @@ var (
 			// mov [0x9002], a
 			Name: "mov reg mem",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x90,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x90,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x91,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x91,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x01, 0x90,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x92,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x92,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x02, 0x90,
 			},
 			Expect: &test.Expect{
@@ -120,7 +120,7 @@ var (
 			// mov b, [0x9000]
 			Name: "mov reg mem",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x90,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x90,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
 				instruction.INST_MOV_MEM_REG, register.IndexRegB, 0x00, 0x90,
 			},
@@ -140,8 +140,8 @@ var (
 			// mov c, [0x9000+b]
 			Name: "mov mem reg data offset",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x2,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x02, 0x90,
 				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0x00, 0x90,
 			},
@@ -163,8 +163,8 @@ var (
 			// mov c, [0x90ff+b]
 			Name: "mov mem reg data offset",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x2,
 				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x01, 0x91,
 				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0xff, 0x90,
 			},
@@ -186,9 +186,9 @@ var (
 			// mov c, [0x90ff+b]
 			Name: "mov reg mem data offset",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x2,
-				instruction.INST_MOV_INM_8, register.IndexRegC, 0x0,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x2,
+				instruction.INST_MOV_INM, register.IndexRegC, 0x0,
 				instruction.INST_MOV_REG_MEM_OFFSET, register.IndexRegA<<4 | register.IndexRegB, 0xff, 0x90,
 				instruction.INST_MOV_MEM_REG_OFFSET, register.IndexRegC<<4 | register.IndexRegB, 0xff, 0x90,
 			},
@@ -209,9 +209,9 @@ var (
 			// mov a, 0x20
 			Name: "break",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -228,11 +228,11 @@ var (
 			//     mov a, 0x30
 			Name: "jump inm",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_JMP_INM, 0x0a, 0x00,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -251,12 +251,12 @@ var (
 			//     mov a, 0x30
 			Name: "cmp and jz",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x10,
 				instruction.INST_JZ_INM, 0x0d, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -275,12 +275,12 @@ var (
 			//     mov a, 0x30
 			Name: "cmp and jz no jump",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x20,
 				instruction.INST_JZ_INM, 0x0d, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -299,12 +299,12 @@ var (
 			//     mov a, 0x30
 			Name: "jnz jump",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x10,
 				instruction.INST_JNZ_INM, 0x0d, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -323,12 +323,12 @@ var (
 			//     mov a, 0x30
 			Name: "jnz no jump",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x10,
 				instruction.INST_JNZ_INM, 0x0d, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -348,13 +348,13 @@ var (
 			//     mov a, 0x30
 			Name: "cmp rr and jz",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
 				instruction.INST_CMP_RR, register.IndexRegA<<4 | register.IndexRegB,
 				instruction.INST_JZ_INM, 0x0f, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -374,13 +374,13 @@ var (
 			//     mov a, 0x30
 			Name: "cmp rr and jz no jump",
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x20,
 				instruction.INST_CMP_RR, register.IndexRegA<<4 | register.IndexRegB,
 				instruction.INST_JZ_INM, 0x0f, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x30,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
@@ -403,7 +403,7 @@ var (
 			// mov a, 0x20
 			// add a, 0x10
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_ADD_REG_INM, register.IndexRegA, 0x10,
 			},
 			Expect: &test.Expect{
@@ -417,7 +417,7 @@ var (
 			// mov a, 0xff
 			// add a, 0x01
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
 				instruction.INST_ADD_REG_INM, register.IndexRegA, 0x01,
 			},
 			Expect: &test.Expect{
@@ -432,8 +432,8 @@ var (
 			// mov b, 0x11
 			// add a, b
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x11,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x11,
 				instruction.INST_ADD_RR, register.IndexRegB<<4 | register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -449,8 +449,8 @@ var (
 			// mov b, 0x11
 			// add b, a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x11,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x11,
 				instruction.INST_ADD_RR, register.IndexRegA<<4 | register.IndexRegB,
 			},
 			Expect: &test.Expect{
@@ -475,7 +475,7 @@ var (
 			// mov a, 0x20
 			// sub a, 0x10
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_SUB_REG_INM, register.IndexRegA, 0x10,
 			},
 			Expect: &test.Expect{
@@ -489,7 +489,7 @@ var (
 			// mov a, 0xff
 			// sub a, 0x01
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
 				instruction.INST_SUB_REG_INM, register.IndexRegA, 0x01,
 			},
 			Expect: &test.Expect{
@@ -504,8 +504,8 @@ var (
 			// mov b, 0x11
 			// sub a, b
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x11,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x11,
 				instruction.INST_SUB_RR, register.IndexRegB<<4 | register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -521,8 +521,8 @@ var (
 			// mov b, 0x11
 			// sub b, a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x11,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x11,
 				instruction.INST_SUB_RR, register.IndexRegA<<4 | register.IndexRegB,
 			},
 			Expect: &test.Expect{
@@ -538,7 +538,7 @@ var (
 			// push a
 			// pop b
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_PUSH_REG, register.IndexRegA,
 				instruction.INST_POP_REG, register.IndexRegB,
 			},
@@ -583,7 +583,7 @@ var (
 			// mov a, 0x20
 			// inc a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_INC, register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -597,7 +597,7 @@ var (
 			// mov a, 0xff
 			// inc a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
 				instruction.INST_INC, register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -611,7 +611,7 @@ var (
 			// mov a, 0x20
 			// dec a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
 				instruction.INST_DEC, register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -625,7 +625,7 @@ var (
 			// mov a, 0x00
 			// dec a
 			Program: []uint8{
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x00,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x00,
 				instruction.INST_DEC, register.IndexRegA,
 			},
 			Expect: &test.Expect{
@@ -647,10 +647,10 @@ var (
 			//     brk
 			Program: []uint8{
 				instruction.INST_JSR, 0x07, 0x00,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x10,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
 				instruction.INST_BRK,
-				instruction.INST_MOV_INM_8, register.IndexRegA, 0x20,
-				instruction.INST_MOV_INM_8, register.IndexRegB, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x20,
 				instruction.INST_RTS,
 				instruction.INST_BRK,
 			},

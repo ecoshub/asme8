@@ -41,5 +41,6 @@ func GetComp() *comp.Comp {
 	MainTestComputer.ConnectDevice(MainROM, 0x0000, 0x8000)
 	MainTestComputer.ConnectDevice(MainRAM, 0x8000, 0xffff)
 	MainTestComputer.SetDelay(time.Nanosecond)
+	MainTestComputer.SetPause(false)
 	return MainTestComputer
 }

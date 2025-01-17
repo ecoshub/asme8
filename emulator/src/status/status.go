@@ -77,3 +77,14 @@ func (s *StatusRegister) IsSet(mask uint8) bool {
 func (s *StatusRegister) Flag() uint8 {
 	return s.flag
 }
+func (s *StatusRegister) String() string {
+	out := ""
+	for i := 0; i < 8; i++ {
+		bit := s.flag & (1 << i) >> i
+		out += string(48 + bit)
+		if i != 7 {
+			out += " "
+		}
+	}
+	return out
+}

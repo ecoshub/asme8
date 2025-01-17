@@ -1,7 +1,7 @@
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
-github.com/ecoshub/termium v1.2.6-0.0.0 h1:zN8hp4Kg3SIgDC2YRCV/av6jJIJWzNNTKDaXwRiPDVI=
-github.com/ecoshub/termium v1.2.6-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
+github.com/ecoshub/termium v1.3.0-0.0.0 h1:hqxS0pLm4ZnyyQwbILf+XTyfgPFzS5OyxU9TQQkyNu0=
+github.com/ecoshub/termium v1.3.0-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
 github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 h1:XBBHcIb256gUJtLmY22n99HaZTz+r2Z51xUPi01m3wg=
 github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203/go.mod h1:E1jcSv8FaEny+OP/5k9UxZVw9YFWGj7eI4KR/iOBqCg=
 golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 h1:vr/HnozRka3pE4EsMEg1lgkXJkTFJCVUX+S/ZT6wYzM=

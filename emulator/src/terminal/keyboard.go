@@ -12,6 +12,7 @@ import (
 var _ connectable.Connectable = &Keyboard{}
 
 type Keyboard struct {
+	name        string
 	addressBus  *bus.Bus
 	dataBus     *bus.Bus
 	rangeStart  uint16
@@ -25,6 +26,7 @@ type Keyboard struct {
 
 func NewKeyboard(cp *palette.Palette) *Keyboard {
 	k := &Keyboard{
+		name:      "KEYBOARD",
 		cp:        cp,
 		pipeInput: false,
 	}
@@ -35,6 +37,7 @@ func NewKeyboard(cp *palette.Palette) *Keyboard {
 			if k.pipeChanged != nil {
 				k.pipeChanged(k.pipeInput)
 			}
+			return
 		}
 		if !k.pipeInput {
 			return
@@ -55,6 +58,14 @@ func (k *Keyboard) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16,
 	k.dataBus = dataBus
 	k.rangeStart = rangeStart
 	k.rangeEnd = rangeEnd
+}
+
+func (k *Keyboard) GetName() string {
+	return k.name
+}
+
+func (k *Keyboard) GetRange() (uint16, uint16) {
+	return k.rangeStart, k.rangeEnd
 }
 
 // Clear implements connectable.Connectable.
@@ -79,7 +90,7 @@ func (k *Keyboard) Tick(rw uint8) {
 }
 
 func (k *Keyboard) ReadRequest() {
-	addr := k.addressBus.Read()
+	addr := k.addressBus.Read_16()
 	if !connectable.IsMyRange(k.rangeStart, k.rangeEnd, addr) {
 		return
 	}

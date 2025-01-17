@@ -12,4 +12,4 @@ char_out:
     jmp loop
 
 done:
-    brk
+    jmp start

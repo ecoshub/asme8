@@ -19,9 +19,9 @@ func New() (*Terminal, error) {
 	k := NewKeyboard(components.Screen.CommandPalette)
 	k.AttachPipeChange(func(pipeInput bool) {
 		if pipeInput {
-			components.SysLogPanel.Push(">> keyboard input directed to emulator ( use CTRL + D to switch)")
+			components.SysLogPanel.Push(">> Keyboard input directed to emulator ( use CTRL + D to switch)")
 		} else {
-			components.SysLogPanel.Push("<< keyboard input directed to comment pallet ( use CTRL + D to switch)")
+			components.SysLogPanel.Push("<< Keyboard input directed to command pallet ( use CTRL + D to switch)")
 		}
 	})
 	s, err := NewScreen(components)

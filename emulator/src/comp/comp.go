@@ -29,7 +29,6 @@ type Comp struct {
 	programCounter        uint16
 	memoryAddressRegister uint16
 	stackPointer          uint16
-	memoryDataRegister    uint8
 
 	aluDirectOut   bool
 	aluEnable      bool
@@ -45,12 +44,15 @@ type Comp struct {
 	rw      uint8 // read 1 write 0
 	devices []connectable.Connectable
 
-	terminalComponents *terminal.Components
+	terminalComponents     *terminal.Components
+	singleTicker           chan struct{}
+	breakPoints            []uint16
+	inspectionMemoryOffset uint16
 
 	stopChan chan struct{}
 	running  bool
+	pause    bool
 	debug    bool
-	verbose  bool
 	delay    time.Duration
 }
 
@@ -65,21 +67,24 @@ func New() *Comp {
 		addrBus:      bus.New(),
 		devices:      make([]connectable.Connectable, 0, 1),
 		stopChan:     make(chan struct{}, 1),
+		singleTicker: make(chan struct{}, 1),
 	}
-	// ConfigureBIOS(c)
 	return c
 }
 
 func (c *Comp) AttachTerminalComponents(terminalComponents *terminal.Components) {
 	c.terminalComponents = terminalComponents
+	terminalComponents.Screen.CommandPalette.ListenKeyEventEnter(func(input string) {
+		c.HandleCommands(input)
+	})
+}
+
+func (c *Comp) SetPause(enable bool) {
+	c.pause = enable
 }
 
 func (c *Comp) SetDebug(enable bool) {
 	c.debug = enable
-}
-
-func (c *Comp) SetVerbose(enable bool) {
-	c.verbose = enable
 }
 
 func (c *Comp) SetDelay(delay time.Duration) {
@@ -91,7 +96,7 @@ func (c *Comp) PrintRegisters() {
 }
 
 func (c *Comp) PrintBusses() {
-	fmt.Printf("busses, data: %x, x: %x, y: %x\n", c.dataBus.Read(), c.busX.Read(), c.busY.Read())
+	fmt.Printf("busses, data: %x, x: %x, y: %x\n", c.dataBus.Read_16(), c.busX.Read_16(), c.busY.Read_16())
 }
 
 func (c *Comp) ReadRegister(index uint8) uint8 {
@@ -107,11 +112,27 @@ func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, ran
 }
 
 func (c *Comp) Run() {
+
+	c.dataBus.AttachBusChange(func() {
+		c.LogMemory()
+	})
+
+	c.LogMemory()
+	c.LogState()
+
 	t := time.NewTicker(c.delay)
 	c.running = true
 	for {
 		select {
 		case <-t.C:
+			if c.pause {
+				continue
+			}
+			keep := c.tick()
+			if !keep {
+				return
+			}
+		case <-c.singleTicker:
 			keep := c.tick()
 			if !keep {
 				return
@@ -133,34 +154,15 @@ func (c *Comp) Stop() {
 func (c *Comp) tick() bool {
 	defer c.clear()
 	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
-	for i, mi := range microinstructions {
+	for _, mi := range microinstructions {
 		keep := c.run(mi)
 		if !keep {
-			c.Logf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
-			// fmt.Printf("** [ %-16s ] mi: %d, inst: %2x, step: %d [%d]\n", MI_NAME_MAP[mi], mi, c.instructionRegister, c.step, i)
 			break
 		}
-		if c.debug {
-			if c.verbose {
-				c.Logf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
-				// fmt.Printf("# [ %-16s ] pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", MI_NAME_MAP[mi], c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.busX.Read(), c.busY.Read(), c.rw, c.status.Flag(), c.registers)
-			}
-		}
 	}
-	if c.debug {
-		if !c.verbose {
-			c.Logf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
-			// fmt.Printf("# pc: %04x, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.instructionRegister, c.operandRegister, c.addrBus.Read(), c.dataBus.Read(), c.rw, c.status.Flag(), c.registers)
-		} else {
-			c.Logf("--")
-			// fmt.Println("--")
-		}
-	}
+	c.LogState()
 	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
-		if c.debug {
-			c.Logf(" ## BREAK ## ")
-			// fmt.Println(" ## BREAK ## ")
-		}
+		c.LogWithStyle(" ## BREAK ## ", DefaultWarningStyle)
 		return false
 	}
 	return true
@@ -181,9 +183,14 @@ func (c *Comp) tickDevices() {
 	}
 }
 
-func (c *Comp) Reset() {
+func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.Stop()
 	for _, dev := range c.devices {
+		if excludeROM {
+			if dev.GetName() == "ROM" {
+				continue
+			}
+		}
 		dev.Clear()
 	}
 	c.registers.Write(register.IndexRegA, 0)
@@ -202,7 +209,13 @@ func (c *Comp) Reset() {
 	c.rw = utils.IO_READ
 	c.stopChan = make(chan struct{}, 1)
 	c.running = false
+	c.pause = startWithPause
 	c.clear()
+}
+
+func (c *Comp) Restart(startWithPause bool) {
+	c.Reset(true, true)
+	go c.Run()
 }
 
 func (c *Comp) clear() {

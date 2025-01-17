@@ -123,8 +123,6 @@ var (
 		MI_REG_OP_1_OUT_Y: mInstReg1OutY,
 		MI_REG_OP_2_OUT_X: mInstReg2OutX,
 		MI_REG_OP_2_OUT_Y: mInstReg2OutY,
-		MI_MDR_IN:         mInstMemoryDataRegisterIn,
-		MI_MDR_OUT:        mInstMemoryDataRegisterOut,
 		MI_ONES_OUT_X:     mInstOnesOutX,
 		MI_ONES_OUT_Y:     mInstOnesOutY,
 		MI_MAR_OUT:        mInstMarOut,

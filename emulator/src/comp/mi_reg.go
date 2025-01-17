@@ -1,11 +1,11 @@
 package comp
 
 func mInstReg1In(c *Comp, _ uint64) {
-	c.registers.Write(c.operandRegister&0xf, uint8(c.dataBus.Read()))
+	c.registers.Write(c.operandRegister&0xf, uint8(c.dataBus.Read_16()))
 }
 
 func mInstReg2In(c *Comp, _ uint64) {
-	c.registers.Write((c.operandRegister&0xf0)>>4, uint8(c.dataBus.Read()))
+	c.registers.Write((c.operandRegister&0xf0)>>4, uint8(c.dataBus.Read_16()))
 }
 
 func mInstReg1OutX(c *Comp, _ uint64) {

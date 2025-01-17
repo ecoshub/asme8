@@ -42,8 +42,8 @@ const (
 	_                Type = 0x3f
 
 	// Move
-	INTS_MOV_REG_REG        Type = 0x40
-	INST_MOV_INM_8          Type = 0x41
+	INST_MOV_REG_REG        Type = 0x40
+	INST_MOV_INM            Type = 0x41
 	INST_MOV_MEM_REG        Type = 0x42
 	INST_MOV_REG_MEM        Type = 0x43
 	INST_MOV_MEM_REG_OFFSET Type = 0x44
@@ -65,5 +65,37 @@ const (
 	INST_POP_REG  Type = 0xf2
 	INST_JSR      Type = 0xf3 // NOT IMPLEMENTED
 	INST_RTS      Type = 0xf4 // NOT IMPLEMENTED
+)
 
+var (
+	INST_MNEMONICS = map[uint8]string{
+		0x00: "BRK",
+		0xff: "NOP",
+		0x10: "JMP_INM",
+		0x15: "JZ_INM",
+		0x16: "JNZ_INM",
+		0x1a: "CMP_RR",
+		0x1b: "CMP_RI",
+		0x30: "ADD_RR",
+		0x31: "ADD_RI",
+		0x32: "ADC_RR",
+		0x33: "ADC_RI",
+		0x34: "SUB_RR",
+		0x35: "SUB_RI",
+		0x36: "SBB_RR",
+		0x37: "SBB_RI",
+		0x38: "INC",
+		0x39: "DEC",
+		0x40: "MOV_RR",
+		0x41: "MOV_INM",
+		0x42: "MOV_MR",
+		0x43: "MOV_RM",
+		0x44: "MOV_MR_OFF",
+		0x45: "MOV_RM_OFF",
+		0xf0: "PUSH_REG",
+		0xf1: "PUSH_INM",
+		0xf2: "POP_REG",
+		0xf3: "JSR",
+		0xf4: "RTS",
+	}
 )

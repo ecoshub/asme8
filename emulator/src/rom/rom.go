@@ -9,6 +9,7 @@ import (
 var _ connectable.Connectable = &Rom{}
 
 type Rom struct {
+	name       string
 	addressBus *bus.Bus
 	dataBus    *bus.Bus
 	size       uint16
@@ -19,6 +20,7 @@ type Rom struct {
 
 func New(size uint16) *Rom {
 	return &Rom{
+		name: "ROM",
 		size: size,
 		data: make([]byte, size),
 	}
@@ -47,7 +49,7 @@ func (r *Rom) Tick(rw uint8) {
 }
 
 func (r *Rom) ReadRequest() {
-	val := r.addressBus.Read()
+	val := r.addressBus.Read_16()
 	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, val) {
 		return
 	}
@@ -61,6 +63,14 @@ func (r *Rom) Read(addr uint16) uint8 {
 	}
 	addr = addr - r.rangeStart
 	return r.data[addr]
+}
+
+func (r *Rom) GetName() string {
+	return r.name
+}
+
+func (r *Rom) GetRange() (uint16, uint16) {
+	return r.rangeStart, r.rangeEnd
 }
 
 func (r *Rom) Clear() {

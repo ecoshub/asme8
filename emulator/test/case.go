@@ -36,7 +36,7 @@ type ExpectData struct {
 func RunCase(t *testing.T, tc *TestCase) {
 	t.Run(tc.Name, func(tt *testing.T) {
 		c := GetComp()
-		c.Reset()
+		c.Reset(false, false)
 		MainROM.Load(0, tc.Program)
 		tt.Logf("program: %s", utils.ToHexArray(tc.Program))
 		c.Run()

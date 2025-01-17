@@ -9,6 +9,7 @@ import (
 var _ connectable.Connectable = &Ram{}
 
 type Ram struct {
+	name       string
 	addressBus *bus.Bus
 	dataBus    *bus.Bus
 	size       uint16
@@ -19,6 +20,7 @@ type Ram struct {
 
 func New(size uint16) *Ram {
 	return &Ram{
+		name: "RAM",
 		size: size,
 		data: make([]byte, size),
 	}
@@ -46,7 +48,7 @@ func (r *Ram) Tick(rw uint8) {
 }
 
 func (r *Ram) ReadRequest() {
-	val := r.addressBus.Read()
+	val := r.addressBus.Read_16()
 	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, val) {
 		return
 	}
@@ -55,15 +57,23 @@ func (r *Ram) ReadRequest() {
 }
 
 func (r *Ram) WriteRequest() {
-	addr := r.addressBus.Read()
+	addr := r.addressBus.Read_16()
 	// fmt.Printf("WriteRequest arrived. addr: %04x\n", addr)
 	if !connectable.IsMyRange(r.rangeStart, r.rangeEnd, addr) {
 		return
 	}
 	addr = addr - r.rangeStart
-	data := r.dataBus.Read()
+	data := r.dataBus.Read_16()
 	// fmt.Printf("Writing. addr: %04x, data: %02x\n", addr, data)
 	r.data[addr] = uint8(data)
+}
+
+func (r *Ram) GetName() string {
+	return r.name
+}
+
+func (r *Ram) GetRange() (uint16, uint16) {
+	return r.rangeStart, r.rangeEnd
 }
 
 func (r *Ram) Read(addr uint16) uint8 {

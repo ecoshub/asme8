@@ -84,20 +84,12 @@ func mInstStatusControl(c *Comp, mi uint64) {
 		isNot = true
 	}
 	if c.status.IsSet(statusMask) == !isNot {
-		if c.debug {
-			c.Logf(" > jump for condition")
-			// fmt.Println(" > jump for condition")
-		}
 		mInstStepInc(c, mi)
 		return
 	}
 	mInstProgramCounterInc(c, mi)
 	mInstProgramCounterInc(c, mi)
 	mInstStepClr(c, mi)
-	if c.debug {
-		c.Logf(" > no jump")
-		// fmt.Println(" > no jump")
-	}
 }
 
 func doOperation(s *status.StatusRegister, op uint8, a uint8, b uint8, withCarry bool) uint8 {

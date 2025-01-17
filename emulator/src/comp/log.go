@@ -21,7 +21,7 @@ var (
 
 func (c *Comp) Log(str string) {
 	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
-		fmt.Print(str)
+		fmt.Println(str)
 		return
 	}
 	c.terminalComponents.SysLogPanel.Push(str)
@@ -30,7 +30,7 @@ func (c *Comp) Log(str string) {
 func (c *Comp) LogWithStyle(str string, sty *style.Style) {
 	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
 		if c.debug {
-			fmt.Print(str)
+			fmt.Println(str)
 		}
 		return
 	}
@@ -79,7 +79,7 @@ func (c *Comp) LogfFlagIndexWithStyle(index int, sty *style.Style, format string
 
 func (c *Comp) LogState() {
 	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
-		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read_16(), c.dataBus.Read_16(), c.busX.Read_16(), c.busY.Read_16(), c.rw, c.status.Flag(), c.registers)
+		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read_16(), c.dataBus.Read_16(), c.busX.Read_16(), c.busY.Read_16(), c.rw, c.status.Flag(), c.registers)
 		return
 	}
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])

@@ -42,6 +42,8 @@ func (c *Comp) HandleCommands(command string) {
 	case "clear":
 		c.terminalComponents.SysLogPanel.Clear()
 		return
+	case "r":
+		fallthrough
 	case "restart":
 		c.Restart(true)
 		return
@@ -146,7 +148,7 @@ func (c *Comp) Help() {
 	c.LogWithStyle("'mem' .............: refresh memory panel", DefaultHelpStyle)
 	c.LogWithStyle("'mem <n>' .........: print memory starting with address n", DefaultHelpStyle)
 	c.LogWithStyle("'clear' ...........: clear the log panel", DefaultHelpStyle)
-	c.LogWithStyle("'restart' .........: restart the emulator", DefaultHelpStyle)
+	c.LogWithStyle("'restart' | 'r' ...: restart the emulator", DefaultHelpStyle)
 	c.LogWithStyle("'exit' | 'quit' ...: exit emulator", DefaultHelpStyle)
 	c.LogWithStyle("'help' ............: prints this dialog box", DefaultHelpStyle)
 	c.LogWithStyle("", DefaultHelpStyle)

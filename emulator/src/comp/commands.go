@@ -46,6 +46,8 @@ func (c *Comp) HandleCommands(command string) {
 		fallthrough
 	case "restart":
 		c.Restart(true)
+	case "hz":
+		c.Logf("HZ: %d", time.Second/c.delay)
 		return
 	case "exit":
 		fallthrough
@@ -107,6 +109,21 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
+	exists, param, err := SplitNumberCommand(command, "hz")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		delay := time.Second / time.Duration(param)
+		from := c.delay
+		c.SetDelay(delay)
+		c.Restart(true)
+		c.Logf("delay changed from %s to %s and computer restarted", from, delay)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
+
 	c.LogWithStyle(fmt.Sprintf("# unknown command '%s'", command), DefaultWarningStyle)
 }
 
@@ -133,24 +150,35 @@ func SplitNumberCommand(command string, prefix string) (bool, int64, error) {
 	return true, n, nil
 }
 
+func SplitStringCommand(command string, prefix string) (bool, string, error) {
+	if !strings.HasPrefix(command, prefix+" ") {
+		return false, "", fmt.Errorf("error unknown command. command: %s", command)
+	}
+	tokens := strings.Split(command, prefix+" ")
+	param := tokens[1]
+	return true, param, nil
+}
+
 func (c *Comp) pushToCommandPalletHistory(command string) {
 	c.terminalComponents.Screen.CommandPalette.AddToHistory(command)
 }
 
 func (c *Comp) Help() {
 	c.LogWithStyle("help:", DefaultHelpStyle)
-	c.LogWithStyle("'s' ...............: start/stop", DefaultHelpStyle)
-	c.LogWithStyle("'tick' | 't' ......: advance clock 1 time", DefaultHelpStyle)
-	c.LogWithStyle("'tick <n>' ........: advance clock n time", DefaultHelpStyle)
-	c.LogWithStyle("'b <n>' ...........: add breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("'rb <n>' ..........: remove breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("'lsb' .............: list breakpoints", DefaultHelpStyle)
-	c.LogWithStyle("'mem' .............: refresh memory panel", DefaultHelpStyle)
-	c.LogWithStyle("'mem <n>' .........: print memory starting with address n", DefaultHelpStyle)
-	c.LogWithStyle("'clear' ...........: clear the log panel", DefaultHelpStyle)
-	c.LogWithStyle("'restart' | 'r' ...: restart the emulator", DefaultHelpStyle)
-	c.LogWithStyle("'exit' | 'quit' ...: exit emulator", DefaultHelpStyle)
-	c.LogWithStyle("'help' ............: prints this dialog box", DefaultHelpStyle)
+	c.LogWithStyle("- s ...............: start/stop", DefaultHelpStyle)
+	c.LogWithStyle("- tick | t ........: advance clock 1 time", DefaultHelpStyle)
+	c.LogWithStyle("- tick <n> ........: advance clock n time", DefaultHelpStyle)
+	c.LogWithStyle("- b <n> ...........: add breakpoint to address n", DefaultHelpStyle)
+	c.LogWithStyle("- rb <n> ..........: remove breakpoint to address n", DefaultHelpStyle)
+	c.LogWithStyle("- lsb .............: list breakpoints", DefaultHelpStyle)
+	c.LogWithStyle("- mem .............: refresh memory panel", DefaultHelpStyle)
+	c.LogWithStyle("- mem <n> .........: print memory starting with address n", DefaultHelpStyle)
+	c.LogWithStyle("- clear ...........: clear the log panel", DefaultHelpStyle)
+	c.LogWithStyle("- restart | r .....: restart the emulator", DefaultHelpStyle)
+	c.LogWithStyle("- exit | quit .....: exit emulator", DefaultHelpStyle)
+	c.LogWithStyle("- hz ..............: get current clock speed in hertz (hz)", DefaultHelpStyle)
+	c.LogWithStyle("- hz <n> ..........: set clock speed in hertz (hz)", DefaultHelpStyle)
+	c.LogWithStyle("- help ............: prints this dialog box", DefaultHelpStyle)
 	c.LogWithStyle("", DefaultHelpStyle)
 	c.LogWithStyle("note:", DefaultHelpStyle)
 	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", DefaultHelpStyle)

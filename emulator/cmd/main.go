@@ -100,7 +100,7 @@ func EmulatorMode(program []byte) {
 
 	// running computer
 	go c.Run()
-	c.Log("? prompt 's' to start the program")
+	c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", comp.DefaultWarningStyle)
 
 	// standard main thread blocker
 	stop := make(chan os.Signal, 1)

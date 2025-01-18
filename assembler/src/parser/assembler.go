@@ -327,7 +327,7 @@ func (a *Assembler) ExitDirectives(c *DirectivesContext) {
 // ExitInm_list implements AsmE8Listener.
 func (a *Assembler) ExitInm_list(c *Inm_listContext) {
 	list := c.GetText()
-	tokens := strings.Split(list, ",")
+	tokens := strings.Split(list, ", ")
 	inmList := make([]uint16, 0, len(tokens))
 	for _, tok := range tokens {
 		tok = strings.TrimSpace(tok)
@@ -345,18 +345,16 @@ func (a *Assembler) ExitInm_list(c *Inm_listContext) {
 func (a *Assembler) parseInm(text string) uint16 {
 	var val int64
 
-	if strings.HasPrefix(text, "'") && strings.HasSuffix(text, "'") {
-		text = strings.TrimPrefix(text, "'")
-		text = strings.TrimSuffix(text, "'")
-		val := uint16(text[0])
-		return val
-	}
+	if len(text) == 3 {
+		if text[0] == '\'' && text[2] == '\'' {
+			val := uint16(text[1])
+			return val
+		}
 
-	if strings.HasPrefix(text, "\"") && strings.HasSuffix(text, "\"") {
-		text = strings.TrimPrefix(text, "\"")
-		text = strings.TrimSuffix(text, "\"")
-		val := uint16(text[0])
-		return val
+		if text[0] == '"' && text[2] == '"' {
+			val := uint16(text[1])
+			return val
+		}
 	}
 
 	if strings.HasPrefix(text, "0x") {

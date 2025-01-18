@@ -94,23 +94,26 @@ directives: '.org ' inm_list
 	| '.word '  inm_list
 	;
 
-inm_list: inm ((', '| ',') (inm | tag ))*
+inm_list: (inm | tag) (', ' (inm | tag ))*
 	;
 
 inm: INT 
 	| HEX 
 	| BINARY 
-	| '\'' CHAR '\'' 
-	| '\' \''
+	| CHAR
 	;
 
 tag: STR;
 
 LINE_COMMENT: WHITE_SPACE* ';' ~[\r\n]* -> skip;
 
-INT: [0-9]+;
-CHAR: ~[\r\n];
-STR: [a-zA-Z_][a-zA-Z0-9_]*;
-HEX: '0x' ([a-fA-F0-9])+;
-BINARY: '0b' ([0-1])+;
 WHITE_SPACE: [ ]+;
+BINARY: '0b' ([0-1])+;
+INT: [0-9]+;
+CHAR: '\' \'' 
+	| '"\'"' 
+	| '\',\'' 
+	| '\'' ~[\r\n'] '\'' 
+	;
+HEX: '0x' ([a-fA-F0-9])+;
+STR: [a-zA-Z_][a-zA-Z0-9_]*;

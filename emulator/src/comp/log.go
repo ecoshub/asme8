@@ -144,6 +144,10 @@ func (c *Comp) LogMemory() {
 }
 
 func (c *Comp) ListBreakPoints() {
+	if len(c.breakPoints) == 0 {
+		c.Logf("No breakpoints set")
+		return
+	}
 	c.Logf("Breakpoints:")
 	for _, bp := range c.breakPoints {
 		c.Logf("● 0x%04x", bp)

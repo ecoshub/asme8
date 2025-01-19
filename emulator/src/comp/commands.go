@@ -46,6 +46,7 @@ func (c *Comp) HandleCommands(command string) {
 		fallthrough
 	case "restart":
 		c.Restart(true)
+		return
 	case "hz":
 		c.Logf("HZ: %d", time.Second/c.delay)
 		return
@@ -165,20 +166,17 @@ func (c *Comp) pushToCommandPalletHistory(command string) {
 
 func (c *Comp) Help() {
 	c.LogWithStyle("help:", DefaultHelpStyle)
-	c.LogWithStyle("- s ...............: start/stop", DefaultHelpStyle)
-	c.LogWithStyle("- tick | t ........: advance clock 1 time", DefaultHelpStyle)
-	c.LogWithStyle("- tick <n> ........: advance clock n time", DefaultHelpStyle)
-	c.LogWithStyle("- b <n> ...........: add breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("- rb <n> ..........: remove breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("- lsb .............: list breakpoints", DefaultHelpStyle)
-	c.LogWithStyle("- mem .............: refresh memory panel", DefaultHelpStyle)
-	c.LogWithStyle("- mem <n> .........: print memory starting with address n", DefaultHelpStyle)
-	c.LogWithStyle("- clear ...........: clear the log panel", DefaultHelpStyle)
-	c.LogWithStyle("- restart | r .....: restart the emulator", DefaultHelpStyle)
-	c.LogWithStyle("- exit | quit .....: exit emulator", DefaultHelpStyle)
-	c.LogWithStyle("- hz ..............: get current clock speed in hertz (hz)", DefaultHelpStyle)
-	c.LogWithStyle("- hz <n> ..........: set clock speed in hertz (hz)", DefaultHelpStyle)
-	c.LogWithStyle("- help ............: prints this dialog box", DefaultHelpStyle)
+	c.LogWithStyle("- s .....................: start/stop clock", DefaultHelpStyle)
+	c.LogWithStyle("- t | tick | tick <n> ...: advance clock 1 or n time", DefaultHelpStyle)
+	c.LogWithStyle("- b <n> .................: add breakpoint to address n", DefaultHelpStyle)
+	c.LogWithStyle("- rb <n> ................: remove breakpoint to address n", DefaultHelpStyle)
+	c.LogWithStyle("- lsb ...................: list breakpoints", DefaultHelpStyle)
+	c.LogWithStyle("- mem | mem <n> .........: get or set memory starting with address n", DefaultHelpStyle)
+	c.LogWithStyle("- clear .................: clear the log panel", DefaultHelpStyle)
+	c.LogWithStyle("- r | restart ...........: restart the emulator", DefaultHelpStyle)
+	c.LogWithStyle("- exit | quit ...........: exit emulator", DefaultHelpStyle)
+	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", DefaultHelpStyle)
+	c.LogWithStyle("- help ..................: prints this dialog box", DefaultHelpStyle)
 	c.LogWithStyle("", DefaultHelpStyle)
 	c.LogWithStyle("note:", DefaultHelpStyle)
 	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", DefaultHelpStyle)

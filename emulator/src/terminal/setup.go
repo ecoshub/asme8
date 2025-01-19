@@ -24,6 +24,7 @@ type Components struct {
 func NewSetup() (*Components, error) {
 
 	s, err := screen.New(&screen.Config{
+		FPSLimit: 60,
 		CommandPaletteConfig: &palette.Config{
 			Prompt: "> ",
 			Style: &style.Style{
@@ -46,7 +47,7 @@ func NewSetup() (*Components, error) {
 
 	sysLogPanel := panel.NewStackPanel(&config.Config{
 		Width:  s.TerminalWidth,
-		Height: s.TerminalHeight - SCREEN_HEIGHT - 1,
+		Height: s.TerminalHeight - SCREEN_HEIGHT - 2,
 		ContentStyle: &style.Style{
 			ForegroundColor: 26,
 		},
@@ -71,9 +72,9 @@ func NewSetup() (*Components, error) {
 	})
 
 	s.Add(mainPanel, mainPanelX+1, 0)
-	s.Add(sysLogPanel, 0, SCREEN_HEIGHT)
-	s.Add(flagPanel, 0, 0)
+	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
 	s.Add(memoryPanel, mainPanelX+SCREEN_WIDTH+2, 0)
+	s.Add(flagPanel, 0, 0)
 
 	return &Components{
 		Screen:      s,

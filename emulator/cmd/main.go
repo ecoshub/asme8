@@ -1,12 +1,11 @@
 package main
 
 import (
-	"asme8/assembler/src/assembler"
+	"asme8/assembler/src/utils"
 	"asme8/emulator/src/comp"
 	"asme8/emulator/src/ram"
 	"asme8/emulator/src/rom"
 	"asme8/emulator/src/terminal"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -28,14 +27,7 @@ func main() {
 	var program []uint8
 	var err error
 
-	if *flagFileBin == "" && *flagFileAsm == "" {
-		err := errors.New("error. No input file. Please provide an executable (bin), or and assemble file (asm)")
-		fmt.Println(err)
-		flag.PrintDefaults()
-		return
-	}
-
-	program, err = ResolveProgram(*flagFileBin, *flagFileAsm)
+	program, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -52,7 +44,6 @@ func main() {
 
 func EmulatorMode(program []byte) {
 
-	c := comp.New()
 	// create the rom that holds the program
 	rom := rom.New(0x8000)
 
@@ -64,6 +55,8 @@ func EmulatorMode(program []byte) {
 		fmt.Println(err)
 		return
 	}
+
+	c := comp.New(rom)
 
 	// screen components such as panels attaching to computer
 	c.AttachTerminalComponents(term.Components)
@@ -92,8 +85,11 @@ func EmulatorMode(program []byte) {
 
 	// load program in to rom starting from 0x0000
 	programStartAddr := 0
-	rom.Load(programStartAddr, program)
-	c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", programStartAddr, len(program))
+	if len(program) != 0 {
+		rom.Load(programStartAddr, program)
+		c.ProgramLoaded()
+		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", programStartAddr, len(program))
+	}
 
 	// running terminal (screen and keyboard)
 	go term.Run()
@@ -114,12 +110,13 @@ func EmulatorMode(program []byte) {
 
 func HeadlessMode(program []byte) {
 
-	c := comp.New()
 	// create the rom that holds the program
 	rom := rom.New(0x8000)
 
 	// create new raw
 	ram := ram.New(0x8000)
+
+	c := comp.New(rom)
 
 	// connecting rom at 0x0000 through 0x7fff
 	c.ConnectDevice(rom, 0x0000, 0x7fff)
@@ -138,9 +135,11 @@ func HeadlessMode(program []byte) {
 
 	// load program in to rom starting from 0x0000
 	programStartAddr := 0
-	rom.Load(programStartAddr, program)
-	c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes\n", programStartAddr, len(program))
-
+	if len(program) != 0 {
+		rom.Load(programStartAddr, program)
+		c.ProgramLoaded()
+		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", programStartAddr, len(program))
+	}
 	// running computer
 	go c.Run()
 
@@ -148,42 +147,4 @@ func HeadlessMode(program []byte) {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
-}
-
-func ResolveProgram(binFilePath, asmFilePath string) ([]uint8, error) {
-	if *flagFileBin != "" {
-		program, err := ReadProgram(*flagFileBin)
-		if err != nil {
-			return nil, err
-		}
-		return program, nil
-	}
-	if *flagFileAsm != "" {
-		program, err := AssembleProgram(*flagFileAsm)
-		if err != nil {
-			return nil, err
-		}
-		return program, nil
-	}
-	return nil, errors.New("must provide a .asm or .bin file to start")
-}
-
-func ReadProgram(binFilePath string) ([]uint8, error) {
-	program, err := os.ReadFile(binFilePath)
-	if err != nil {
-		return nil, fmt.Errorf("executable read error. err: %s", err)
-	}
-	return program, nil
-}
-
-func AssembleProgram(asmFilePath string) ([]uint8, error) {
-	assembler, err := assembler.AssembleFile(asmFilePath)
-	if err != nil {
-		return nil, err
-	}
-	program, err := assembler.Out()
-	if err != nil {
-		return nil, fmt.Errorf("file assemble error. err: %s", err)
-	}
-	return program, nil
 }

@@ -13,6 +13,11 @@ const (
 	SCREEN_HEIGHT int = 24
 )
 
+const (
+	FlagPanelWidth   = 31
+	MemoryPanelWidth = 31
+)
+
 type Components struct {
 	Screen      *screen.Screen
 	MainPanel   *panel.Raw
@@ -53,10 +58,8 @@ func NewSetup() (*Components, error) {
 		},
 	})
 
-	mainPanelX := (s.TerminalWidth - mainPanel.Config.Width) / 2
-
 	flagPanel := panel.NewStackPanel(&config.Config{
-		Width:  mainPanelX,
+		Width:  FlagPanelWidth,
 		Height: SCREEN_HEIGHT,
 		ContentStyle: &style.Style{
 			ForegroundColor: 123,
@@ -64,16 +67,16 @@ func NewSetup() (*Components, error) {
 	})
 
 	memoryPanel := panel.NewStackPanel(&config.Config{
-		Width:  mainPanelX - 2,
+		Width:  MemoryPanelWidth,
 		Height: SCREEN_HEIGHT,
 		ContentStyle: &style.Style{
 			ForegroundColor: 204,
 		},
 	})
 
-	s.Add(mainPanel, mainPanelX+1, 0)
+	s.Add(mainPanel, FlagPanelWidth+1, 0)
 	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
-	s.Add(memoryPanel, mainPanelX+SCREEN_WIDTH+2, 0)
+	s.Add(memoryPanel, SCREEN_WIDTH+FlagPanelWidth+1, 0)
 	s.Add(flagPanel, 0, 0)
 
 	return &Components{

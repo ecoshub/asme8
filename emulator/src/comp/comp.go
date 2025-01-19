@@ -5,6 +5,7 @@ import (
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/src/instruction"
 	"asme8/emulator/src/register"
+	"asme8/emulator/src/rom"
 	"asme8/emulator/src/status"
 	"asme8/emulator/src/terminal"
 	"asme8/emulator/utils"
@@ -19,6 +20,8 @@ const (
 )
 
 type Comp struct {
+	rom *rom.Rom
+
 	registers register.Module
 	status    *status.StatusRegister
 	step      uint8
@@ -49,25 +52,28 @@ type Comp struct {
 	breakPoints            []uint16
 	inspectionMemoryOffset uint16
 
-	stopChan chan struct{}
-	running  bool
-	pause    bool
-	debug    bool
-	delay    time.Duration
+	programLoaded bool
+	stopChan      chan struct{}
+	running       bool
+	pause         bool
+	debug         bool
+	delay         time.Duration
 }
 
-func New() *Comp {
+func New(rom *rom.Rom) *Comp {
 	c := &Comp{
-		registers:    register.NewModule(),
-		status:       status.NewStatusRegister(),
-		stackPointer: StackStart,
-		busX:         bus.New(),
-		busY:         bus.New(),
-		dataBus:      bus.New(),
-		addrBus:      bus.New(),
-		devices:      make([]connectable.Connectable, 0, 1),
-		stopChan:     make(chan struct{}, 1),
-		singleTicker: make(chan struct{}, 1),
+		rom:           rom,
+		registers:     register.NewModule(),
+		status:        status.NewStatusRegister(),
+		stackPointer:  StackStart,
+		busX:          bus.New(),
+		busY:          bus.New(),
+		dataBus:       bus.New(),
+		addrBus:       bus.New(),
+		devices:       make([]connectable.Connectable, 0, 1),
+		stopChan:      make(chan struct{}, 1),
+		singleTicker:  make(chan struct{}, 1),
+		programLoaded: false,
 	}
 	return c
 }
@@ -77,6 +83,10 @@ func (c *Comp) AttachTerminalComponents(terminalComponents *terminal.Components)
 	terminalComponents.Screen.CommandPalette.ListenKeyEventEnter(func(input string) {
 		c.HandleCommands(input)
 	})
+}
+
+func (c *Comp) ProgramLoaded() {
+	c.programLoaded = true
 }
 
 func (c *Comp) SetPause(enable bool) {
@@ -119,6 +129,11 @@ func (c *Comp) Run() {
 
 	c.LogMemory()
 	c.LogState()
+
+	if !c.programLoaded {
+		c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", DefaultWarningStyle)
+		return
+	}
 
 	t := time.NewTicker(c.delay)
 	c.running = true

@@ -132,7 +132,7 @@ func (c *Comp) LogMemory() {
 			if index+8 > 0xffff {
 				end = 0xffff + 1
 			}
-			logLines = append(logLines, fmt.Sprintf("%04x: %s", index, utils.ToHexArray(buffer[index:end], false)))
+			logLines = append(logLines, fmt.Sprintf(" %04x: %s", index, utils.ToHexArray(buffer[index:end], false)))
 		}
 		lineCount++
 		if height <= lineCount {

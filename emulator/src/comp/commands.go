@@ -1,6 +1,7 @@
 package comp
 
 import (
+	"asme8/assembler/src/utils"
 	"fmt"
 	"os"
 	"strconv"
@@ -11,6 +12,10 @@ import (
 func (c *Comp) HandleCommands(command string) {
 	switch command {
 	case "s":
+		if !c.programLoaded {
+			c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", DefaultWarningStyle)
+			return
+		}
 		if c.pause {
 			c.Log("Starts running...")
 		} else {
@@ -54,6 +59,44 @@ func (c *Comp) HandleCommands(command string) {
 		fallthrough
 	case "quit":
 		os.Exit(0)
+		return
+	}
+
+	exists, path, err := SplitStringCommand(command, "load-asm")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		program, err := utils.AssembleProgram(path)
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		c.rom.Load(0, program)
+		c.programLoaded = true
+		c.Restart(true)
+		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
+		c.pushToCommandPalletHistory(command)
+		return
+	}
+
+	exists, path, err = SplitStringCommand(command, "load-bin")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		program, err := utils.ReadProgram(path)
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		c.rom.Load(0, program)
+		c.programLoaded = true
+		c.Restart(true)
+		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
+		c.pushToCommandPalletHistory(command)
 		return
 	}
 
@@ -176,10 +219,11 @@ func (c *Comp) Help() {
 	c.LogWithStyle("- r | restart ...........: restart the emulator", DefaultHelpStyle)
 	c.LogWithStyle("- exit | quit ...........: exit emulator", DefaultHelpStyle)
 	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", DefaultHelpStyle)
+	c.LogWithStyle("- load-asm | load-bin ...: load program using '.asm' file or '.bin' file", DefaultHelpStyle)
 	c.LogWithStyle("- help ..................: prints this dialog box", DefaultHelpStyle)
-	c.LogWithStyle("", DefaultHelpStyle)
-	c.LogWithStyle("note:", DefaultHelpStyle)
+	c.LogWithStyle("notes:", DefaultHelpStyle)
 	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", DefaultHelpStyle)
 	c.LogWithStyle("-  use ctrl+D to direct keyboard input into emulator", DefaultHelpStyle)
+	c.LogWithStyle("-  load command always load program starting with addr 0x000", DefaultHelpStyle)
 	c.LogWithStyle("", DefaultHelpStyle)
 }

@@ -123,8 +123,10 @@ func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, ran
 
 func (c *Comp) Run() {
 
-	c.dataBus.AttachBusChange(func() {
-		c.LogMemory()
+	c.dataBus.AttachBusChange(func(rw uint8) {
+		if rw == utils.IO_WRITE {
+			c.LogMemory()
+		}
 	})
 
 	c.LogMemory()

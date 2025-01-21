@@ -14,6 +14,8 @@ var (
 	DefaultStyle3       = &style.Style{ForegroundColor: 227}
 	DefaultStyle4       = &style.Style{ForegroundColor: 116}
 	DefaultStyle5       = &style.Style{ForegroundColor: 35}
+	DefaultStyle6       = &style.Style{ForegroundColor: 202}
+	DefaultStyle7       = &style.Style{ForegroundColor: 157}
 	DefaultHelpStyle    = &style.Style{ForegroundColor: 247}
 	DefaultWarningStyle = &style.Style{ForegroundColor: 226}
 	DefaultBreakStyle   = &style.Style{ForegroundColor: 162}
@@ -85,27 +87,27 @@ func (c *Comp) LogState() {
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])
 	visualStep := ((int(c.step) + stepLen - 1) % stepLen) + 1
 	// NOTE: can not convertible for multi write do not try it
-	c.LogfFlagIndexWithStyle(0, DefaultStyle1, "# REGISTER:")
-	c.LogfFlagIndexWithStyle(1, DefaultStyle1, "flags     : Z S P C O I X X")
-	c.LogfFlagIndexWithStyle(2, DefaultStyle1, "flag vals : %s", c.status)
-	c.LogfFlagIndexWithStyle(3, DefaultStyle1, "reg       :  A  B  C  D")
-	c.LogfFlagIndexWithStyle(4, DefaultStyle1, "reg vals  : %s", c.registers)
-	c.LogfFlagIndexWithStyle(5, DefaultStyle1, "STEP  : %d/%d", visualStep, stepLen)
-	c.LogfFlagIndexWithStyle(6, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_MNEMONICS[c.instructionRegister])
+	c.LogfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
+	c.LogfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")
+	c.LogfFlagIndexWithStyle(2, DefaultStyle6, "%s", c.status)
+	c.LogfFlagIndexWithStyle(3, DefaultStyle7, "A  B  C  D")
+	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "%s", c.registers)
+	c.LogfFlagIndexWithStyle(5, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_MNEMONICS[c.instructionRegister])
+	c.LogfFlagIndexWithStyle(6, DefaultStyle1, "STEP  : %d/%d", visualStep, stepLen)
 	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "PC    : %04x", c.programCounter)
 	c.LogfFlagIndexWithStyle(8, DefaultStyle1, "SP    : %04x", c.stackPointer)
 	c.LogfFlagIndexWithStyle(9, DefaultStyle1, "MAR   : %02x", c.memoryAddressRegister)
 	c.LogfFlagIndexWithStyle(10, DefaultStyle1, "OR    : %02x", c.operandRegister)
-	c.LogfFlagIndexWithStyle(11, DefaultStyle2, "# BUS:")
+	c.LogfFlagIndexWithStyle(11, DefaultStyle2, "# Buses:")
 	c.LogfFlagIndexWithStyle(12, DefaultStyle2, "ADDR : %04x", c.addrBus.Read_16())
 	c.LogfFlagIndexWithStyle(13, DefaultStyle2, "DATA : %02x", c.dataBus.Read_16())
 	c.LogfFlagIndexWithStyle(14, DefaultStyle2, "RW   : %02x", c.rw)
 	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "X    : %02x", c.busX.Read_16())
 	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "Y    : %02x", c.busY.Read_16())
-	c.LogfFlagIndexWithStyle(17, DefaultStyle3, "# BRIDGE:")
+	c.LogfFlagIndexWithStyle(17, DefaultStyle3, "# Bridge:")
 	c.LogfFlagIndexWithStyle(18, DefaultStyle3, "DIR : %02x", c.bridgeDir)
 	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
-	c.LogfFlagIndexWithStyle(20, DefaultStyle4, "# OTHER:")
+	c.LogfFlagIndexWithStyle(20, DefaultStyle4, "# Others:")
 	c.LogfFlagIndexWithStyle(21, DefaultStyle4, "STR : %02x", c.store)
 }
 

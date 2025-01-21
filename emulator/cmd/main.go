@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	flagFileBin  = flag.String("file-bin", "", "bin file path")
-	flagFileAsm  = flag.String("file-asm", "", "asm file path")
+	flagFileBin  = flag.String("load-bin", "", "load bin file to rom")
+	flagFileAsm  = flag.String("load-asm", "", "assemble and load asm file to rom")
 	flagDelay    = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 	flagHeadless = flag.Bool("headless", false, "run computer as 'headless'")
 )
@@ -96,7 +96,7 @@ func EmulatorMode(program []byte) {
 
 	// running computer
 	go c.Run()
-	c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", comp.DefaultWarningStyle)
+	c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", comp.DefaultStyle6)
 
 	// standard main thread blocker
 	stop := make(chan os.Signal, 1)

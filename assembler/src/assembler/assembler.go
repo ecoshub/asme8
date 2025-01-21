@@ -25,7 +25,7 @@ func AssembleFile(filePath string) (*parser.Assembler, error) {
 	p.AddErrorListener(cel)
 	tree := p.Instruction()
 
-	assembler := parser.NewAssembler()
+	assembler := parser.NewAssembler(cel)
 	antlr.ParseTreeWalkerDefault.Walk(assembler, tree)
 
 	return assembler, cel.GetError()

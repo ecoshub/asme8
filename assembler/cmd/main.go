@@ -35,14 +35,14 @@ func main() {
 	}
 	defer f.Close()
 
-	if *flagPrint {
-		fmt.Println(assembler)
-	}
-
 	out, err := assembler.Out()
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+
+	if *flagPrint {
+		fmt.Println(assembler)
 	}
 
 	err = binary.Write(f, binary.BigEndian, out)

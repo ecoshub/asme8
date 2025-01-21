@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"asme8/assembler/src/error_listener"
 	"asme8/assembler/src/symbols"
 	"fmt"
 	"strconv"
@@ -19,6 +20,8 @@ type Assembler struct {
 	codes        map[uint16]uint8
 	regs         []uint8
 	labels       map[string]uint16
+	labelLines   map[string]int
+	labelColumn  map[string]int
 	variables    map[string]uint16
 	missingTags  map[uint16]string
 	directives   map[uint16]*Directive
@@ -30,39 +33,50 @@ type Assembler struct {
 	blanks       []uint16
 	lastLine     string
 
+	cel         *error_listener.CustomErrorListener
 	processDone bool
 }
 
-func NewAssembler() *Assembler {
+func NewAssembler(cel *error_listener.CustomErrorListener) *Assembler {
 	return &Assembler{
 		codes:        make(map[uint16]uint8, 32),
 		regs:         make([]uint8, 0, 2),
 		labels:       make(map[string]uint16),
+		labelLines:   make(map[string]int),
+		labelColumn:  make(map[string]int),
 		missingTags:  make(map[uint16]string),
 		variables:    make(map[string]uint16),
 		directives:   make(map[uint16]*Directive),
 		linesEndings: make([]uint16, 0, 10),
 		blanks:       make([]uint16, 0, 10),
 		instructions: make([]string, 0, 256),
+		cel:          cel,
 	}
 }
 
 var _ AsmE8Listener = &Assembler{}
 
-func (a *Assembler) process() error {
+func (a *Assembler) process() []error {
 	if a.processDone {
 		return nil
 	}
+	errs := make([]error, 0, 2)
 	for o, l := range a.missingTags {
 		val, ok := a.labels[l]
 		if !ok {
 			val, ok = a.variables[l]
 			if !ok {
-				return fmt.Errorf("error unknown label '%s' at %d", l, o)
+				line := a.labelLines[l]
+				column := a.labelColumn[l]
+				err := fmt.Errorf("line %d:%d error unknown label. label: '%s'", line, column, l)
+				errs = append(errs, err)
 			}
 		}
 		a.codes[o] = uint8(val)
 		a.codes[o+1] = uint8(val >> 8)
+	}
+	if len(errs) > 0 {
+		return errs
 	}
 	max := uint16(0)
 	for offset := range a.codes {
@@ -82,7 +96,10 @@ func (a *Assembler) process() error {
 }
 
 func (a *Assembler) Out() ([]byte, error) {
-	a.process()
+	errs := a.process()
+	if errs != nil {
+		return nil, error_listener.WrapErrors(errs...)
+	}
 	return a.out, nil
 }
 
@@ -93,7 +110,12 @@ func (a *Assembler) AddOpCode(opCode uint8) {
 
 // ExitInst_reg_inm_variable implements AsmE8Listener.
 func (a *Assembler) ExitInst_reg_inm_variable(c *Inst_reg_inm_variableContext) {
-	a.setInm(a.variables[a.lastTag])
+	val, exists := a.variables[a.lastTag]
+	if !exists {
+		a.missingTags[a.offset] = a.lastTag
+		return
+	}
+	a.setInm(val)
 	a.ExitInst_reg_inm_core()
 }
 
@@ -246,11 +268,15 @@ func (a *Assembler) ExitPtr_offset(c *Ptr_offsetContext) {
 // ExitVariable implements AsmE8Listener.
 func (a *Assembler) ExitVariable(c *VariableContext) {
 	a.variables[a.lastTag] = a.inm
+	a.labelLines[a.lastTag] = c.GetStart().GetLine()
+	a.labelColumn[a.lastTag] = c.RuleIndex
 }
 
 // ExitLabel implements AsmE8Listener.
 func (a *Assembler) ExitLabel(c *LabelContext) {
 	a.labels[a.lastTag] = a.offset
+	a.labelLines[a.lastTag] = c.GetStart().GetLine()
+	a.labelColumn[a.lastTag] = c.RuleIndex
 }
 
 // ExitMnemonic implements AsmE8Listener.
@@ -263,12 +289,20 @@ func (a *Assembler) ExitPtr(c *PtrContext) {
 	if a.lastTag == "" {
 		return
 	}
-	a.setInm(a.variables[a.lastTag])
+	val, ok := a.variables[a.lastTag]
+	if !ok {
+		errMsg := fmt.Sprintf("error. unknown label '%s'", a.lastTag)
+		a.cel.NewSimpleError(errMsg, c.GetStart().GetLine(), c.RuleIndex)
+		return
+	}
+	a.setInm(val)
 }
 
 // ExitTag implements instListener.
 func (a *Assembler) ExitTag(c *TagContext) {
 	a.lastTag = c.GetText()
+	a.labelLines[a.lastTag] = c.GetStart().GetLine()
+	a.labelColumn[a.lastTag] = c.RuleIndex
 }
 
 // ExitInm implements instListener.

@@ -33,6 +33,7 @@ func ReadProgram(binFilePath string) ([]uint8, error) {
 }
 
 func AssembleProgram(asmFilePath string) ([]uint8, error) {
+	fmt.Println("path", asmFilePath)
 	assembler, err := assembler.AssembleFile(asmFilePath)
 	if err != nil {
 		return nil, err

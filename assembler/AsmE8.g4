@@ -16,10 +16,10 @@ label: tag  ':';
 
 inst: 
 	inst_reg_reg
-	| inst_reg_inm
-	| inst_reg_inm_variable
+	| inst_reg_imm
+	| inst_reg_imm_variable
 	| inst_single_reg
-	| inst_single_inm
+	| inst_single_imm
 	| inst_single_tag 
 	| inst_single
 	| inst_ptr_reg
@@ -30,9 +30,9 @@ inst:
 
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
 
-inst_reg_inm: mnemonic ' ' reg  ', ' inm;
+inst_reg_imm: mnemonic ' ' reg  ', ' imm;
 
-inst_reg_inm_variable: mnemonic ' ' reg  ', ' tag;
+inst_reg_imm_variable: mnemonic ' ' reg  ', ' tag;
 
 inst_ptr_reg: mnemonic ' ' ptr ', ' reg;
 
@@ -44,7 +44,7 @@ inst_ptr_offset_reg: mnemonic ' ' ptr_offset ', ' reg;
 
 inst_single_reg: mnemonic ' ' reg;
 
-inst_single_inm: mnemonic ' ' inm;
+inst_single_imm: mnemonic ' ' imm;
 
 inst_single_tag: mnemonic ' ' tag;
 
@@ -78,26 +78,26 @@ reg:
 	;
 
 ptr: 
-	'[' WHITE_SPACE? inm WHITE_SPACE? ']'
+	'[' WHITE_SPACE? imm WHITE_SPACE? ']'
 	| '[' WHITE_SPACE? tag WHITE_SPACE? ']'
 	;
 
 ptr_offset: 
-	'[' WHITE_SPACE? inm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
+	'[' WHITE_SPACE? imm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
 	| '[' WHITE_SPACE? tag WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
 	;
 
-variable: tag  WHITE_SPACE? '=' WHITE_SPACE? inm;
+variable: tag  WHITE_SPACE? '=' WHITE_SPACE? imm;
 
-directives: '.org ' inm_list
-	| '.byte '  inm_list
-	| '.word '  inm_list
+directives: '.org ' imm_list
+	| '.byte '  imm_list
+	| '.word '  imm_list
 	;
 
-inm_list: (inm | tag) (', ' (inm | tag ))*
+imm_list: (imm | tag) (', ' (imm | tag ))*
 	;
 
-inm: INT 
+imm: INT 
 	| HEX 
 	| BINARY 
 	| CHAR

@@ -26,11 +26,11 @@ type AsmE8Listener interface {
 	// EnterInst_reg_reg is called when entering the inst_reg_reg production.
 	EnterInst_reg_reg(c *Inst_reg_regContext)
 
-	// EnterInst_reg_inm is called when entering the inst_reg_inm production.
-	EnterInst_reg_inm(c *Inst_reg_inmContext)
+	// EnterInst_reg_imm is called when entering the inst_reg_imm production.
+	EnterInst_reg_imm(c *Inst_reg_immContext)
 
-	// EnterInst_reg_inm_variable is called when entering the inst_reg_inm_variable production.
-	EnterInst_reg_inm_variable(c *Inst_reg_inm_variableContext)
+	// EnterInst_reg_imm_variable is called when entering the inst_reg_imm_variable production.
+	EnterInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
 
 	// EnterInst_ptr_reg is called when entering the inst_ptr_reg production.
 	EnterInst_ptr_reg(c *Inst_ptr_regContext)
@@ -47,8 +47,8 @@ type AsmE8Listener interface {
 	// EnterInst_single_reg is called when entering the inst_single_reg production.
 	EnterInst_single_reg(c *Inst_single_regContext)
 
-	// EnterInst_single_inm is called when entering the inst_single_inm production.
-	EnterInst_single_inm(c *Inst_single_inmContext)
+	// EnterInst_single_imm is called when entering the inst_single_imm production.
+	EnterInst_single_imm(c *Inst_single_immContext)
 
 	// EnterInst_single_tag is called when entering the inst_single_tag production.
 	EnterInst_single_tag(c *Inst_single_tagContext)
@@ -74,11 +74,11 @@ type AsmE8Listener interface {
 	// EnterDirectives is called when entering the directives production.
 	EnterDirectives(c *DirectivesContext)
 
-	// EnterInm_list is called when entering the inm_list production.
-	EnterInm_list(c *Inm_listContext)
+	// EnterImm_list is called when entering the imm_list production.
+	EnterImm_list(c *Imm_listContext)
 
-	// EnterInm is called when entering the inm production.
-	EnterInm(c *InmContext)
+	// EnterImm is called when entering the imm production.
+	EnterImm(c *ImmContext)
 
 	// EnterTag is called when entering the tag production.
 	EnterTag(c *TagContext)
@@ -101,11 +101,11 @@ type AsmE8Listener interface {
 	// ExitInst_reg_reg is called when exiting the inst_reg_reg production.
 	ExitInst_reg_reg(c *Inst_reg_regContext)
 
-	// ExitInst_reg_inm is called when exiting the inst_reg_inm production.
-	ExitInst_reg_inm(c *Inst_reg_inmContext)
+	// ExitInst_reg_imm is called when exiting the inst_reg_imm production.
+	ExitInst_reg_imm(c *Inst_reg_immContext)
 
-	// ExitInst_reg_inm_variable is called when exiting the inst_reg_inm_variable production.
-	ExitInst_reg_inm_variable(c *Inst_reg_inm_variableContext)
+	// ExitInst_reg_imm_variable is called when exiting the inst_reg_imm_variable production.
+	ExitInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
 
 	// ExitInst_ptr_reg is called when exiting the inst_ptr_reg production.
 	ExitInst_ptr_reg(c *Inst_ptr_regContext)
@@ -122,8 +122,8 @@ type AsmE8Listener interface {
 	// ExitInst_single_reg is called when exiting the inst_single_reg production.
 	ExitInst_single_reg(c *Inst_single_regContext)
 
-	// ExitInst_single_inm is called when exiting the inst_single_inm production.
-	ExitInst_single_inm(c *Inst_single_inmContext)
+	// ExitInst_single_imm is called when exiting the inst_single_imm production.
+	ExitInst_single_imm(c *Inst_single_immContext)
 
 	// ExitInst_single_tag is called when exiting the inst_single_tag production.
 	ExitInst_single_tag(c *Inst_single_tagContext)
@@ -149,11 +149,11 @@ type AsmE8Listener interface {
 	// ExitDirectives is called when exiting the directives production.
 	ExitDirectives(c *DirectivesContext)
 
-	// ExitInm_list is called when exiting the inm_list production.
-	ExitInm_list(c *Inm_listContext)
+	// ExitImm_list is called when exiting the imm_list production.
+	ExitImm_list(c *Imm_listContext)
 
-	// ExitInm is called when exiting the inm production.
-	ExitInm(c *InmContext)
+	// ExitImm is called when exiting the imm production.
+	ExitImm(c *ImmContext)
 
 	// ExitTag is called when exiting the tag production.
 	ExitTag(c *TagContext)

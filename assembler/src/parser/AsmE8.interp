@@ -95,14 +95,14 @@ line
 label
 inst
 inst_reg_reg
-inst_reg_inm
-inst_reg_inm_variable
+inst_reg_imm
+inst_reg_imm_variable
 inst_ptr_reg
 inst_reg_ptr
 inst_reg_ptr_offset
 inst_ptr_offset_reg
 inst_single_reg
-inst_single_inm
+inst_single_imm
 inst_single_tag
 inst_single
 mnemonic
@@ -111,8 +111,8 @@ ptr
 ptr_offset
 variable
 directives
-inm_list
-inm
+imm_list
+imm
 tag
 
 

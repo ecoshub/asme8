@@ -57,17 +57,17 @@ func (s *BaseAsmE8Listener) EnterInst_reg_reg(ctx *Inst_reg_regContext) {}
 // ExitInst_reg_reg is called when production inst_reg_reg is exited.
 func (s *BaseAsmE8Listener) ExitInst_reg_reg(ctx *Inst_reg_regContext) {}
 
-// EnterInst_reg_inm is called when production inst_reg_inm is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_inm(ctx *Inst_reg_inmContext) {}
+// EnterInst_reg_imm is called when production inst_reg_imm is entered.
+func (s *BaseAsmE8Listener) EnterInst_reg_imm(ctx *Inst_reg_immContext) {}
 
-// ExitInst_reg_inm is called when production inst_reg_inm is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_inm(ctx *Inst_reg_inmContext) {}
+// ExitInst_reg_imm is called when production inst_reg_imm is exited.
+func (s *BaseAsmE8Listener) ExitInst_reg_imm(ctx *Inst_reg_immContext) {}
 
-// EnterInst_reg_inm_variable is called when production inst_reg_inm_variable is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_inm_variable(ctx *Inst_reg_inm_variableContext) {}
+// EnterInst_reg_imm_variable is called when production inst_reg_imm_variable is entered.
+func (s *BaseAsmE8Listener) EnterInst_reg_imm_variable(ctx *Inst_reg_imm_variableContext) {}
 
-// ExitInst_reg_inm_variable is called when production inst_reg_inm_variable is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_inm_variable(ctx *Inst_reg_inm_variableContext) {}
+// ExitInst_reg_imm_variable is called when production inst_reg_imm_variable is exited.
+func (s *BaseAsmE8Listener) ExitInst_reg_imm_variable(ctx *Inst_reg_imm_variableContext) {}
 
 // EnterInst_ptr_reg is called when production inst_ptr_reg is entered.
 func (s *BaseAsmE8Listener) EnterInst_ptr_reg(ctx *Inst_ptr_regContext) {}
@@ -99,11 +99,11 @@ func (s *BaseAsmE8Listener) EnterInst_single_reg(ctx *Inst_single_regContext) {}
 // ExitInst_single_reg is called when production inst_single_reg is exited.
 func (s *BaseAsmE8Listener) ExitInst_single_reg(ctx *Inst_single_regContext) {}
 
-// EnterInst_single_inm is called when production inst_single_inm is entered.
-func (s *BaseAsmE8Listener) EnterInst_single_inm(ctx *Inst_single_inmContext) {}
+// EnterInst_single_imm is called when production inst_single_imm is entered.
+func (s *BaseAsmE8Listener) EnterInst_single_imm(ctx *Inst_single_immContext) {}
 
-// ExitInst_single_inm is called when production inst_single_inm is exited.
-func (s *BaseAsmE8Listener) ExitInst_single_inm(ctx *Inst_single_inmContext) {}
+// ExitInst_single_imm is called when production inst_single_imm is exited.
+func (s *BaseAsmE8Listener) ExitInst_single_imm(ctx *Inst_single_immContext) {}
 
 // EnterInst_single_tag is called when production inst_single_tag is entered.
 func (s *BaseAsmE8Listener) EnterInst_single_tag(ctx *Inst_single_tagContext) {}
@@ -153,17 +153,17 @@ func (s *BaseAsmE8Listener) EnterDirectives(ctx *DirectivesContext) {}
 // ExitDirectives is called when production directives is exited.
 func (s *BaseAsmE8Listener) ExitDirectives(ctx *DirectivesContext) {}
 
-// EnterInm_list is called when production inm_list is entered.
-func (s *BaseAsmE8Listener) EnterInm_list(ctx *Inm_listContext) {}
+// EnterImm_list is called when production imm_list is entered.
+func (s *BaseAsmE8Listener) EnterImm_list(ctx *Imm_listContext) {}
 
-// ExitInm_list is called when production inm_list is exited.
-func (s *BaseAsmE8Listener) ExitInm_list(ctx *Inm_listContext) {}
+// ExitImm_list is called when production imm_list is exited.
+func (s *BaseAsmE8Listener) ExitImm_list(ctx *Imm_listContext) {}
 
-// EnterInm is called when production inm is entered.
-func (s *BaseAsmE8Listener) EnterInm(ctx *InmContext) {}
+// EnterImm is called when production imm is entered.
+func (s *BaseAsmE8Listener) EnterImm(ctx *ImmContext) {}
 
-// ExitInm is called when production inm is exited.
-func (s *BaseAsmE8Listener) ExitInm(ctx *InmContext) {}
+// ExitImm is called when production imm is exited.
+func (s *BaseAsmE8Listener) ExitImm(ctx *ImmContext) {}
 
 // EnterTag is called when production tag is entered.
 func (s *BaseAsmE8Listener) EnterTag(ctx *TagContext) {}

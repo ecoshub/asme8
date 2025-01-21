@@ -23,7 +23,10 @@ func main() {
 		return
 	}
 
-	assembler, err := assembler.AssembleFile(*flagFile)
+	out, err := assembler.AssembleFile(&assembler.Options{
+		FilePath:    *flagFile,
+		PrintDetail: *flagPrint,
+	})
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -34,16 +37,6 @@ func main() {
 		log.Fatal("Couldn't open file", err)
 	}
 	defer f.Close()
-
-	out, err := assembler.Out()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if *flagPrint {
-		fmt.Println(assembler)
-	}
 
 	err = binary.Write(f, binary.BigEndian, out)
 	if err != nil {

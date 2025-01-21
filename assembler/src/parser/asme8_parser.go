@@ -46,11 +46,11 @@ func asme8ParserInit() {
 		"STR",
 	}
 	staticData.RuleNames = []string{
-		"prog", "instruction", "line", "label", "inst", "inst_reg_reg", "inst_reg_inm",
-		"inst_reg_inm_variable", "inst_ptr_reg", "inst_reg_ptr", "inst_reg_ptr_offset",
-		"inst_ptr_offset_reg", "inst_single_reg", "inst_single_inm", "inst_single_tag",
+		"prog", "instruction", "line", "label", "inst", "inst_reg_reg", "inst_reg_imm",
+		"inst_reg_imm_variable", "inst_ptr_reg", "inst_reg_ptr", "inst_reg_ptr_offset",
+		"inst_ptr_offset_reg", "inst_single_reg", "inst_single_imm", "inst_single_tag",
 		"inst_single", "mnemonic", "reg", "ptr", "ptr_offset", "variable", "directives",
-		"inm_list", "inm", "tag",
+		"imm_list", "imm", "tag",
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
@@ -249,14 +249,14 @@ const (
 	AsmE8ParserRULE_label                 = 3
 	AsmE8ParserRULE_inst                  = 4
 	AsmE8ParserRULE_inst_reg_reg          = 5
-	AsmE8ParserRULE_inst_reg_inm          = 6
-	AsmE8ParserRULE_inst_reg_inm_variable = 7
+	AsmE8ParserRULE_inst_reg_imm          = 6
+	AsmE8ParserRULE_inst_reg_imm_variable = 7
 	AsmE8ParserRULE_inst_ptr_reg          = 8
 	AsmE8ParserRULE_inst_reg_ptr          = 9
 	AsmE8ParserRULE_inst_reg_ptr_offset   = 10
 	AsmE8ParserRULE_inst_ptr_offset_reg   = 11
 	AsmE8ParserRULE_inst_single_reg       = 12
-	AsmE8ParserRULE_inst_single_inm       = 13
+	AsmE8ParserRULE_inst_single_imm       = 13
 	AsmE8ParserRULE_inst_single_tag       = 14
 	AsmE8ParserRULE_inst_single           = 15
 	AsmE8ParserRULE_mnemonic              = 16
@@ -265,8 +265,8 @@ const (
 	AsmE8ParserRULE_ptr_offset            = 19
 	AsmE8ParserRULE_variable              = 20
 	AsmE8ParserRULE_directives            = 21
-	AsmE8ParserRULE_inm_list              = 22
-	AsmE8ParserRULE_inm                   = 23
+	AsmE8ParserRULE_imm_list              = 22
+	AsmE8ParserRULE_imm                   = 23
 	AsmE8ParserRULE_tag                   = 24
 )
 
@@ -891,10 +891,10 @@ type IInstContext interface {
 
 	// Getter signatures
 	Inst_reg_reg() IInst_reg_regContext
-	Inst_reg_inm() IInst_reg_inmContext
-	Inst_reg_inm_variable() IInst_reg_inm_variableContext
+	Inst_reg_imm() IInst_reg_immContext
+	Inst_reg_imm_variable() IInst_reg_imm_variableContext
 	Inst_single_reg() IInst_single_regContext
-	Inst_single_inm() IInst_single_inmContext
+	Inst_single_imm() IInst_single_immContext
 	Inst_single_tag() IInst_single_tagContext
 	Inst_single() IInst_singleContext
 	Inst_ptr_reg() IInst_ptr_regContext
@@ -954,10 +954,10 @@ func (s *InstContext) Inst_reg_reg() IInst_reg_regContext {
 	return t.(IInst_reg_regContext)
 }
 
-func (s *InstContext) Inst_reg_inm() IInst_reg_inmContext {
+func (s *InstContext) Inst_reg_imm() IInst_reg_immContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInst_reg_inmContext); ok {
+		if _, ok := ctx.(IInst_reg_immContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -967,13 +967,13 @@ func (s *InstContext) Inst_reg_inm() IInst_reg_inmContext {
 		return nil
 	}
 
-	return t.(IInst_reg_inmContext)
+	return t.(IInst_reg_immContext)
 }
 
-func (s *InstContext) Inst_reg_inm_variable() IInst_reg_inm_variableContext {
+func (s *InstContext) Inst_reg_imm_variable() IInst_reg_imm_variableContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInst_reg_inm_variableContext); ok {
+		if _, ok := ctx.(IInst_reg_imm_variableContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -983,7 +983,7 @@ func (s *InstContext) Inst_reg_inm_variable() IInst_reg_inm_variableContext {
 		return nil
 	}
 
-	return t.(IInst_reg_inm_variableContext)
+	return t.(IInst_reg_imm_variableContext)
 }
 
 func (s *InstContext) Inst_single_reg() IInst_single_regContext {
@@ -1002,10 +1002,10 @@ func (s *InstContext) Inst_single_reg() IInst_single_regContext {
 	return t.(IInst_single_regContext)
 }
 
-func (s *InstContext) Inst_single_inm() IInst_single_inmContext {
+func (s *InstContext) Inst_single_imm() IInst_single_immContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInst_single_inmContext); ok {
+		if _, ok := ctx.(IInst_single_immContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1015,7 +1015,7 @@ func (s *InstContext) Inst_single_inm() IInst_single_inmContext {
 		return nil
 	}
 
-	return t.(IInst_single_inmContext)
+	return t.(IInst_single_immContext)
 }
 
 func (s *InstContext) Inst_single_tag() IInst_single_tagContext {
@@ -1155,14 +1155,14 @@ func (p *AsmE8Parser) Inst() (localctx IInstContext) {
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(73)
-			p.Inst_reg_inm()
+			p.Inst_reg_imm()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(74)
-			p.Inst_reg_inm_variable()
+			p.Inst_reg_imm_variable()
 		}
 
 	case 4:
@@ -1176,7 +1176,7 @@ func (p *AsmE8Parser) Inst() (localctx IInstContext) {
 		p.EnterOuterAlt(localctx, 5)
 		{
 			p.SetState(76)
-			p.Inst_single_inm()
+			p.Inst_single_imm()
 		}
 
 	case 6:
@@ -1409,8 +1409,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IInst_reg_inmContext is an interface to support dynamic dispatch.
-type IInst_reg_inmContext interface {
+// IInst_reg_immContext is an interface to support dynamic dispatch.
+type IInst_reg_immContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -1419,45 +1419,45 @@ type IInst_reg_inmContext interface {
 	// Getter signatures
 	Mnemonic() IMnemonicContext
 	Reg() IRegContext
-	Inm() IInmContext
+	Imm() IImmContext
 
-	// IsInst_reg_inmContext differentiates from other interfaces.
-	IsInst_reg_inmContext()
+	// IsInst_reg_immContext differentiates from other interfaces.
+	IsInst_reg_immContext()
 }
 
-type Inst_reg_inmContext struct {
+type Inst_reg_immContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyInst_reg_inmContext() *Inst_reg_inmContext {
-	var p = new(Inst_reg_inmContext)
+func NewEmptyInst_reg_immContext() *Inst_reg_immContext {
+	var p = new(Inst_reg_immContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm
 	return p
 }
 
-func InitEmptyInst_reg_inmContext(p *Inst_reg_inmContext) {
+func InitEmptyInst_reg_immContext(p *Inst_reg_immContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm
 }
 
-func (*Inst_reg_inmContext) IsInst_reg_inmContext() {}
+func (*Inst_reg_immContext) IsInst_reg_immContext() {}
 
-func NewInst_reg_inmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_reg_inmContext {
-	var p = new(Inst_reg_inmContext)
+func NewInst_reg_immContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_reg_immContext {
+	var p = new(Inst_reg_immContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm
 
 	return p
 }
 
-func (s *Inst_reg_inmContext) GetParser() antlr.Parser { return s.parser }
+func (s *Inst_reg_immContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Inst_reg_inmContext) Mnemonic() IMnemonicContext {
+func (s *Inst_reg_immContext) Mnemonic() IMnemonicContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IMnemonicContext); ok {
@@ -1473,7 +1473,7 @@ func (s *Inst_reg_inmContext) Mnemonic() IMnemonicContext {
 	return t.(IMnemonicContext)
 }
 
-func (s *Inst_reg_inmContext) Reg() IRegContext {
+func (s *Inst_reg_immContext) Reg() IRegContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IRegContext); ok {
@@ -1489,10 +1489,10 @@ func (s *Inst_reg_inmContext) Reg() IRegContext {
 	return t.(IRegContext)
 }
 
-func (s *Inst_reg_inmContext) Inm() IInmContext {
+func (s *Inst_reg_immContext) Imm() IImmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1502,32 +1502,32 @@ func (s *Inst_reg_inmContext) Inm() IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
-func (s *Inst_reg_inmContext) GetRuleContext() antlr.RuleContext {
+func (s *Inst_reg_immContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Inst_reg_inmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Inst_reg_immContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Inst_reg_inmContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Inst_reg_immContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.EnterInst_reg_inm(s)
+		listenerT.EnterInst_reg_imm(s)
 	}
 }
 
-func (s *Inst_reg_inmContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Inst_reg_immContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.ExitInst_reg_inm(s)
+		listenerT.ExitInst_reg_imm(s)
 	}
 }
 
-func (p *AsmE8Parser) Inst_reg_inm() (localctx IInst_reg_inmContext) {
-	localctx = NewInst_reg_inmContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 12, AsmE8ParserRULE_inst_reg_inm)
+func (p *AsmE8Parser) Inst_reg_imm() (localctx IInst_reg_immContext) {
+	localctx = NewInst_reg_immContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 12, AsmE8ParserRULE_inst_reg_imm)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(91)
@@ -1555,7 +1555,7 @@ func (p *AsmE8Parser) Inst_reg_inm() (localctx IInst_reg_inmContext) {
 	}
 	{
 		p.SetState(95)
-		p.Inm()
+		p.Imm()
 	}
 
 errorExit:
@@ -1571,8 +1571,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IInst_reg_inm_variableContext is an interface to support dynamic dispatch.
-type IInst_reg_inm_variableContext interface {
+// IInst_reg_imm_variableContext is an interface to support dynamic dispatch.
+type IInst_reg_imm_variableContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -1583,43 +1583,43 @@ type IInst_reg_inm_variableContext interface {
 	Reg() IRegContext
 	Tag() ITagContext
 
-	// IsInst_reg_inm_variableContext differentiates from other interfaces.
-	IsInst_reg_inm_variableContext()
+	// IsInst_reg_imm_variableContext differentiates from other interfaces.
+	IsInst_reg_imm_variableContext()
 }
 
-type Inst_reg_inm_variableContext struct {
+type Inst_reg_imm_variableContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyInst_reg_inm_variableContext() *Inst_reg_inm_variableContext {
-	var p = new(Inst_reg_inm_variableContext)
+func NewEmptyInst_reg_imm_variableContext() *Inst_reg_imm_variableContext {
+	var p = new(Inst_reg_imm_variableContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm_variable
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm_variable
 	return p
 }
 
-func InitEmptyInst_reg_inm_variableContext(p *Inst_reg_inm_variableContext) {
+func InitEmptyInst_reg_imm_variableContext(p *Inst_reg_imm_variableContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm_variable
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm_variable
 }
 
-func (*Inst_reg_inm_variableContext) IsInst_reg_inm_variableContext() {}
+func (*Inst_reg_imm_variableContext) IsInst_reg_imm_variableContext() {}
 
-func NewInst_reg_inm_variableContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_reg_inm_variableContext {
-	var p = new(Inst_reg_inm_variableContext)
+func NewInst_reg_imm_variableContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_reg_imm_variableContext {
+	var p = new(Inst_reg_imm_variableContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = AsmE8ParserRULE_inst_reg_inm_variable
+	p.RuleIndex = AsmE8ParserRULE_inst_reg_imm_variable
 
 	return p
 }
 
-func (s *Inst_reg_inm_variableContext) GetParser() antlr.Parser { return s.parser }
+func (s *Inst_reg_imm_variableContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Inst_reg_inm_variableContext) Mnemonic() IMnemonicContext {
+func (s *Inst_reg_imm_variableContext) Mnemonic() IMnemonicContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IMnemonicContext); ok {
@@ -1635,7 +1635,7 @@ func (s *Inst_reg_inm_variableContext) Mnemonic() IMnemonicContext {
 	return t.(IMnemonicContext)
 }
 
-func (s *Inst_reg_inm_variableContext) Reg() IRegContext {
+func (s *Inst_reg_imm_variableContext) Reg() IRegContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IRegContext); ok {
@@ -1651,7 +1651,7 @@ func (s *Inst_reg_inm_variableContext) Reg() IRegContext {
 	return t.(IRegContext)
 }
 
-func (s *Inst_reg_inm_variableContext) Tag() ITagContext {
+func (s *Inst_reg_imm_variableContext) Tag() ITagContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ITagContext); ok {
@@ -1667,29 +1667,29 @@ func (s *Inst_reg_inm_variableContext) Tag() ITagContext {
 	return t.(ITagContext)
 }
 
-func (s *Inst_reg_inm_variableContext) GetRuleContext() antlr.RuleContext {
+func (s *Inst_reg_imm_variableContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Inst_reg_inm_variableContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Inst_reg_imm_variableContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Inst_reg_inm_variableContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Inst_reg_imm_variableContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.EnterInst_reg_inm_variable(s)
+		listenerT.EnterInst_reg_imm_variable(s)
 	}
 }
 
-func (s *Inst_reg_inm_variableContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Inst_reg_imm_variableContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.ExitInst_reg_inm_variable(s)
+		listenerT.ExitInst_reg_imm_variable(s)
 	}
 }
 
-func (p *AsmE8Parser) Inst_reg_inm_variable() (localctx IInst_reg_inm_variableContext) {
-	localctx = NewInst_reg_inm_variableContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 14, AsmE8ParserRULE_inst_reg_inm_variable)
+func (p *AsmE8Parser) Inst_reg_imm_variable() (localctx IInst_reg_imm_variableContext) {
+	localctx = NewInst_reg_imm_variableContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 14, AsmE8ParserRULE_inst_reg_imm_variable)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(97)
@@ -2514,8 +2514,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IInst_single_inmContext is an interface to support dynamic dispatch.
-type IInst_single_inmContext interface {
+// IInst_single_immContext is an interface to support dynamic dispatch.
+type IInst_single_immContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -2523,45 +2523,45 @@ type IInst_single_inmContext interface {
 
 	// Getter signatures
 	Mnemonic() IMnemonicContext
-	Inm() IInmContext
+	Imm() IImmContext
 
-	// IsInst_single_inmContext differentiates from other interfaces.
-	IsInst_single_inmContext()
+	// IsInst_single_immContext differentiates from other interfaces.
+	IsInst_single_immContext()
 }
 
-type Inst_single_inmContext struct {
+type Inst_single_immContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyInst_single_inmContext() *Inst_single_inmContext {
-	var p = new(Inst_single_inmContext)
+func NewEmptyInst_single_immContext() *Inst_single_immContext {
+	var p = new(Inst_single_immContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_single_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_single_imm
 	return p
 }
 
-func InitEmptyInst_single_inmContext(p *Inst_single_inmContext) {
+func InitEmptyInst_single_immContext(p *Inst_single_immContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inst_single_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_single_imm
 }
 
-func (*Inst_single_inmContext) IsInst_single_inmContext() {}
+func (*Inst_single_immContext) IsInst_single_immContext() {}
 
-func NewInst_single_inmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_single_inmContext {
-	var p = new(Inst_single_inmContext)
+func NewInst_single_immContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inst_single_immContext {
+	var p = new(Inst_single_immContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = AsmE8ParserRULE_inst_single_inm
+	p.RuleIndex = AsmE8ParserRULE_inst_single_imm
 
 	return p
 }
 
-func (s *Inst_single_inmContext) GetParser() antlr.Parser { return s.parser }
+func (s *Inst_single_immContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Inst_single_inmContext) Mnemonic() IMnemonicContext {
+func (s *Inst_single_immContext) Mnemonic() IMnemonicContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IMnemonicContext); ok {
@@ -2577,10 +2577,10 @@ func (s *Inst_single_inmContext) Mnemonic() IMnemonicContext {
 	return t.(IMnemonicContext)
 }
 
-func (s *Inst_single_inmContext) Inm() IInmContext {
+func (s *Inst_single_immContext) Imm() IImmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -2590,32 +2590,32 @@ func (s *Inst_single_inmContext) Inm() IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
-func (s *Inst_single_inmContext) GetRuleContext() antlr.RuleContext {
+func (s *Inst_single_immContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Inst_single_inmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Inst_single_immContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Inst_single_inmContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Inst_single_immContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.EnterInst_single_inm(s)
+		listenerT.EnterInst_single_imm(s)
 	}
 }
 
-func (s *Inst_single_inmContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Inst_single_immContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.ExitInst_single_inm(s)
+		listenerT.ExitInst_single_imm(s)
 	}
 }
 
-func (p *AsmE8Parser) Inst_single_inm() (localctx IInst_single_inmContext) {
-	localctx = NewInst_single_inmContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 26, AsmE8ParserRULE_inst_single_inm)
+func (p *AsmE8Parser) Inst_single_imm() (localctx IInst_single_immContext) {
+	localctx = NewInst_single_immContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 26, AsmE8ParserRULE_inst_single_imm)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(131)
@@ -2631,7 +2631,7 @@ func (p *AsmE8Parser) Inst_single_inm() (localctx IInst_single_inmContext) {
 	}
 	{
 		p.SetState(133)
-		p.Inm()
+		p.Imm()
 	}
 
 errorExit:
@@ -3076,7 +3076,7 @@ type IPtrContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	Inm() IInmContext
+	Imm() IImmContext
 	AllWHITE_SPACE() []antlr.TerminalNode
 	WHITE_SPACE(i int) antlr.TerminalNode
 	Tag() ITagContext
@@ -3117,10 +3117,10 @@ func NewPtrContext(parser antlr.Parser, parent antlr.ParserRuleContext, invoking
 
 func (s *PtrContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *PtrContext) Inm() IInmContext {
+func (s *PtrContext) Imm() IImmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -3130,7 +3130,7 @@ func (s *PtrContext) Inm() IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
 func (s *PtrContext) AllWHITE_SPACE() []antlr.TerminalNode {
@@ -3219,7 +3219,7 @@ func (p *AsmE8Parser) Ptr() (localctx IPtrContext) {
 		}
 		{
 			p.SetState(149)
-			p.Inm()
+			p.Imm()
 		}
 		p.SetState(151)
 		p.GetErrorHandler().Sync(p)
@@ -3332,7 +3332,7 @@ type IPtr_offsetContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	Inm() IInmContext
+	Imm() IImmContext
 	Reg() IRegContext
 	AllWHITE_SPACE() []antlr.TerminalNode
 	WHITE_SPACE(i int) antlr.TerminalNode
@@ -3374,10 +3374,10 @@ func NewPtr_offsetContext(parser antlr.Parser, parent antlr.ParserRuleContext, i
 
 func (s *Ptr_offsetContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Ptr_offsetContext) Inm() IInmContext {
+func (s *Ptr_offsetContext) Imm() IImmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -3387,7 +3387,7 @@ func (s *Ptr_offsetContext) Inm() IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
 func (s *Ptr_offsetContext) Reg() IRegContext {
@@ -3492,7 +3492,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		}
 		{
 			p.SetState(171)
-			p.Inm()
+			p.Imm()
 		}
 		p.SetState(173)
 		p.GetErrorHandler().Sync(p)
@@ -3702,7 +3702,7 @@ type IVariableContext interface {
 
 	// Getter signatures
 	Tag() ITagContext
-	Inm() IInmContext
+	Imm() IImmContext
 	AllWHITE_SPACE() []antlr.TerminalNode
 	WHITE_SPACE(i int) antlr.TerminalNode
 
@@ -3758,10 +3758,10 @@ func (s *VariableContext) Tag() ITagContext {
 	return t.(ITagContext)
 }
 
-func (s *VariableContext) Inm() IInmContext {
+func (s *VariableContext) Imm() IImmContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -3771,7 +3771,7 @@ func (s *VariableContext) Inm() IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
 func (s *VariableContext) AllWHITE_SPACE() []antlr.TerminalNode {
@@ -3858,7 +3858,7 @@ func (p *AsmE8Parser) Variable() (localctx IVariableContext) {
 	}
 	{
 		p.SetState(213)
-		p.Inm()
+		p.Imm()
 	}
 
 errorExit:
@@ -3882,7 +3882,7 @@ type IDirectivesContext interface {
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	Inm_list() IInm_listContext
+	Imm_list() IImm_listContext
 
 	// IsDirectivesContext differentiates from other interfaces.
 	IsDirectivesContext()
@@ -3920,10 +3920,10 @@ func NewDirectivesContext(parser antlr.Parser, parent antlr.ParserRuleContext, i
 
 func (s *DirectivesContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DirectivesContext) Inm_list() IInm_listContext {
+func (s *DirectivesContext) Imm_list() IImm_listContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInm_listContext); ok {
+		if _, ok := ctx.(IImm_listContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -3933,7 +3933,7 @@ func (s *DirectivesContext) Inm_list() IInm_listContext {
 		return nil
 	}
 
-	return t.(IInm_listContext)
+	return t.(IImm_listContext)
 }
 
 func (s *DirectivesContext) GetRuleContext() antlr.RuleContext {
@@ -3978,7 +3978,7 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 		}
 		{
 			p.SetState(216)
-			p.Inm_list()
+			p.Imm_list()
 		}
 
 	case AsmE8ParserT__33:
@@ -3993,7 +3993,7 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 		}
 		{
 			p.SetState(218)
-			p.Inm_list()
+			p.Imm_list()
 		}
 
 	case AsmE8ParserT__34:
@@ -4008,7 +4008,7 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 		}
 		{
 			p.SetState(220)
-			p.Inm_list()
+			p.Imm_list()
 		}
 
 	default:
@@ -4029,69 +4029,69 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IInm_listContext is an interface to support dynamic dispatch.
-type IInm_listContext interface {
+// IImm_listContext is an interface to support dynamic dispatch.
+type IImm_listContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
 	// Getter signatures
-	AllInm() []IInmContext
-	Inm(i int) IInmContext
+	AllImm() []IImmContext
+	Imm(i int) IImmContext
 	AllTag() []ITagContext
 	Tag(i int) ITagContext
 
-	// IsInm_listContext differentiates from other interfaces.
-	IsInm_listContext()
+	// IsImm_listContext differentiates from other interfaces.
+	IsImm_listContext()
 }
 
-type Inm_listContext struct {
+type Imm_listContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyInm_listContext() *Inm_listContext {
-	var p = new(Inm_listContext)
+func NewEmptyImm_listContext() *Imm_listContext {
+	var p = new(Imm_listContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inm_list
+	p.RuleIndex = AsmE8ParserRULE_imm_list
 	return p
 }
 
-func InitEmptyInm_listContext(p *Inm_listContext) {
+func InitEmptyImm_listContext(p *Imm_listContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inm_list
+	p.RuleIndex = AsmE8ParserRULE_imm_list
 }
 
-func (*Inm_listContext) IsInm_listContext() {}
+func (*Imm_listContext) IsImm_listContext() {}
 
-func NewInm_listContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Inm_listContext {
-	var p = new(Inm_listContext)
+func NewImm_listContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *Imm_listContext {
+	var p = new(Imm_listContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = AsmE8ParserRULE_inm_list
+	p.RuleIndex = AsmE8ParserRULE_imm_list
 
 	return p
 }
 
-func (s *Inm_listContext) GetParser() antlr.Parser { return s.parser }
+func (s *Imm_listContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *Inm_listContext) AllInm() []IInmContext {
+func (s *Imm_listContext) AllImm() []IImmContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			len++
 		}
 	}
 
-	tst := make([]IInmContext, len)
+	tst := make([]IImmContext, len)
 	i := 0
 	for _, ctx := range children {
-		if t, ok := ctx.(IInmContext); ok {
-			tst[i] = t.(IInmContext)
+		if t, ok := ctx.(IImmContext); ok {
+			tst[i] = t.(IImmContext)
 			i++
 		}
 	}
@@ -4099,11 +4099,11 @@ func (s *Inm_listContext) AllInm() []IInmContext {
 	return tst
 }
 
-func (s *Inm_listContext) Inm(i int) IInmContext {
+func (s *Imm_listContext) Imm(i int) IImmContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInmContext); ok {
+		if _, ok := ctx.(IImmContext); ok {
 			if j == i {
 				t = ctx.(antlr.RuleContext)
 				break
@@ -4116,10 +4116,10 @@ func (s *Inm_listContext) Inm(i int) IInmContext {
 		return nil
 	}
 
-	return t.(IInmContext)
+	return t.(IImmContext)
 }
 
-func (s *Inm_listContext) AllTag() []ITagContext {
+func (s *Imm_listContext) AllTag() []ITagContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
@@ -4140,7 +4140,7 @@ func (s *Inm_listContext) AllTag() []ITagContext {
 	return tst
 }
 
-func (s *Inm_listContext) Tag(i int) ITagContext {
+func (s *Imm_listContext) Tag(i int) ITagContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
@@ -4160,29 +4160,29 @@ func (s *Inm_listContext) Tag(i int) ITagContext {
 	return t.(ITagContext)
 }
 
-func (s *Inm_listContext) GetRuleContext() antlr.RuleContext {
+func (s *Imm_listContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *Inm_listContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *Imm_listContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *Inm_listContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *Imm_listContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.EnterInm_list(s)
+		listenerT.EnterImm_list(s)
 	}
 }
 
-func (s *Inm_listContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *Imm_listContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.ExitInm_list(s)
+		listenerT.ExitImm_list(s)
 	}
 }
 
-func (p *AsmE8Parser) Inm_list() (localctx IInm_listContext) {
-	localctx = NewInm_listContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 44, AsmE8ParserRULE_inm_list)
+func (p *AsmE8Parser) Imm_list() (localctx IImm_listContext) {
+	localctx = NewImm_listContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 44, AsmE8ParserRULE_imm_list)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)
@@ -4196,7 +4196,7 @@ func (p *AsmE8Parser) Inm_list() (localctx IInm_listContext) {
 	case AsmE8ParserBINARY, AsmE8ParserINT, AsmE8ParserCHAR, AsmE8ParserHEX:
 		{
 			p.SetState(223)
-			p.Inm()
+			p.Imm()
 		}
 
 	case AsmE8ParserSTR:
@@ -4235,7 +4235,7 @@ func (p *AsmE8Parser) Inm_list() (localctx IInm_listContext) {
 		case AsmE8ParserBINARY, AsmE8ParserINT, AsmE8ParserCHAR, AsmE8ParserHEX:
 			{
 				p.SetState(228)
-				p.Inm()
+				p.Imm()
 			}
 
 		case AsmE8ParserSTR:
@@ -4270,8 +4270,8 @@ errorExit:
 	goto errorExit // Trick to prevent compiler error if the label is not used
 }
 
-// IInmContext is an interface to support dynamic dispatch.
-type IInmContext interface {
+// IImmContext is an interface to support dynamic dispatch.
+type IImmContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
@@ -4283,81 +4283,81 @@ type IInmContext interface {
 	BINARY() antlr.TerminalNode
 	CHAR() antlr.TerminalNode
 
-	// IsInmContext differentiates from other interfaces.
-	IsInmContext()
+	// IsImmContext differentiates from other interfaces.
+	IsImmContext()
 }
 
-type InmContext struct {
+type ImmContext struct {
 	antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyInmContext() *InmContext {
-	var p = new(InmContext)
+func NewEmptyImmContext() *ImmContext {
+	var p = new(ImmContext)
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inm
+	p.RuleIndex = AsmE8ParserRULE_imm
 	return p
 }
 
-func InitEmptyInmContext(p *InmContext) {
+func InitEmptyImmContext(p *ImmContext) {
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, nil, -1)
-	p.RuleIndex = AsmE8ParserRULE_inm
+	p.RuleIndex = AsmE8ParserRULE_imm
 }
 
-func (*InmContext) IsInmContext() {}
+func (*ImmContext) IsImmContext() {}
 
-func NewInmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *InmContext {
-	var p = new(InmContext)
+func NewImmContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ImmContext {
+	var p = new(ImmContext)
 
 	antlr.InitBaseParserRuleContext(&p.BaseParserRuleContext, parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = AsmE8ParserRULE_inm
+	p.RuleIndex = AsmE8ParserRULE_imm
 
 	return p
 }
 
-func (s *InmContext) GetParser() antlr.Parser { return s.parser }
+func (s *ImmContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *InmContext) INT() antlr.TerminalNode {
+func (s *ImmContext) INT() antlr.TerminalNode {
 	return s.GetToken(AsmE8ParserINT, 0)
 }
 
-func (s *InmContext) HEX() antlr.TerminalNode {
+func (s *ImmContext) HEX() antlr.TerminalNode {
 	return s.GetToken(AsmE8ParserHEX, 0)
 }
 
-func (s *InmContext) BINARY() antlr.TerminalNode {
+func (s *ImmContext) BINARY() antlr.TerminalNode {
 	return s.GetToken(AsmE8ParserBINARY, 0)
 }
 
-func (s *InmContext) CHAR() antlr.TerminalNode {
+func (s *ImmContext) CHAR() antlr.TerminalNode {
 	return s.GetToken(AsmE8ParserCHAR, 0)
 }
 
-func (s *InmContext) GetRuleContext() antlr.RuleContext {
+func (s *ImmContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *InmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ImmContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *InmContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *ImmContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.EnterInm(s)
+		listenerT.EnterImm(s)
 	}
 }
 
-func (s *InmContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *ImmContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(AsmE8Listener); ok {
-		listenerT.ExitInm(s)
+		listenerT.ExitImm(s)
 	}
 }
 
-func (p *AsmE8Parser) Inm() (localctx IInmContext) {
-	localctx = NewInmContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 46, AsmE8ParserRULE_inm)
+func (p *AsmE8Parser) Imm() (localctx IImmContext) {
+	localctx = NewImmContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 46, AsmE8ParserRULE_imm)
 	var _la int
 
 	p.EnterOuterAlt(localctx, 1)

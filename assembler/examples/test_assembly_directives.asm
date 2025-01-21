@@ -17,7 +17,7 @@ message_1:
 message_2:
 .byte 0x5, 0x5
 .byte 'E', 0x5, VAL, 'A'
-.byte 'H','e','l','l','o'
+.byte 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'
 code:
     mov a, 10
 

@@ -2,6 +2,9 @@ ADDR_CHAR_OUT=0x7000
 ADDR_CHAR_RDY=0x6ffe
 ADDR_CHAR_READ=0x6fff
 
+CHAR_DEL=0x7f
+CHAR_SPACE=' '
+
 start:
     mov c, 0                    ; char index for screen
 char_wait:

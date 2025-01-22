@@ -667,7 +667,6 @@ var (
 func TestCore(t *testing.T) {
 	// c := test.GetComp()
 	// c.SetDebug(true)
-	// c.SetVerbose(true)
 	for _, tc := range Tests {
 		test.RunCase(t, tc)
 	}

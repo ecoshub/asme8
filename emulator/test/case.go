@@ -38,6 +38,7 @@ func RunCase(t *testing.T, tc *TestCase) {
 		c := GetComp()
 		c.Reset(false, false)
 		MainROM.Load(0, tc.Program)
+		c.ProgramLoaded()
 		tt.Logf("program: %s", utils.ToHexArray(tc.Program))
 		c.Run()
 

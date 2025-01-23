@@ -108,7 +108,7 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "INPUT  : %02x", c.inputBus.Read_16())
 	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "OUTPUT : %02x", c.outputBus.Read_16())
 	c.LogfFlagIndexWithStyle(14, DefaultStyle2, "ALU    : %02x", c.aluBus.Read_16())
-	c.LogfFlagIndexWithStyle(17, DefaultStyle2, "RW     : %02x", c.rw)
+	c.LogfFlagIndexWithStyle(17, DefaultStyle2, "RW     : %01x", c.rw)
 	c.LogfFlagIndexWithStyle(18, DefaultStyle3, "# Bridge:")
 	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
 }

@@ -23,7 +23,7 @@ const (
 	_                Type = 0x1c
 	_                Type = 0x1d
 
-	// Arithmetic
+	// Arithmetic operations
 	INST_ADD_RR      Type = 0x30
 	INST_ADD_REG_INM Type = 0x31
 	INST_ADC_RR      Type = 0x32
@@ -58,6 +58,9 @@ const (
 	_                       Type = 0x4d
 	_                       Type = 0x4e
 	_                       Type = 0x4f
+
+	// Logic operations
+	INST_XOR_RR Type = 0x50
 
 	// Stack base
 	INST_PUSH_REG Type = 0xf0

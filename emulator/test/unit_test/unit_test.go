@@ -661,6 +661,37 @@ var (
 				},
 			},
 		},
+		{
+			Name: "xor reg reg",
+			// mov a, 0b00001111
+			// mov b, 0b11001100
+			// xor b, a
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0b00001111,
+				instruction.INST_MOV_INM, register.IndexRegB, 0b11001100,
+				instruction.INST_XOR_RR, register.IndexRegA<<4 | register.IndexRegB,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0b00001111},
+					{Index: register.IndexRegB, Data: 0b11000011},
+				},
+			},
+		},
+		{
+			Name: "xor reg reg clear",
+			// mov a, 0b00001111
+			// xor a, a
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0b00001111,
+				instruction.INST_XOR_RR, register.IndexRegA<<4 | register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0},
+				},
+			},
+		},
 	}
 )
 

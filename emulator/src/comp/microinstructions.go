@@ -29,6 +29,7 @@ const (
 	MI_ALU_ADC
 	MI_ALU_SUB
 	MI_ALU_CMP
+	MI_ALU_XOR
 	MI_REG_OP_1_OUT_ALU
 	MI_REG_OP_1_OUT
 	MI_REG_OP_2_OUT_ALU
@@ -126,6 +127,7 @@ var (
 		MI_ALU_ADC:          mInstAluAdc,
 		MI_ALU_SUB:          mInstAluSub,
 		MI_ALU_CMP:          mInstAluCmp,
+		MI_ALU_XOR:          mInstAluXor,
 		MI_REG_OP_1_OUT_ALU: mInstReg1OutALU,
 		MI_REG_OP_1_OUT:     mInstReg1Out,
 		MI_REG_OP_2_OUT_ALU: mInstReg2OutAlu,

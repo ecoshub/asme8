@@ -33,7 +33,6 @@ func ReadProgram(binFilePath string) ([]uint8, error) {
 }
 
 func AssembleProgram(asmFilePath string) ([]uint8, error) {
-	fmt.Println("path", asmFilePath)
 	program, err := assembler.AssembleFile(&assembler.Options{
 		FilePath: asmFilePath,
 	})

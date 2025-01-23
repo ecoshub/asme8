@@ -12,6 +12,7 @@ const (
 	INST_ADC  string = "adc"
 	INST_SUB  string = "sub"
 	INST_SBB  string = "sbb"
+	INST_XOR  string = "xor"
 	INST_CMP  string = "cmp"
 	INST_JMP  string = "jmp"
 	INST_JZ   string = "jz"
@@ -61,6 +62,10 @@ var (
 			ADDRESSING_MODE_MEM_REG_OFFSET: 0x44,
 			// mov [8000+b], a
 			ADDRESSING_MODE_REG_MEM_OFFSET: 0x45,
+		},
+		INST_XOR: {
+			// xor b, a
+			ADDRESSING_MODE_REG_REG: 0x50,
 		},
 		INST_CMP: {
 			// cmp b, a

@@ -42,6 +42,11 @@ func AssembleFile(options *Options) ([]byte, error) {
 		return nil, err
 	}
 
+	err = cel.GetError()
+	if err != nil {
+		return nil, err
+	}
+
 	if options.PrintDetail {
 		prt := assembler.CreatePrintable()
 		fmt.Println(prt)

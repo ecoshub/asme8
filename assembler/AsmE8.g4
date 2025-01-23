@@ -59,6 +59,7 @@ mnemonic:
 	| 'cmp'
 	| 'inc'
 	| 'dec'
+	| 'xor'
 	| 'jmp'
 	| 'jz'
 	| 'jnz'

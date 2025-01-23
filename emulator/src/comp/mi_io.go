@@ -1,6 +1,8 @@
 package comp
 
-import "asme8/emulator/utils"
+import (
+	"asme8/emulator/utils"
+)
 
 func mInstSetRead(c *Comp, _ uint64) {
 	c.rw = utils.IO_READ

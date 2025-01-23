@@ -32,20 +32,17 @@ type Comp struct {
 	programCounter        uint16
 	memoryAddressRegister uint16
 	stackPointer          uint16
+	memoryDataRegister    uint8
 
-	aluDirectOut   bool
-	aluEnable      bool
-	aluStoreEnable bool
-	bridgeEnable   bool
-	bridgeDir      uint8
+	aluOut       bool
+	bridgeEnable bool
 
-	busX    *bus.Bus
-	busY    *bus.Bus
-	dataBus *bus.Bus
-	addrBus *bus.Bus
-	store   uint8
-	rw      uint8 // read 1 write 0
-	devices []connectable.Connectable
+	aluBus    *bus.Bus
+	outputBus *bus.Bus
+	inputBus  *bus.Bus
+	addrBus   *bus.Bus
+	rw        uint8 // read 1 write 0
+	devices   []connectable.Connectable
 
 	terminalComponents     *terminal.Components
 	singleTicker           chan struct{}
@@ -66,9 +63,9 @@ func New(rom *rom.Rom) *Comp {
 		registers:     register.NewModule(),
 		status:        status.NewStatusRegister(),
 		stackPointer:  StackStart,
-		busX:          bus.New(),
-		busY:          bus.New(),
-		dataBus:       bus.New(),
+		aluBus:        bus.New(),
+		outputBus:     bus.New(),
+		inputBus:      bus.New(),
 		addrBus:       bus.New(),
 		devices:       make([]connectable.Connectable, 0, 1),
 		stopChan:      make(chan struct{}, 1),
@@ -106,7 +103,7 @@ func (c *Comp) PrintRegisters() {
 }
 
 func (c *Comp) PrintBusses() {
-	fmt.Printf("busses, data: %x, x: %x, y: %x\n", c.dataBus.Read_16(), c.busX.Read_16(), c.busY.Read_16())
+	fmt.Printf("busses, data: %x, x: %x, y: %x\n", c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16())
 }
 
 func (c *Comp) ReadRegister(index uint8) uint8 {
@@ -117,13 +114,13 @@ func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, ran
 	if dev == nil {
 		return
 	}
-	dev.Attach(c.addrBus, c.dataBus, rangeStart, rangeEnd)
+	dev.Attach(c.addrBus, c.outputBus, rangeStart, rangeEnd)
 	c.devices = append(c.devices, dev)
 }
 
 func (c *Comp) Run() {
 
-	c.dataBus.AttachBusChange(func(rw uint8) {
+	c.inputBus.AttachBusChange(func(rw uint8) {
 		if rw == utils.IO_WRITE {
 			c.LogMemory()
 		}
@@ -222,7 +219,6 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.memoryAddressRegister = 0
 	c.stackPointer = StackStart
 	c.memoryAddressRegister = 0
-	c.store = 0
 	c.rw = utils.IO_READ
 	c.stopChan = make(chan struct{}, 1)
 	c.running = false
@@ -236,14 +232,11 @@ func (c *Comp) Restart(startWithPause bool) {
 }
 
 func (c *Comp) clear() {
-	c.dataBus.Clear()
-	c.busX.Clear()
-	c.busY.Clear()
+	c.inputBus.Clear()
+	c.aluBus.Clear()
+	c.outputBus.Clear()
 	c.addrBus.Clear()
-	c.aluEnable = false
-	c.aluStoreEnable = false
-	c.aluDirectOut = false
+	c.aluOut = false
 	c.bridgeEnable = false
-	c.bridgeDir = BRIDGE_DIR_IN
 	c.rw = utils.IO_READ
 }

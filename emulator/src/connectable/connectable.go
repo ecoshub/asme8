@@ -4,7 +4,7 @@ import "asme8/emulator/src/bus"
 
 type Connectable interface {
 	GetName() string
-	Attach(addrBus, dataBus *bus.Bus, rangeStart, rangeEnd uint16)
+	Attach(addrBus, outputBus *bus.Bus, rangeStart, rangeEnd uint16)
 	Tick(rw uint8)
 	Read(addr uint16) uint8
 	Clear()

@@ -2,26 +2,34 @@ package comp
 
 import "fmt"
 
-func mInstProgramCounterIn(c *Comp, _ uint64) {
+func mInstProgramCounterOutAddr(c *Comp, _ uint64) {
+	c.addrBus.Write_16(c.programCounter)
+}
+
+func mInstProgramCounterInAddr(c *Comp, _ uint64) {
 	c.programCounter = c.addrBus.Read_16()
 	checkBreakPoint(c)
 }
 
-func mInstProgramCounterLowOutData(c *Comp, _ uint64) {
-	c.dataBus.Write_8(uint8(c.programCounter))
-	triggerBridge(c)
+func mInstProgramCounterLowIn(c *Comp, _ uint64) {
+	upper := c.programCounter & 0xff00
+	c.programCounter = upper | c.inputBus.Read_16()
+}
+
+func mInstProgramCounterHighIn(c *Comp, _ uint64) {
+	lower := c.programCounter & 0x00ff
+	c.programCounter = lower | (c.inputBus.Read_16() << 8)
 	checkBreakPoint(c)
 }
 
-func mInstProgramCounterHighOutData(c *Comp, _ uint64) {
-	c.dataBus.Write_8(uint8(c.programCounter >> 8))
+func mInstProgramCounterLowOut(c *Comp, _ uint64) {
+	c.outputBus.Write_8(uint8(c.programCounter >> 8))
 	triggerBridge(c)
-	checkBreakPoint(c)
 }
 
-func mInstProgramCounterOut(c *Comp, _ uint64) {
-	c.addrBus.Write_16(c.programCounter)
-	checkBreakPoint(c)
+func mInstProgramCounterHighOut(c *Comp, _ uint64) {
+	c.outputBus.Write_8(uint8(c.programCounter))
+	triggerBridge(c)
 }
 
 func mInstProgramCounterInc(c *Comp, _ uint64) {

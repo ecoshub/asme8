@@ -4,6 +4,7 @@ import (
 	"asme8/emulator/src/instruction"
 	"asme8/emulator/utils"
 	"fmt"
+	"strings"
 
 	"github.com/ecoshub/termium/component/style"
 )
@@ -42,6 +43,9 @@ func (c *Comp) LogWithStyle(str string, sty *style.Style) {
 func (c *Comp) Logf(format string, a ...any) {
 	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
 		if c.debug {
+			if !strings.HasSuffix(format, "\n") {
+				format += "\n"
+			}
 			fmt.Printf(format, a...)
 		}
 		return
@@ -81,7 +85,7 @@ func (c *Comp) LogfFlagIndexWithStyle(index int, sty *style.Style, format string
 
 func (c *Comp) LogState() {
 	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
-		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, addr: %04x, data: %02x, bus_x: %02x, bus_y: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.addrBus.Read_16(), c.dataBus.Read_16(), c.busX.Read_16(), c.busY.Read_16(), c.rw, c.status.Flag(), c.registers)
+		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, mar: %04x, addr: %04x, input_bus: %02x, alu_bus: %02x, output_bus: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.memoryAddressRegister, c.addrBus.Read_16(), c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16(), c.rw, c.status.Flag(), c.registers)
 		return
 	}
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])
@@ -97,18 +101,16 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "PC    : %04x", c.programCounter)
 	c.LogfFlagIndexWithStyle(8, DefaultStyle1, "SP    : %04x", c.stackPointer)
 	c.LogfFlagIndexWithStyle(9, DefaultStyle1, "MAR   : %02x", c.memoryAddressRegister)
-	c.LogfFlagIndexWithStyle(10, DefaultStyle1, "OR    : %02x", c.operandRegister)
-	c.LogfFlagIndexWithStyle(11, DefaultStyle2, "# Buses:")
-	c.LogfFlagIndexWithStyle(12, DefaultStyle2, "ADDR : %04x", c.addrBus.Read_16())
-	c.LogfFlagIndexWithStyle(13, DefaultStyle2, "DATA : %02x", c.dataBus.Read_16())
-	c.LogfFlagIndexWithStyle(14, DefaultStyle2, "RW   : %02x", c.rw)
-	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "X    : %02x", c.busX.Read_16())
-	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "Y    : %02x", c.busY.Read_16())
-	c.LogfFlagIndexWithStyle(17, DefaultStyle3, "# Bridge:")
-	c.LogfFlagIndexWithStyle(18, DefaultStyle3, "DIR : %02x", c.bridgeDir)
+	c.LogfFlagIndexWithStyle(10, DefaultStyle1, "MDR   : %02x", c.memoryDataRegister)
+	c.LogfFlagIndexWithStyle(11, DefaultStyle1, "OR    : %02x", c.operandRegister)
+	c.LogfFlagIndexWithStyle(12, DefaultStyle2, "# Buses:")
+	c.LogfFlagIndexWithStyle(13, DefaultStyle2, "ADDR   : %04x", c.addrBus.Read_16())
+	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "INPUT  : %02x", c.inputBus.Read_16())
+	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "OUTPUT : %02x", c.outputBus.Read_16())
+	c.LogfFlagIndexWithStyle(14, DefaultStyle2, "ALU    : %02x", c.aluBus.Read_16())
+	c.LogfFlagIndexWithStyle(17, DefaultStyle2, "RW     : %02x", c.rw)
+	c.LogfFlagIndexWithStyle(18, DefaultStyle3, "# Bridge:")
 	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
-	c.LogfFlagIndexWithStyle(20, DefaultStyle4, "# Others:")
-	c.LogfFlagIndexWithStyle(21, DefaultStyle4, "STR : %02x", c.store)
 }
 
 func (c *Comp) LogMemory() {

@@ -11,66 +11,39 @@ const (
 	OPERATION_MINUS   uint8 = 2
 )
 
-func mInstAluStore(c *Comp, mi uint64) {
-	c.aluStoreEnable = true
-}
-
 func mInstAluOut(c *Comp, _ uint64) {
-	c.aluDirectOut = true
-}
-
-func mInstAluStoreOut(c *Comp, mi uint64) {
-	c.dataBus.Write_8(c.store)
-	triggerBridge(c)
+	c.aluOut = true
 }
 
 func mInstAluAdd(c *Comp, mi uint64) {
-	if !c.aluEnable {
+	result := doOperation(c.status, OPERATION_PLUS, c.aluBus.Read_8(), c.outputBus.Read_8(), false)
+	if !c.aluOut {
 		return
 	}
-	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), false)
-	if c.aluDirectOut {
-		c.dataBus.Write_8(result)
-		triggerBridge(c)
-	}
-	if c.aluStoreEnable {
-		c.store = result
-	}
+	c.inputBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluAdc(c *Comp, mi uint64) {
-	if !c.aluEnable {
+	result := doOperation(c.status, OPERATION_PLUS, c.aluBus.Read_8(), c.outputBus.Read_8(), true)
+	if !c.aluOut {
 		return
 	}
-	result := doOperation(c.status, OPERATION_PLUS, c.busX.Read_8(), c.busY.Read_8(), true)
-	if c.aluDirectOut {
-		c.dataBus.Write_8(result)
-		triggerBridge(c)
-	}
-	if c.aluStoreEnable {
-		c.store = result
-	}
+	c.inputBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluSub(c *Comp, mi uint64) {
-	if !c.aluEnable {
+	result := doOperation(c.status, OPERATION_MINUS, c.aluBus.Read_8(), c.outputBus.Read_8(), false)
+	if !c.aluOut {
 		return
 	}
-	result := doOperation(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
-	if c.aluDirectOut {
-		c.dataBus.Write_8(result)
-		triggerBridge(c)
-	}
-	if c.aluStoreEnable {
-		c.store = result
-	}
+	c.inputBus.Write_8(result)
+	triggerBridge(c)
 }
 
 func mInstAluCmp(c *Comp, mi uint64) {
-	if !c.aluEnable {
-		return
-	}
-	setFlags(c.status, OPERATION_MINUS, c.busX.Read_8(), c.busY.Read_8(), false)
+	setFlags(c.status, OPERATION_MINUS, c.aluBus.Read_8(), c.outputBus.Read_8(), false)
 }
 
 func mInstStatusControl(c *Comp, mi uint64) {

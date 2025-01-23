@@ -3,7 +3,8 @@ ADDR_CHAR_RDY=0x6ffe
 ADDR_CHAR_READ=0x6fff
 
 INPUT_BUFFER=0x8100
-INPUT_NUMBER=0x8200
+INPUT_NUMBER_LOWER=0x8200
+INPUT_NUMBER_HIGHER=0x8201
 
 CHAR_DEL=0x7f
 CHAR_SPACE=0x20
@@ -46,14 +47,17 @@ key_enter_loop:
     cmp a, c
     jz key_enter_quit
     mov b, [INPUT_BUFFER+a]
-    sub b, 0x30
-    add d, b
     inc a 
+    sub b, 0x30
+    add [INPUT_NUMBER_LOWER], b
+    ; jnc  key_enter_loop
+    ; jsr mul:
     jmp key_enter_loop
 
 key_enter_quit:
-    mov a, d
+    xor a, a
     add a, 0x30
+    mov a, [INPUT_NUMBER_LOWER]
     jsr char_out
     jmp char_wait
 

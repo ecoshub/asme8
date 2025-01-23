@@ -34,7 +34,7 @@ const (
 	INST_SBB_REG_INM Type = 0x37
 	INST_INC         Type = 0x38
 	INST_DEC         Type = 0x39
-	_                Type = 0x3a
+	INST_ADD_REG_MEM Type = 0x3a
 	_                Type = 0x3b
 	_                Type = 0x3c
 	_                Type = 0x3d

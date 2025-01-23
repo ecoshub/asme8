@@ -1,7 +1,5 @@
-    mov a, 31
-    jmp done
-    mov b, 32 
-
-done:
-    mov a, 62
-    brk
+    mov a, 0x20
+    add [0x8000], a
+    add [0x8000], a
+    add [0x8000], a
+    mov b, [0x8000]

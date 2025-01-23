@@ -692,6 +692,20 @@ var (
 				},
 			},
 		},
+		{
+			// mov a, 0x30
+			// mov [0x9000], a
+			Name: "add reg mem",
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
+				instruction.INST_ADD_REG_MEM, register.IndexRegA, 0x00, 0x90,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x30},
+				},
+			},
+		},
 	}
 )
 

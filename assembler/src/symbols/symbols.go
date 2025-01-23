@@ -78,6 +78,8 @@ var (
 			ADDRESSING_MODE_REG_REG: 0x30,
 			// add a, 4
 			ADDRESSING_MODE_REG_INM_8: 0x31,
+			// add [8000], a
+			ADDRESSING_MODE_REG_MEM: 0x3a,
 		},
 		INST_ADC: {
 			// adc b, a

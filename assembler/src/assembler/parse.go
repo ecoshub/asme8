@@ -37,12 +37,12 @@ func AssembleFile(options *Options) ([]byte, error) {
 	assembler := New(cel)
 	antlr.ParseTreeWalkerDefault.Walk(assembler, tree)
 
-	out, err := assembler.Assemble()
+	err = cel.GetError()
 	if err != nil {
 		return nil, err
 	}
 
-	err = cel.GetError()
+	out, err := assembler.Assemble()
 	if err != nil {
 		return nil, err
 	}

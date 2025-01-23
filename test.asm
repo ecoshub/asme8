@@ -1,4 +1,7 @@
-    mov a, 0x10
-    mov b, 0x2
-    mov [0x9002], a
-    mov c, [0x9000+b]
+    mov a, 31
+    jmp done
+    mov b, 32 
+
+done:
+    mov a, 62
+    brk

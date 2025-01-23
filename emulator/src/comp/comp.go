@@ -16,7 +16,7 @@ import (
 const (
 	DefaultMemorySize = 1 << 16
 
-	StackStart uint16 = 0x80ff
+	StackStart uint16 = 0xff00
 )
 
 type Comp struct {

@@ -285,18 +285,18 @@ func (a *Assembler) RestoreMissingSymbols() []error {
 }
 
 func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
-	// fmt.Printf("* searching symbol. symbol:>%s<\n", symbol)
+	// fmt.Printf("* searching symbol. symbol:>%s<\n", symbol.Text)
 	im, exists := a.FindVariable(symbol.Text)
 	if !exists {
 		label, exists := a.FindLabel(symbol.Text)
 		if !exists {
-			// fmt.Println("symbol not found", symbol)
+			// fmt.Println("symbol not found", symbol.Text)
 			return fmt.Errorf("line %d:%d symbol not found. symbol: '%s'", symbol.Line, symbol.Column, symbol.Text)
 		}
-		// fmt.Printf("* symbol found it is a label. tag:>%s<, label_offset: %d\n", a.currentTag, label.Offset)
+		// fmt.Printf("* symbol found it is a label. tag:>%s<, label_offset: %d\n", a.currentTag.Text, label.Offset)
 		im = types.NewValue(int64(label.Offset))
 	}
-	// fmt.Printf("* restoring symbol. symbol:>%s<, val: %04x, offset: %d\n", symbol, im.GetValue(), offset)
+	// fmt.Printf("* restoring symbol. symbol:>%s<, val: %04x, offset: %d\n", symbol.Text, im.GetValue(), offset)
 	a.machineCode[offset] = im.GetLowByte()
 	if im.GetSize() == 16 {
 		a.machineCode[offset+1] = im.GetHighByte()

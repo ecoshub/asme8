@@ -2,7 +2,9 @@ grammar AsmE8;
 
 prog: instruction EOF;
 
-instruction: line+ LINE_COMMENT? ;
+instruction: line+ LINE_COMMENT? 
+	| line+ SUFFIX_WHITESPACE?
+	;
 
 line: 
 	variable
@@ -106,7 +108,8 @@ imm: INT
 
 tag: STR;
 
-LINE_COMMENT: WHITE_SPACE* ';' ~[\r\n]* -> skip;
+LINE_COMMENT: (WHITE_SPACE* ';' ~[\r\n]*) -> skip;
+SUFFIX_WHITESPACE: ([ ]* [\r\n]) -> skip;
 
 WHITE_SPACE: [ ]+;
 BINARY: '0b' ([0-1])+;

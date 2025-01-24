@@ -15,7 +15,7 @@ const (
 	_                Type = 0x14
 	INST_JZ_INM      Type = 0x15
 	INST_JNZ_INM     Type = 0x16
-	_                Type = 0x17
+	INST_JC_INM      Type = 0x17
 	_                Type = 0x18
 	_                Type = 0x19
 	INST_CMP_RR      Type = 0x1a

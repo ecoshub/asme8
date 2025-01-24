@@ -66,6 +66,7 @@ mnemonic:
 	| 'jmp'
 	| 'jz'
 	| 'jnz'
+	| 'jc'
 	| 'jsr'
 	| 'rts'
 	| 'brk'

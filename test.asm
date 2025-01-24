@@ -1,9 +1,9 @@
-RESULT: .resb 2
-
 start:
-    mov a, 0xbb
-    mov [RESULT], a
-    mov a, 0xaa
-    mov [RESULT+1], a
+	mov a, 0xff
+	mov b, 0x02
+    add a, b
+    jc here
+    mov c, 0x20
     brk
-
+here:
+    mov c, 0x30

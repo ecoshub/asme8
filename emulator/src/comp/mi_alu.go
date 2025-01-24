@@ -65,15 +65,17 @@ func doOperation(s *status.StatusRegister, op uint8, a uint8, b uint8, withCarry
 
 func mInstStatusControl(c *Comp, mi uint64) {
 	statusMask := uint8(0)
-	isNot := false
+	not := false
 	switch c.instructionRegister {
 	case instruction.INST_JZ_INM:
 		statusMask = status.STATUS_FLAG_ZERO
 	case instruction.INST_JNZ_INM:
 		statusMask = status.STATUS_FLAG_ZERO
-		isNot = true
+		not = true
+	case instruction.INST_JC_INM:
+		statusMask = status.STATUS_FLAG_CARRY
 	}
-	if c.status.IsSet(statusMask) == !isNot {
+	if c.status.IsSet(statusMask) == !not {
 		mInstStepInc(c, mi)
 		return
 	}

@@ -17,6 +17,7 @@ const (
 	INST_JMP  string = "jmp"
 	INST_JZ   string = "jz"
 	INST_JNZ  string = "jnz"
+	INST_JC   string = "jc"
 	INST_NOP  string = "nop"
 	INST_PUSH string = "push"
 	INST_POP  string = "pop"
@@ -118,6 +119,10 @@ var (
 		INST_JNZ: {
 			// jnz 0x6000
 			ADDRESSING_MODE_IMPL_INM_16: 0x16,
+		},
+		INST_JC: {
+			// jc 0x6000
+			ADDRESSING_MODE_IMPL_INM_16: 0x17,
 		},
 		INST_NOP: {
 			ADDRESSING_MODE_IMPL: 0xff,

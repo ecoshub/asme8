@@ -18,13 +18,14 @@ const (
 	INST_JZ   string = "jz"
 	INST_JNZ  string = "jnz"
 	INST_JC   string = "jc"
-	INST_NOP  string = "nop"
+	INST_CLC  string = "clc"
 	INST_PUSH string = "push"
 	INST_POP  string = "pop"
 	INST_INC  string = "inc"
 	INST_DEC  string = "dec"
 	INST_JSR  string = "jsr"
 	INST_RTS  string = "rts"
+	INST_NOP  string = "nop"
 
 	ADDRESSING_MODE_NONE uint8 = iota
 	ADDRESSING_MODE_IMPL
@@ -144,6 +145,10 @@ var (
 		INST_RTS: {
 			// rts
 			ADDRESSING_MODE_IMPL: 0xf4,
+		},
+		INST_CLC: {
+			// clc
+			ADDRESSING_MODE_IMPL: 0xe0,
 		},
 	}
 )

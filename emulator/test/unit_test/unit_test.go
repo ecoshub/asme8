@@ -762,6 +762,36 @@ var (
 				},
 			},
 		},
+		{
+			// start:
+			// 	   mov a, 0xff
+			// 	   mov b, 0x02
+			//     add a, b
+			//     clc
+			//     jc here
+			//     mov c, 0x20
+			//     brk
+			// here:
+			//     mov c, 0x30
+			Name: "jc with clear carry",
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0xff,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x02,
+				instruction.INST_ADD_RR, register.IndexRegB<<4 | register.IndexRegA,
+				instruction.INST_CLC,
+				instruction.INST_JC_INM, 0x10, 0x00,
+				instruction.INST_MOV_INM, register.IndexRegC, 0x20,
+				instruction.INST_BRK,
+				instruction.INST_MOV_INM, register.IndexRegC, 0x30,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x01},
+					{Index: register.IndexRegB, Data: 0x02},
+					{Index: register.IndexRegC, Data: 0x20},
+				},
+			},
+		},
 	}
 )
 

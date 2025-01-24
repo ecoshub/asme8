@@ -22,6 +22,12 @@ const (
 	INST_CMP_REG_INM Type = 0x1b
 	_                Type = 0x1c
 	_                Type = 0x1d
+	_                Type = 0x1e
+	_                Type = 0x1f
+
+	_ Type = 0x20
+	_ Type = 0x21
+	_ Type = 0x22
 
 	// Arithmetic operations
 	INST_ADD_RR      Type = 0x30
@@ -61,6 +67,9 @@ const (
 
 	// Logic operations
 	INST_XOR_RR Type = 0x50
+
+	// Flag (status) operations
+	INST_CLC Type = 0xe0
 
 	// Stack base
 	INST_PUSH_REG Type = 0xf0

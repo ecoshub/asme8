@@ -73,6 +73,7 @@ mnemonic:
 	| 'nop'
 	| 'push'
 	| 'pop'
+	| 'clc'
 	;
 
 reg: 

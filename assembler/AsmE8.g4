@@ -101,6 +101,7 @@ variable: tag  WHITE_SPACE? '=' WHITE_SPACE? imm;
 directives: '.byte '  imm_list
 	| '.word '  imm_list
 	| '.resb '  imm_list
+	| '.org '  imm_list
 	;
 
 imm_list: (imm | tag) (', ' (imm | tag ))*

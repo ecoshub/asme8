@@ -2,13 +2,12 @@ ADDR_CHAR_OUT=0x7000
 ADDR_CHAR_RDY=0x6ffe
 ADDR_CHAR_READ=0x6fff
 
-INPUT_BUFFER=0x8100
-INPUT_NUMBER_LOWER=0x8200
-INPUT_NUMBER_HIGHER=0x8201
-
 CHAR_DEL=0x7f
 CHAR_SPACE=0x20
 CHAR_ENTER=0x0d
+
+INPUT_NUMBER: .resb 2
+INPUT_BUFFER: .resb 16
 
 start:
     xor c, c                    ; c is char index for buffers (screen and input)
@@ -41,15 +40,14 @@ key_del:
     jmp char_wait               ; jump to char wait
 
 key_enter:
-    xor d, d
-    xor a, a
+    mov a, c
 key_enter_loop:
     cmp a, c
-    jz key_enter_quit
+    jnz key_enter_quit
     mov b, [INPUT_BUFFER+a]
-    inc a 
+    dec a 
     sub b, 0x30
-    add [INPUT_NUMBER_LOWER], b
+    add [INPUT_NUMBER], b
     ; jnc  key_enter_loop
     ; jsr mul:
     jmp key_enter_loop
@@ -57,10 +55,9 @@ key_enter_loop:
 key_enter_quit:
     xor a, a
     add a, 0x30
-    mov a, [INPUT_NUMBER_LOWER]
+    mov a, [INPUT_NUMBER]
     jsr char_out
     jmp char_wait
-
 
 char_out:
     mov [ADDR_CHAR_OUT+c], a    ; write content of a in to screen buffer with offset c
@@ -69,5 +66,3 @@ char_out:
 write_to_buffer:
     mov [INPUT_BUFFER+c], a    ; write content of a in to screen buffer with offset c
     rts
-
-

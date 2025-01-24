@@ -55,29 +55,32 @@ func NewValue(val int64) *Value {
 	return im
 }
 
-func ParseValue(text string) *Value {
+func ParseValue(text string) (*Value, bool) {
 	if len(text) == 3 {
 		if text[0] == '\'' && text[2] == '\'' {
-			return NewValue(int64(text[1]))
+			return NewValue(int64(text[1])), true
 		}
 
 		if text[0] == '"' && text[2] == '"' {
-			return NewValue(int64(text[1]))
+			return NewValue(int64(text[1])), true
 		}
 	}
 
 	if strings.HasPrefix(text, "0x") {
 		text = strings.TrimPrefix(text, "0x")
 		val, _ := strconv.ParseInt(text, 16, 64)
-		return NewValue(val)
+		return NewValue(val), true
 	}
 
 	if strings.HasPrefix(text, "0b") {
 		text = strings.TrimPrefix(text, "0b")
 		val, _ := strconv.ParseInt(text, 2, 64)
-		return NewValue(val)
+		return NewValue(val), true
 	}
 
-	val, _ := strconv.ParseInt(text, 10, 64)
-	return NewValue(val)
+	val, err := strconv.ParseInt(text, 10, 64)
+	if err != nil {
+		return nil, false
+	}
+	return NewValue(val), true
 }

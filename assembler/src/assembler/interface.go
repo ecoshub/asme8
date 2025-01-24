@@ -10,17 +10,23 @@ var _ parser.AsmE8Listener = &Assembler{}
 
 func (a *Assembler) ExitDirectives(c *parser.DirectivesContext) {
 	text := c.GetText()
-	a.ParseDirective(text)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseDirective(text, line, column)
 }
 
 func (a *Assembler) ExitImm(c *parser.ImmContext) {
 	text := c.GetText()
-	a.ParseValue(text)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseValue(text, line, column)
 }
 
 func (a *Assembler) ExitImm_list(c *parser.Imm_listContext) {
 	text := c.GetText()
-	a.ParseValueList(text)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseValueList(text, line, column)
 }
 
 func (a *Assembler) ExitInst_ptr_offset_reg(c *parser.Inst_ptr_offset_regContext) {

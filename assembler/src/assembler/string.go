@@ -26,7 +26,7 @@ func (a *Assembler) CreatePrintable() string {
 	}
 	ops := ""
 	for i, c := range a.out {
-		if isNotInDirective(i, a.directives) {
+		if !isSkip(i, a.Coder.skip) {
 			ops += fmt.Sprintf("%02x", c)
 			if i < int(a.max) {
 				ops += " "
@@ -41,6 +41,8 @@ func (a *Assembler) CreatePrintable() string {
 		ok, directive := isDirective(i, a.directives)
 		if ok {
 			switch directive.Type {
+			case ".org":
+				buffer += fmt.Sprintf("%-40s; (location: %04x)\n", directive.Raw, directive.Values[0].GetValue())
 			case ".resb":
 				buffer += fmt.Sprintf("%-40s; 00 ... (%d bytes)\n", directive.Raw, directive.Values[0].GetValue())
 			case ".byte":
@@ -101,16 +103,13 @@ func isDirective(index int, directives map[uint16]*types.Directive) (bool, *type
 	return false, nil
 }
 
-func isNotInDirective(index int, directives map[uint16]*types.Directive) bool {
-	for _, d := range directives {
-
-		if d.Position > uint16(index+1) || (d.Position+d.Offset) < uint16(index+1) {
-			continue
-		} else {
-			return false
+func isSkip(index int, skip []uint16) bool {
+	for i := 0; i < len(skip); i++ {
+		if uint16(index) == skip[i] {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 func ToHexArray_2byte(arr []*types.Value, noParenthesis ...bool) string {

@@ -30,6 +30,7 @@ type Assembler struct {
 
 type Coder struct {
 	linesEndings []uint16
+	skip         []uint16
 	blanksLines  []uint16
 	instructions []string
 	lastLine     string
@@ -48,6 +49,7 @@ func New(errorListener *error_listener.CustomErrorListener) *Assembler {
 		Coder: &Coder{
 			linesEndings: []uint16{},
 			blanksLines:  []uint16{},
+			skip:         []uint16{},
 			instructions: []string{},
 		},
 	}
@@ -66,7 +68,12 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 	}
 	out := make([]uint8, max+1)
 	for i := uint16(0); i < max+1; i++ {
-		b := a.machineCode[i]
+		b, ok := a.machineCode[i]
+		if !ok {
+			a.Coder.skip = append(a.Coder.skip, i)
+			out[i] = 0
+			continue
+		}
 		out[i] = b
 	}
 	a.max = max
@@ -226,9 +233,18 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 	a.currentValue = types.NewValue(0)
 }
 
-func (a *Assembler) ParseDirective(text string) {
+func (a *Assembler) ParseDirective(text string, line, column int) {
+	if strings.HasPrefix(text, ".org") {
+		if len(a.currentValueList) == 0 {
+			a.errorListener.NewSimpleError(fmt.Sprintf("value is unknown. value: '%s'", text), line, column)
+			return
+		}
+		val := a.currentValueList[0]
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".org", Position: val.GetValue(), Offset: 0xffff, Values: a.currentValueList}
+		a.offset = val.GetValue()
+		return
+	}
 	if strings.HasPrefix(text, ".resb") {
-		fmt.Println("directive added to", a.offset, "text:", text)
 		val := a.currentValueList[0]
 		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".resb", Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
 		for i := 0; i < int(val.GetValue()); i++ {
@@ -237,7 +253,6 @@ func (a *Assembler) ParseDirective(text string) {
 		return
 	}
 	if strings.HasPrefix(text, ".byte") {
-		fmt.Println("directive added to", a.offset, "text:", text)
 		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".byte", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
@@ -245,7 +260,6 @@ func (a *Assembler) ParseDirective(text string) {
 		return
 	}
 	if strings.HasPrefix(text, ".word") {
-		fmt.Println("directive added to", a.offset, "text:", text)
 		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".word", Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
@@ -272,22 +286,30 @@ func (a *Assembler) ParseInstruction(text string) {
 	a.currentInstruction = strings.ToLower(text)
 }
 
-func (a *Assembler) ParseValue(text string) {
-	a.currentValue = types.ParseValue(text)
+func (a *Assembler) ParseValue(text string, line, column int) {
+	var ok bool
+	a.currentValue, ok = types.ParseValue(text)
+	if !ok {
+		a.missingSymbols[a.offset] = &types.Tag{Text: text, Line: line, Column: column}
+	}
 }
 
-func (a *Assembler) ParseValueList(text string) {
+func (a *Assembler) ParseValueList(text string, line, column int) {
 	tokens := strings.Split(text, ", ")
 	valueList := make([]*types.Value, 0, len(tokens))
 	for _, tok := range tokens {
 		tok = strings.TrimSpace(tok)
+		val, ok := types.ParseValue(tok)
+		if ok {
+			valueList = append(valueList, val)
+			continue
+		}
 		variable, ok := a.variables[tok]
 		if ok {
 			valueList = append(valueList, variable.Val)
-			continue
+		} else {
+			a.missingSymbols[a.offset] = &types.Tag{Text: tok, Line: line, Column: column}
 		}
-		val := types.ParseValue(tok)
-		valueList = append(valueList, val)
 	}
 	a.currentValueList = valueList
 }

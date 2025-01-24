@@ -12,7 +12,7 @@ func (a *Assembler) CreatePrintable() string {
 		buffer += "; variables:\n"
 		buffer += "-----------------\n"
 		for k, v := range a.variables {
-			buffer += fmt.Sprintf("%-18s = 0x%02x\n", k, v.Val.GetValue())
+			buffer += fmt.Sprintf("%-20s = 0x%02x\n", k, v.Val.GetValue())
 		}
 		buffer += "\n"
 	}
@@ -20,7 +20,7 @@ func (a *Assembler) CreatePrintable() string {
 		buffer += "; labels:\n"
 		buffer += "-----------------\n"
 		for k, v := range a.labels {
-			buffer += fmt.Sprintf("; %-16s = 0x%04x\n", k, v.Offset)
+			buffer += fmt.Sprintf("; %-18s = 0x%04x\n", k, v.Offset)
 		}
 		buffer += "\n"
 	}
@@ -34,27 +34,27 @@ func (a *Assembler) CreatePrintable() string {
 		}
 		ok, label := isLabel(i, a.labels)
 		if ok {
-			buffer += fmt.Sprintf("%s:\n", label)
+			if !label.DisablePrint {
+				buffer += fmt.Sprintf("%s:\n", label.Text)
+			}
 		}
 		ok, directive := isDirective(i, a.directives)
 		if ok {
-			if directive.Type == ".org" {
-				buffer += fmt.Sprintf("%s\n", directive.Raw)
-			} else {
-				var arr string
-				if directive.Type == ".byte" {
-					arr = ToHexArray_1byte(directive.Values, true)
-				}
-				if directive.Type == ".word" {
-					arr = ToHexArray_2byte(directive.Values, true)
-				}
-				buffer += fmt.Sprintf("%-32s   ; %v\n", directive.Raw, arr)
+			switch directive.Type {
+			case ".resb":
+				buffer += fmt.Sprintf("%-40s; 00 ... (%d bytes)\n", directive.Raw, directive.Values[0].GetValue())
+			case ".byte":
+				arr := ToHexArray_1byte(directive.Values, true)
+				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
+			case ".word":
+				arr := ToHexArray_2byte(directive.Values, true)
+				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
 			}
 			ops = ""
 		}
 		ok, li := isLineEnd(i, a.Coder.linesEndings)
 		if ok {
-			buffer += fmt.Sprintf("   %-32s; %s\n", a.Coder.instructions[li], ops)
+			buffer += fmt.Sprintf("    %-36s; %s\n", a.Coder.instructions[li], ops)
 			ops = ""
 		}
 		ok = isBlank(i, a.Coder.blanksLines)
@@ -83,13 +83,13 @@ func isLineEnd(index int, linesEndings []uint16) (bool, int) {
 	return false, 0
 }
 
-func isLabel(index int, labels map[string]*types.Label) (bool, string) {
-	for label, l := range labels {
+func isLabel(index int, labels map[string]*types.Label) (bool, *types.Label) {
+	for _, l := range labels {
 		if int(l.Offset) == index {
-			return true, label
+			return true, l
 		}
 	}
-	return false, ""
+	return false, nil
 }
 
 func isDirective(index int, directives map[uint16]*types.Directive) (bool, *types.Directive) {
@@ -103,9 +103,7 @@ func isDirective(index int, directives map[uint16]*types.Directive) (bool, *type
 
 func isNotInDirective(index int, directives map[uint16]*types.Directive) bool {
 	for _, d := range directives {
-		if d.Type == ".org" {
-			continue
-		}
+
 		if d.Position > uint16(index+1) || (d.Position+d.Offset) < uint16(index+1) {
 			continue
 		} else {

@@ -9,8 +9,9 @@ instruction: line+ LINE_COMMENT?
 line: 
 	variable
 	| ('\t' | '    ' | '  ' ) inst
+	| label ' ' directives
+	| directives
     | label
-    | directives
     | '\n'
     ;
 
@@ -95,9 +96,9 @@ ptr_offset:
 
 variable: tag  WHITE_SPACE? '=' WHITE_SPACE? imm;
 
-directives: '.org ' imm_list
-	| '.byte '  imm_list
+directives: '.byte '  imm_list
 	| '.word '  imm_list
+	| '.resb '  imm_list
 	;
 
 imm_list: (imm | tag) (', ' (imm | tag ))*

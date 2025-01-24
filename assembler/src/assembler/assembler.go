@@ -174,9 +174,10 @@ func (a *Assembler) ParseImpliedTag() {
 	a.ParseImpliedImmediate()
 }
 
-func (a *Assembler) ParseLabel(line, column int) {
-	label := types.NewLabel(a.currentTag.Text, line, column, a.offset)
-	a.labels[a.currentTag.Text] = label
+func (a *Assembler) ParseLabel(text string, line, column int, disablePrint bool) {
+	label := types.NewLabel(text, line, column, a.offset)
+	label.DisablePrint = disablePrint
+	a.labels[text] = label
 }
 
 func (a *Assembler) ParsePtr(text string, line, column int) {
@@ -226,21 +227,26 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 }
 
 func (a *Assembler) ParseDirective(text string) {
-	if strings.HasPrefix(text, ".org") {
+	if strings.HasPrefix(text, ".resb") {
+		fmt.Println("directive added to", a.offset, "text:", text)
 		val := a.currentValueList[0]
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".org", Position: a.offset, Offset: val.GetValue(), Single: true, Values: a.currentValueList}
-		a.offset = val.GetValue()
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".resb", Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
+		for i := 0; i < int(val.GetValue()); i++ {
+			a.AppendMachineCode(0)
+		}
 		return
 	}
 	if strings.HasPrefix(text, ".byte") {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".byte", Position: a.offset, Offset: uint16(len(a.currentValueList)), Single: false, Values: a.currentValueList}
+		fmt.Println("directive added to", a.offset, "text:", text)
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".byte", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
 	if strings.HasPrefix(text, ".word") {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".word", Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Single: false, Values: a.currentValueList}
+		fmt.Println("directive added to", a.offset, "text:", text)
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".word", Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 			a.AppendMachineCode(v.GetHighByte())

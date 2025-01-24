@@ -70,7 +70,7 @@ func (a *Assembler) ExitInst_single_tag(c *parser.Inst_single_tagContext) {
 func (a *Assembler) ExitLabel(c *parser.LabelContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseLabel(line, column)
+	a.ParseLabel(a.currentTag.Text, line, column, false)
 }
 
 func (a *Assembler) ExitLine(c *parser.LineContext) {
@@ -90,7 +90,7 @@ func (a *Assembler) ExitPtr(c *parser.PtrContext) {
 	a.ParsePtr(text, line, column)
 }
 
-func (a *Assembler) EnterPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {
+func (a *Assembler) ExitPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {
 	a.hasVirtualOffset = true
 }
 
@@ -180,4 +180,4 @@ func (a *Assembler) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
 func (a *Assembler) ExitProg(c *parser.ProgContext) {}
 
-func (a *Assembler) ExitPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {}
+func (a *Assembler) EnterPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {}

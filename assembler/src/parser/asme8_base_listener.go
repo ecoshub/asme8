@@ -135,6 +135,12 @@ func (s *BaseAsmE8Listener) EnterPtr(ctx *PtrContext) {}
 // ExitPtr is called when production ptr is exited.
 func (s *BaseAsmE8Listener) ExitPtr(ctx *PtrContext) {}
 
+// EnterPtr_virtual_offset is called when production ptr_virtual_offset is entered.
+func (s *BaseAsmE8Listener) EnterPtr_virtual_offset(ctx *Ptr_virtual_offsetContext) {}
+
+// ExitPtr_virtual_offset is called when production ptr_virtual_offset is exited.
+func (s *BaseAsmE8Listener) ExitPtr_virtual_offset(ctx *Ptr_virtual_offsetContext) {}
+
 // EnterPtr_offset is called when production ptr_offset is entered.
 func (s *BaseAsmE8Listener) EnterPtr_offset(ctx *Ptr_offsetContext) {}
 

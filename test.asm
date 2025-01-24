@@ -1,5 +1,11 @@
-    mov a, 0x20
-    add [0x8000], a
-    add [0x8000], a
-    add [0x8000], a
-    mov b, [0x8000]
+
+    mov a, [BUFFER]
+    mov a, [BUFFER+1]
+    mov a, [BUFFER+2]
+    mov a, [BUFFER+3]
+    mov a, [BUFFER-3]
+    mov a, [BUFFER-2]
+    mov a, [BUFFER-1]
+    mov a, [BUFFER]
+
+BUFFER=0x7000

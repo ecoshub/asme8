@@ -84,9 +84,14 @@ func (a *Assembler) ExitMnemonic(c *parser.MnemonicContext) {
 }
 
 func (a *Assembler) ExitPtr(c *parser.PtrContext) {
+	text := c.GetText()
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParsePtr(line, column)
+	a.ParsePtr(text, line, column)
+}
+
+func (a *Assembler) EnterPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {
+	a.hasVirtualOffset = true
 }
 
 func (a *Assembler) ExitReg(c *parser.RegContext) {
@@ -174,3 +179,5 @@ func (a *Assembler) ExitInstruction(c *parser.InstructionContext) {}
 func (a *Assembler) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
 func (a *Assembler) ExitProg(c *parser.ProgContext) {}
+
+func (a *Assembler) ExitPtr_virtual_offset(c *parser.Ptr_virtual_offsetContext) {}

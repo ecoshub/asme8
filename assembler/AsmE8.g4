@@ -83,7 +83,10 @@ reg:
 ptr: 
 	'[' WHITE_SPACE? imm WHITE_SPACE? ']'
 	| '[' WHITE_SPACE? tag WHITE_SPACE? ']'
+	| ptr_virtual_offset
 	;
+
+ptr_virtual_offset: '[' STR  ('+' | '-' ) INT ']' ;
 
 ptr_offset: 
 	'[' WHITE_SPACE? imm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'

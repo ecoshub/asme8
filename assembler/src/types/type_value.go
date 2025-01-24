@@ -12,6 +12,10 @@ type Value struct {
 	highByte uint8
 }
 
+func (i *Value) Add(val uint16) {
+	i.val += val
+}
+
 func (i *Value) GetValue() uint16 {
 	return i.val
 }

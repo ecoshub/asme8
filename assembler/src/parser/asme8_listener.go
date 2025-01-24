@@ -65,6 +65,9 @@ type AsmE8Listener interface {
 	// EnterPtr is called when entering the ptr production.
 	EnterPtr(c *PtrContext)
 
+	// EnterPtr_virtual_offset is called when entering the ptr_virtual_offset production.
+	EnterPtr_virtual_offset(c *Ptr_virtual_offsetContext)
+
 	// EnterPtr_offset is called when entering the ptr_offset production.
 	EnterPtr_offset(c *Ptr_offsetContext)
 
@@ -139,6 +142,9 @@ type AsmE8Listener interface {
 
 	// ExitPtr is called when exiting the ptr production.
 	ExitPtr(c *PtrContext)
+
+	// ExitPtr_virtual_offset is called when exiting the ptr_virtual_offset production.
+	ExitPtr_virtual_offset(c *Ptr_virtual_offsetContext)
 
 	// ExitPtr_offset is called when exiting the ptr_offset production.
 	ExitPtr_offset(c *Ptr_offsetContext)

@@ -5,6 +5,7 @@ import (
 	"asme8/assembler/src/symbols"
 	"asme8/assembler/src/types"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +23,7 @@ type Assembler struct {
 	machineCode        map[uint16]uint8
 	directives         map[uint16]*types.Directive
 	errorListener      *error_listener.CustomErrorListener
+	hasVirtualOffset   bool
 	out                []uint8
 	max                uint16
 }
@@ -151,9 +153,9 @@ func (a *Assembler) ParseImpliedImmediate() {
 }
 
 func (a *Assembler) ParseImpliedTag() {
-	v, exists := a.variables[a.currentTag.Text]
+	v, exists := a.FindVariable(a.currentTag.Text)
 	if exists {
-		a.currentValue = v.Val
+		a.currentValue = v
 		a.ParseImpliedImmediate()
 		return
 	}
@@ -177,17 +179,49 @@ func (a *Assembler) ParseLabel(line, column int) {
 	a.labels[a.currentTag.Text] = label
 }
 
-func (a *Assembler) ParsePtr(line, column int) {
-	if a.currentTag.Text == "" {
+func (a *Assembler) ParsePtr(text string, line, column int) {
+	if a.hasVirtualOffset {
+		a.ParsePtrVirtualOffset(text, line, column)
+		a.hasVirtualOffset = false
 		return
 	}
-	v, exists := a.variables[a.currentTag.Text]
+
+	if text == "" {
+		return
+	}
+
+	v, exists := a.FindVariable(text)
 	if exists {
-		a.currentValue = v.Val
+		a.currentValue = v
 		return
 	}
+
 	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag, a.offset)
 	a.missingSymbols[a.offset+2] = a.currentTag
+	a.currentValue = types.NewValue(0)
+}
+
+func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
+	text = text[1 : len(text)-1]
+	sign := 1
+	tokens := strings.Split(text, "+")
+	if len(tokens) == 1 {
+		sign = -1
+		tokens = strings.Split(text, "-")
+	}
+	tag := tokens[0]
+	offsetString := tokens[1]
+	offset, _ := strconv.Atoi(offsetString)
+	// fmt.Printf("tag: >%s<, offset(%s): %d, op: %d\n", tag, offsetString, offset, sign)
+	// t := types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset}
+	offset = offset * sign
+	v, exists := a.FindVariable(tag)
+	if exists {
+		a.currentValue = types.NewValue(int64(v.GetValue()) + int64(offset))
+		// fmt.Println("val", a.currentValue.GetValue())
+		return
+	}
+	a.missingSymbols[a.offset+2] = &types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset}
 	a.currentValue = types.NewValue(0)
 }
 
@@ -257,6 +291,7 @@ func (a *Assembler) ResetCurrentValues() {
 	a.currentValue = nil
 	a.currentTag = &types.Tag{}
 	a.currentInstruction = ""
+	a.hasVirtualOffset = false
 }
 
 func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16) {
@@ -285,7 +320,7 @@ func (a *Assembler) RestoreMissingSymbols() []error {
 }
 
 func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
-	// fmt.Printf("* searching symbol. symbol:>%s<\n", symbol.Text)
+	// fmt.Printf("* searching symbol. symbol:>%v<\n", symbol)
 	im, exists := a.FindVariable(symbol.Text)
 	if !exists {
 		label, exists := a.FindLabel(symbol.Text)
@@ -296,6 +331,7 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 		// fmt.Printf("* symbol found it is a label. tag:>%s<, label_offset: %d\n", a.currentTag.Text, label.Offset)
 		im = types.NewValue(int64(label.Offset))
 	}
+	im.Add(uint16(symbol.OptionalOffset))
 	// fmt.Printf("* restoring symbol. symbol:>%s<, val: %04x, offset: %d\n", symbol.Text, im.GetValue(), offset)
 	a.machineCode[offset] = im.GetLowByte()
 	if im.GetSize() == 16 {
@@ -305,10 +341,9 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 }
 
 func (a *Assembler) FindVariable(name string) (*types.Value, bool) {
-	variable, ok := a.variables[name]
-	if ok {
-		if variable != nil {
-			return variable.Val, true
+	for _, v := range a.variables {
+		if v.Name == name {
+			return v.Val, true
 		}
 	}
 	return nil, false

@@ -2,6 +2,7 @@ package main
 
 import (
 	"asme8/assembler/src/assembler"
+	"asme8/assembler/src/utils"
 	"encoding/binary"
 	"flag"
 	"fmt"
@@ -10,13 +11,26 @@ import (
 )
 
 var (
-	flagOutput = flag.String("output", "a.bin", "output file name")
-	flagFile   = flag.String("file", "", "input file")
-	flagPrint  = flag.Bool("print", false, "print the code and the machine code")
+	flagOutput      = flag.String("output", "a.bin", "output file name")
+	flagFile        = flag.String("file", "", "input file")
+	flagPrint       = flag.Bool("print", false, "print the code and the machine code")
+	flagGlobals     = flag.String("globals", "", "globals file path")
+	flagSegmentAddr = flag.Uint("segment-addr", 0, "segment start addr")
 )
 
 func main() {
+	var globals utils.FlagArray
+	flag.Var(&globals, "global", "global list")
 	flag.Parse()
+
+	if *flagGlobals != "" {
+		gg, err := utils.ReadArrayFile(*flagGlobals)
+		if err != nil {
+			fmt.Println("globals file read error. err", err)
+			return
+		}
+		globals = append(globals, gg...)
+	}
 
 	if *flagFile == "" {
 		fmt.Println("no input file given. --input <file_name>")
@@ -26,6 +40,8 @@ func main() {
 	out, err := assembler.AssembleFile(&assembler.Options{
 		FilePath:    *flagFile,
 		PrintDetail: *flagPrint,
+		Globals:     globals,
+		SegmentAddr: uint16(*flagSegmentAddr),
 	})
 	if err != nil {
 		fmt.Println(err)

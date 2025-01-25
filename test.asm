@@ -14,6 +14,7 @@ start:
     mov [INPUT_BUFFER+2], a
 	mov a, 0xaa
     mov [INPUT_BUFFER+3], a
+end:
     brk
 
 .org 0xff00

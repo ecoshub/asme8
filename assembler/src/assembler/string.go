@@ -8,11 +8,11 @@ import (
 
 func (a *Assembler) CreatePrintable() string {
 	buffer := "\n"
-	if len(a.variables) > 0 {
-		buffer += "; variables:\n"
+	if len(a.globals) > 0 {
+		buffer += "; globals:\n"
 		buffer += "-----------------\n"
-		for k, v := range a.variables {
-			buffer += fmt.Sprintf("%-20s = 0x%02x\n", k, v.Val.GetValue())
+		for k, v := range a.globals {
+			buffer += fmt.Sprintf("; %-20s = 0x%02x\n", k, v.Val.GetValue())
 		}
 		buffer += "\n"
 	}
@@ -24,13 +24,19 @@ func (a *Assembler) CreatePrintable() string {
 		}
 		buffer += "\n"
 	}
+	if len(a.variables) > 0 {
+		buffer += "; variables:\n"
+		buffer += "-----------------\n"
+		for k, v := range a.variables {
+			buffer += fmt.Sprintf("%s=0x%02x\n", k, v.Val.GetValue())
+		}
+		buffer += "\n"
+	}
 	ops := ""
 	for i, c := range a.out {
 		if !isSkip(i, a.Coder.skip) {
 			ops += fmt.Sprintf("%02x", c)
-			if i < int(a.max) {
-				ops += " "
-			}
+			ops += " "
 		}
 		ok, label := isLabel(i, a.labels)
 		if ok {

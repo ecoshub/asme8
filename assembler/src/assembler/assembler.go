@@ -18,6 +18,7 @@ type Assembler struct {
 	currentTag         *types.Tag
 	currentRegisters   []*types.Register
 	labels             map[string]*types.Label
+	globals            map[string]*types.Variable
 	variables          map[string]*types.Variable
 	missingSymbols     map[uint16]*types.Tag
 	machineCode        map[uint16]uint8
@@ -36,16 +37,16 @@ type Coder struct {
 	lastLine     string
 }
 
-func New(errorListener *error_listener.CustomErrorListener) *Assembler {
+func New() *Assembler {
 	return &Assembler{
 		currentValueList: []*types.Value{},
 		currentRegisters: []*types.Register{},
 		labels:           make(map[string]*types.Label),
 		variables:        make(map[string]*types.Variable),
+		globals:          make(map[string]*types.Variable),
 		machineCode:      make(map[uint16]uint8),
 		missingSymbols:   make(map[uint16]*types.Tag),
 		directives:       make(map[uint16]*types.Directive),
-		errorListener:    errorListener,
 		Coder: &Coder{
 			linesEndings: []uint16{},
 			blanksLines:  []uint16{},
@@ -60,6 +61,18 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 	if len(errs) > 0 {
 		return nil, error_listener.WrapErrors(errs...)
 	}
+	return a.assemble(), nil
+}
+
+func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErrorListener) {
+	a.errorListener = errorListener
+}
+
+func (a *Assembler) AttachGlobals(globals map[string]*types.Variable) {
+	a.globals = globals
+}
+
+func (a *Assembler) assemble() []uint8 {
 	max := uint16(0)
 	for offset := range a.machineCode {
 		if offset >= max {
@@ -78,7 +91,22 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 	}
 	a.max = max
 	a.out = out
-	return out, nil
+	return a.out
+}
+
+func (a *Assembler) assembleSegment() []uint8 {
+	code := make([]uint8, 0, len(a.machineCode))
+	for i := 0; i < 0x10000; i++ {
+		b, ok := a.machineCode[uint16(i)]
+		if !ok {
+			a.Coder.skip = append(a.Coder.skip, uint16(i))
+			continue
+		}
+		code = append(code, b)
+	}
+	a.max = uint16(len(code))
+	a.out = code
+	return code
 }
 
 func (a *Assembler) AppendMachineCode(code uint8) {
@@ -236,7 +264,12 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 func (a *Assembler) ParseDirective(text string, line, column int) {
 	if strings.HasPrefix(text, ".org") {
 		if len(a.currentValueList) == 0 {
-			a.errorListener.NewSimpleError(fmt.Sprintf("value is unknown. value: '%s'", text), line, column)
+			msg := fmt.Sprintf("value is unknown. value: '%s'", text)
+			if a.errorListener == nil {
+				panic(msg)
+			} else {
+				a.errorListener.NewSimpleError(msg, line, column)
+			}
 			return
 		}
 		val := a.currentValueList[0]
@@ -304,9 +337,9 @@ func (a *Assembler) ParseValueList(text string, line, column int) {
 			valueList = append(valueList, val)
 			continue
 		}
-		variable, ok := a.variables[tok]
+		variable, ok := a.FindVariable(tok)
 		if ok {
-			valueList = append(valueList, variable.Val)
+			valueList = append(valueList, variable)
 		} else {
 			a.missingSymbols[a.offset] = &types.Tag{Text: tok, Line: line, Column: column}
 		}
@@ -370,6 +403,11 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 
 func (a *Assembler) FindVariable(name string) (*types.Value, bool) {
 	for _, v := range a.variables {
+		if v.Name == name {
+			return v.Val, true
+		}
+	}
+	for _, v := range a.globals {
 		if v.Name == name {
 			return v.Val, true
 		}

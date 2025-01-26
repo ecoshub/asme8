@@ -1,7 +1,8 @@
-; put value of register A to the screen buffer
-; .segment "__CHAR_OUT__"
-start:
+.segment "SEG_CHAR_OUT"
+
+    extern ADDR_CHAR_OUT
+    global CHAR_OUT
+
+CHAR_OUT:
     mov [ADDR_CHAR_OUT], a
-    jmp done
-done:
     rts

@@ -16,10 +16,17 @@ const (
 	SYMBOL_RESOLVE_STATUS_RESOLVED     uint8 = 1
 )
 
+const (
+	SYMBOL_TYPE_NONE  uint8 = 0
+	SYMBOL_TYPE_VAR   uint8 = 1
+	SYMBOL_TYPE_LABEL uint8 = 2
+)
+
 type Symbol struct {
 	symbol string
 	index  uint16
 	share  uint8
+	_type  uint8
 }
 
 func NewSymbol(symbol string) *Symbol {
@@ -29,12 +36,36 @@ func NewSymbol(symbol string) *Symbol {
 	}
 }
 
-func (s *Symbol) SetShare(status uint8) {
-	s.share = status
+func (s *Symbol) GetSymbol() string {
+	return s.symbol
+}
+
+func (s *Symbol) GetType() uint8 {
+	return s._type
+}
+
+func (s *Symbol) IsShare(status uint8) bool {
+	return s.share&status > 0
+}
+
+func (s *Symbol) GetIndex() uint16 {
+	return s.index
+}
+
+func (s *Symbol) GetShare() uint8 {
+	return s.share
+}
+
+func (s *Symbol) SetShare() uint8 {
+	return s.share
 }
 
 func (s *Symbol) SetIndex(index uint16) {
 	s.index = index
+}
+
+func (s *Symbol) SetType(_type uint8) {
+	s._type = _type
 }
 
 func (s *Symbol) Encode(buf *bytes.Buffer) error {
@@ -53,6 +84,11 @@ func (s *Symbol) Encode(buf *bytes.Buffer) error {
 
 	// Encode share
 	if err := binary.Write(buf, binary.LittleEndian, s.share); err != nil {
+		return err
+	}
+
+	// Encode type
+	if err := binary.Write(buf, binary.LittleEndian, s._type); err != nil {
 		return err
 	}
 
@@ -78,6 +114,11 @@ func (s *Symbol) Decode(buf *bytes.Reader) error {
 
 	// Decode share
 	if err := binary.Read(buf, binary.LittleEndian, &s.share); err != nil {
+		return err
+	}
+
+	// Decode type
+	if err := binary.Read(buf, binary.LittleEndian, &s._type); err != nil {
 		return err
 	}
 

@@ -1,9 +1,14 @@
-; put value of register A to the screen buffer
+.segment "SEG_CHAR_IN"
 
-start:
+    extern ADDR_CHAR_READY
+    extern ADDR_CHAR_READ
+    global CHAR_IN
+
+    xor a, a
+CHAR_IN:
 char_wait:
-    mov a, [ADDR_CHAR_RDY]      ; char ready addr
-    cmp a, 1                    ; char ready mean 1
+    mov a, [ADDR_CHAR_READY]    ; char ready addr
+    cmp a, 1                    ; 1 mean char ready
     jz char_read                ; jump to read label if ready
     jmp char_wait               ; jump to char wait
 

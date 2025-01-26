@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 )
 
-type Hit struct {
+type Position struct {
 	symbol         string
 	offset         uint16
 	optionalOffset uint16
@@ -13,7 +13,32 @@ type Hit struct {
 	size           uint8
 }
 
-func (h *Hit) Encode(buf *bytes.Buffer) error {
+// GetSymbol returns the symbol of the position.
+func (p *Position) GetSymbol() string {
+	return p.symbol
+}
+
+// GetOffset returns the offset of the position.
+func (p *Position) GetOffset() uint16 {
+	return p.offset
+}
+
+// GetOptionalOffset returns the optional offset of the position.
+func (p *Position) GetOptionalOffset() uint16 {
+	return p.optionalOffset
+}
+
+// IsMissing returns whether the position is missing.
+func (p *Position) IsMissing() bool {
+	return p.missing
+}
+
+// GetSize returns the size of the position.
+func (p *Position) GetSize() uint8 {
+	return p.size
+}
+
+func (h *Position) Encode(buf *bytes.Buffer) error {
 	if err := binary.Write(buf, binary.LittleEndian, uint16(len(h.symbol))); err != nil {
 		return err
 	}
@@ -35,7 +60,7 @@ func (h *Hit) Encode(buf *bytes.Buffer) error {
 	return nil
 }
 
-func (h *Hit) Decode(buf *bytes.Reader) error {
+func (h *Position) Decode(buf *bytes.Reader) error {
 	var symbolLen uint16
 	if err := binary.Read(buf, binary.LittleEndian, &symbolLen); err != nil {
 		return err

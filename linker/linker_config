@@ -1,0 +1,14 @@
+MEMORY {
+    ROM: start=0x0000, size=0x2000, type=ro;
+    RAM: start=0x2000, size=0xd7ee, type=rw;
+    VIDEO: start=0xf7ee, size=0x800, type=rw;
+    KEYBOARD: start=0xffee, size=0x2, type=rw;
+    INTR: start=0xfff0, size=0xf, type=rw;
+}
+
+SEGMENTS {
+    SEG_ECHO: load=ROM, type=rw;
+    SEG_KERNEL: load=ROM, type=ro;
+    SEG_CHAR_IN: load=ROM, type=rw;
+    SEG_CHAR_OUT: load=ROM, type=rw;
+}

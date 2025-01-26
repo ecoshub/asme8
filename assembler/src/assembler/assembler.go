@@ -41,7 +41,7 @@ type Assembler struct {
 	symbolTracker      *object.Tracker
 	hasVirtualOffset   bool
 	out                []uint8
-	max                uint16
+	topAddress         uint16
 
 	Coder *Coder
 }
@@ -77,11 +77,16 @@ func New(mode ASM_MODE) *Assembler {
 
 func (a *Assembler) Assemble() ([]uint8, error) {
 	out := a.assemble()
+	err := a.errorListener.GetError()
+	if err != nil {
+		return nil, err
+	}
 	switch a.mode {
 	case ASM_MODE_ELF:
 		a.RestoreMissingSymbols()
 		a.symbolTracker.AttachBin(out)
 		a.symbolTracker.AttachCode(a.CodeString())
+		a.symbolTracker.Print()
 		elf := object.ELF{
 			Header:  object.NewStdHeader(VERSION),
 			Tracker: a.symbolTracker,
@@ -106,14 +111,19 @@ func (a *Assembler) AttachGlobals(globals map[string]*types.Variable) {
 }
 
 func (a *Assembler) assemble() []uint8 {
-	max := uint16(0)
+	topAddress := uint16(0)
 	for offset := range a.machineCode {
-		if offset >= max {
-			max = offset
+		if offset >= topAddress {
+			topAddress = offset
 		}
 	}
-	out := make([]uint8, max+1)
-	for i := uint16(0); i < max+1; i++ {
+	if topAddress == 0 {
+		a.out = []byte{}
+		a.topAddress = 0
+		return a.out
+	}
+	out := make([]uint8, topAddress+1)
+	for i := uint16(0); i < topAddress+1; i++ {
 		b, ok := a.machineCode[i]
 		if !ok {
 			a.Coder.skip = append(a.Coder.skip, i)
@@ -122,7 +132,7 @@ func (a *Assembler) assemble() []uint8 {
 		}
 		out[i] = b
 	}
-	a.max = max
+	a.topAddress = topAddress
 	a.out = out
 	return a.out
 }
@@ -251,6 +261,7 @@ func (a *Assembler) ParseLabel(text string, line, column int, disablePrint bool)
 	a.labels[text] = label
 
 	a.symbolTracker.SetIndex(text, a.offset)
+	a.symbolTracker.SetType(a.currentTag.Text, object.SYMBOL_TYPE_LABEL)
 }
 
 func (a *Assembler) ParsePtr(text string, line, column int) {
@@ -359,6 +370,7 @@ func (a *Assembler) ParseVariable() {
 	a.variables[a.currentTag.Text] = v
 
 	a.symbolTracker.SetIndex(a.currentTag.Text, v.Val.GetValue())
+	a.symbolTracker.SetType(a.currentTag.Text, object.SYMBOL_TYPE_VAR)
 }
 
 func (a *Assembler) ParseInstruction(text string) {

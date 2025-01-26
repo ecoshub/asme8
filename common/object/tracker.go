@@ -10,7 +10,7 @@ import (
 type Tracker struct {
 	segment   string
 	defined   map[string]*Symbol
-	positions map[uint16]*Hit
+	positions map[uint16]*Position
 	code      string
 	bin       []uint8
 }
@@ -18,8 +18,28 @@ type Tracker struct {
 func NewTracker() *Tracker {
 	return &Tracker{
 		defined:   make(map[string]*Symbol),
-		positions: make(map[uint16]*Hit),
+		positions: make(map[uint16]*Position),
 	}
+}
+
+func (t *Tracker) GetSymbols() map[string]*Symbol {
+	return t.defined
+}
+
+func (t *Tracker) GetPositions() map[uint16]*Position {
+	return t.positions
+}
+
+func (t *Tracker) GetSegment() string {
+	return t.segment
+}
+
+func (t *Tracker) GetCode() string {
+	return t.code
+}
+
+func (t *Tracker) GetBin() []uint8 {
+	return t.bin
 }
 
 func (t *Tracker) AttachCode(code string) {
@@ -39,16 +59,21 @@ func (t *Tracker) DefineSymbol(symbol string) {
 }
 
 func (t *Tracker) SymbolHit(symbol string, offset uint16, size uint8, optionalOffset uint16) {
-	t.positions[offset] = &Hit{symbol: symbol, offset: offset, size: size, optionalOffset: optionalOffset}
+	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, optionalOffset: optionalOffset}
 }
 
 func (t *Tracker) SetMissing(symbol string, offset uint16, size uint8) {
-	t.positions[offset] = &Hit{symbol: symbol, size: size, missing: true}
+	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, missing: true}
 }
 
 func (t *Tracker) SetIndex(symbol string, index uint16) {
 	s := t.GetOrDefineSymbol(symbol)
 	s.SetIndex(index)
+}
+
+func (t *Tracker) SetType(symbol string, _type uint8) {
+	s := t.GetOrDefineSymbol(symbol)
+	s.SetType(_type)
 }
 
 func (t *Tracker) SetExtern(symbol string) {
@@ -93,10 +118,10 @@ func (t *Tracker) Print() {
 
 	sortedSymbols := SortSymbolMap(t.defined)
 	fmt.Println("SYMBOL TABLE:")
-	fmt.Println("OFFSET      ACCESS     SYMBOL")
+	fmt.Println("OFFSET      ACCESS     TYPE     SYMBOL")
 	for _, key := range sortedSymbols {
 		d := t.defined[key]
-		fmt.Printf("%04x        %03b        <%s>\n", d.index, d.share, d.symbol)
+		fmt.Printf("%04x        %03b        %d        <%s>\n", d.index, d.share, d._type, d.symbol)
 	}
 	fmt.Println()
 
@@ -125,7 +150,7 @@ func SortSymbolMap(m map[string]*Symbol) []string {
 	return keys
 }
 
-func SortHitMap(m map[uint16]*Hit) []uint16 {
+func SortHitMap(m map[uint16]*Position) []uint16 {
 	keys := make([]uint16, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
@@ -258,14 +283,14 @@ func (t *Tracker) Decode(data []byte) error {
 	if err != nil {
 		return err
 	}
-	t.positions = make(map[uint16]*Hit, positionsLen)
+	t.positions = make(map[uint16]*Position, positionsLen)
 	for i := uint32(0); i < positionsLen; i++ {
 		var key uint16
 		err = binary.Read(buf, binary.LittleEndian, &key)
 		if err != nil {
 			return err
 		}
-		hit := new(Hit)
+		hit := new(Position)
 		err = hit.Decode(buf)
 		if err != nil {
 			return err
@@ -292,6 +317,11 @@ func (t *Tracker) Decode(data []byte) error {
 	if err != nil {
 		return err
 	}
+
+	if binLen == 0 {
+		return nil
+	}
+
 	t.bin = make([]uint8, binLen)
 	_, err = buf.Read(t.bin)
 	if err != nil {

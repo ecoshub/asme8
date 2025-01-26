@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -45,7 +47,9 @@ func main() {
 		mode = assembler.ASM_MODE_EXE
 	case "elf":
 		if *flagOutput == "a.bin" {
-			*flagOutput = "a.o"
+			ext := filepath.Ext(*flagFile)
+			base := filepath.Base(*flagFile)
+			*flagOutput = strings.TrimSuffix(base, ext) + ".o"
 		}
 		mode = assembler.ASM_MODE_ELF
 	}

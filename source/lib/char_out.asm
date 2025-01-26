@@ -4,5 +4,5 @@
     global CHAR_OUT
 
 CHAR_OUT:
-    mov [ADDR_CHAR_OUT], a
+    mov [ADDR_CHAR_OUT+b], a
     rts

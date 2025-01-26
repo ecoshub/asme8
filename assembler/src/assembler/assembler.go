@@ -86,7 +86,6 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 		a.RestoreMissingSymbols()
 		a.symbolTracker.AttachBin(out)
 		a.symbolTracker.AttachCode(a.CodeString())
-		a.symbolTracker.Print()
 		elf := object.ELF{
 			Header:  object.NewStdHeader(VERSION),
 			Tracker: a.symbolTracker,

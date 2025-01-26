@@ -9,23 +9,26 @@ import (
 	"log"
 )
 
+var (
+	flagConfigPath = flag.String("config", "", "Path to the linker config file")
+	flagOutput     = flag.String("output", "a.bin", "output file name")
+)
+
 func main() {
-	// Define flags
-	configPath := flag.String("config", "", "Path to the linker config file")
 	flag.Parse()
 
 	// Get remaining arguments as .o files
 	objectFilePaths := flag.Args()
 
 	// Check if config path is provided
-	if *configPath == "" {
+	if *flagConfigPath == "" {
 		fmt.Println("Config path is required")
 		return
 	}
 
 	// Load config
 	conf := config.NewConfig()
-	err := conf.ParseConfig(*configPath)
+	err := conf.ParseConfig(*flagConfigPath)
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
@@ -42,5 +45,13 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("OK")
+
+	_, err = l.Out(*flagOutput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("link success. files: %v, output file: %s\n", objectFilePaths, *flagOutput)
+
 }

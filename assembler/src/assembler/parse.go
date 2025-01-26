@@ -63,8 +63,13 @@ func AssembleFile(options *Options) ([]byte, error) {
 	}
 
 	if options.PrintDetail {
-		prt := assembler.CreatePrintable()
-		fmt.Println(prt)
+		if options.Mode == ASM_MODE_EXE {
+			prt := assembler.CreatePrintable()
+			fmt.Println(prt)
+		}
+		if options.Mode == ASM_MODE_ELF {
+			assembler.symbolTracker.Print()
+		}
 	}
 
 	return out, nil

@@ -51,19 +51,22 @@ func (l *Linker) Link() error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	f, err := os.Create("link.bin")
+func (l *Linker) Out(path string) (int, error) {
+	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("open file error. err: %s", err)
+		return 0, fmt.Errorf("open file error. err: %s", err)
 	}
 	defer f.Close()
 
 	err = binary.Write(f, binary.BigEndian, l.memory)
 	if err != nil {
-		return fmt.Errorf("file write error. err: %s", err)
+		return 0, fmt.Errorf("file write error. err: %s", err)
 	}
 
-	return nil
+	return len(l.memory), nil
 }
 
 func (l *Linker) resolveSymbols() error {
@@ -125,7 +128,7 @@ func (l *Linker) putSegments() error {
 		offset := l.lastMemoryOffsets[m.Name]
 		position := m.Start + offset
 		l.segmentOffsets[s.Name] = position
-		fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
+		// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
 		copy(l.memory[position:], bin[:])
 		l.lastMemoryOffsets[m.Name] += length
 	}
@@ -135,7 +138,7 @@ func (l *Linker) putSegments() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		fmt.Println("---", segment, "---")
+		// fmt.Println("---", segment, "---")
 		// symbols := o.Tracker.GetSymbols()
 		positions := o.Tracker.GetPositions()
 		for _, p := range positions {

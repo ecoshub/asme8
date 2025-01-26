@@ -10,6 +10,7 @@ import (
 )
 
 type Options struct {
+	Mode        ASM_MODE
 	FilePath    string
 	PrintDetail bool
 	Globals     []string
@@ -31,6 +32,10 @@ func AssembleFile(options *Options) ([]byte, error) {
 		return nil, fmt.Errorf("global read error. err: %s", err)
 	}
 
+	if options.Mode == ASM_MODE_NONE {
+		return nil, errors.New("must provide an assembly mode")
+	}
+
 	el := &error_listener.CustomErrorListener{}
 	lexer := parser.NewAsmE8Lexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
@@ -42,7 +47,7 @@ func AssembleFile(options *Options) ([]byte, error) {
 	p.AddErrorListener(el)
 	tree := p.Instruction()
 
-	assembler := New()
+	assembler := New(options.Mode)
 	assembler.AttachErrorListener(el)
 	assembler.AttachGlobals(globals)
 	antlr.ParseTreeWalkerDefault.Walk(assembler, tree)

@@ -8,6 +8,16 @@ import (
 
 var _ parser.AsmE8Listener = &Assembler{}
 
+func (a *Assembler) ExitSegment(c *parser.SegmentContext) {
+	text := c.GetText()
+	a.ParseSegment(text)
+}
+
+func (a *Assembler) ExitAccess(c *parser.AccessContext) {
+	text := c.GetText()
+	a.ParseAccessModifier(text)
+}
+
 func (a *Assembler) ExitDirectives(c *parser.DirectivesContext) {
 	text := c.GetText()
 	line := c.GetStart().GetLine()
@@ -120,6 +130,10 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterSegment(c *parser.SegmentContext) {}
+
+func (a *Assembler) EnterAccess(c *parser.AccessContext) {}
 
 func (a *Assembler) VisitErrorNode(node antlr.ErrorNode) {}
 

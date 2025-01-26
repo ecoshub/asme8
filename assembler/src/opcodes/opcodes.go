@@ -1,4 +1,4 @@
-package symbols
+package opcodes
 
 const (
 	REGISTER_SYMBOL_A string = "a"

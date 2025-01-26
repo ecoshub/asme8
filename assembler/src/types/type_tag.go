@@ -5,4 +5,5 @@ type Tag struct {
 	Line           int
 	Column         int
 	OptionalOffset int
+	Size           int8
 }

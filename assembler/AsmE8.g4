@@ -9,6 +9,8 @@ instruction: line+ LINE_COMMENT?
 line: 
 	variable
 	| ('\t' | '    ' | '  ' ) inst
+	| segment
+	| access
 	| label ' ' directives
 	| directives
     | label
@@ -102,6 +104,12 @@ directives: '.byte '  imm_list
 	| '.word '  imm_list
 	| '.resb '  imm_list
 	| '.org '  imm_list
+	;
+
+segment: '.segment ' '"' STR '"' ;
+
+access: '    ' 'global ' tag
+	| '    ' 'extern ' tag
 	;
 
 imm_list: (imm | tag) (', ' (imm | tag ))*

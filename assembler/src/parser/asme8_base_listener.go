@@ -159,6 +159,18 @@ func (s *BaseAsmE8Listener) EnterDirectives(ctx *DirectivesContext) {}
 // ExitDirectives is called when production directives is exited.
 func (s *BaseAsmE8Listener) ExitDirectives(ctx *DirectivesContext) {}
 
+// EnterSegment is called when production segment is entered.
+func (s *BaseAsmE8Listener) EnterSegment(ctx *SegmentContext) {}
+
+// ExitSegment is called when production segment is exited.
+func (s *BaseAsmE8Listener) ExitSegment(ctx *SegmentContext) {}
+
+// EnterAccess is called when production access is entered.
+func (s *BaseAsmE8Listener) EnterAccess(ctx *AccessContext) {}
+
+// ExitAccess is called when production access is exited.
+func (s *BaseAsmE8Listener) ExitAccess(ctx *AccessContext) {}
+
 // EnterImm_list is called when production imm_list is entered.
 func (s *BaseAsmE8Listener) EnterImm_list(ctx *Imm_listContext) {}
 

@@ -1,26 +1,35 @@
-__REGION_RAM__=0x8000
+.segment "IO"
 
-.org 0x0100
+ADDR_CHAR_OUT=0x7000
+ADDR_CHAR_RDY=0x6ffe
+ADDR_CHAR_READ=0x6fff
+
+CHAR_DEL=0x7f
+CHAR_SPACE=' '
+
 start:
-	mov a, 0xff
-    mov [INPUT_NUMBER], a
-	mov a, 0xee
-    mov [INPUT_NUMBER+1], a
-	mov a, 0xdd
-    mov [INPUT_BUFFER], a
-	mov a, 0xcc
-    mov [INPUT_BUFFER+1], a
-	mov a, 0xbb
-    mov [INPUT_BUFFER+2], a
-	mov a, 0xaa
-    mov [INPUT_BUFFER+3], a
-end:
-    brk
+    mov c, 0                    ; char index for screen
+char_wait:
+    mov a, [ADDR_CHAR_RDY]      ; char ready addr
+    cmp a, 1                    ; char ready mean 1
+    jz char_read                ; jump to read label if ready
+    jmp char_wait               ; jump to char wait
 
-.org 0xff00
-init:
-    jmp start
+char_read:
+    mov a, [ADDR_CHAR_READ]     ; read from char addr
+    cmp a, CHAR_DEL             ; check if char is 'del'
+    jz key_del                  ; jump to key_del label if char 'del'
+    jmp char_out                ; jump to char out routine
 
-.org __REGION_RAM__
-INPUT_NUMBER: .resb 2
-INPUT_BUFFER: .resb 4
+key_del:
+    cmp c, 0                    ; check if is there char to delete
+    jz char_wait                ; if not jump to wait
+    dec c                       ; dec cursor index by 1
+    mov a, CHAR_SPACE           ; store space char in to a
+    mov [ADDR_CHAR_OUT+c], a    ; write screen buffer to a with offset c
+    jmp char_wait               ; jump to char wait
+
+char_out:
+    mov [ADDR_CHAR_OUT+c], a    ; write content of a in to screen buffer with offset c
+    inc c                       ; increment cursor index by 1
+    jmp char_wait               ; jump to char out

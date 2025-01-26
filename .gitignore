@@ -9,3 +9,4 @@ assembler/test.asm
 TODO.md
 assembler/.antlr
 a.bin
+a.o

@@ -2,15 +2,29 @@ package assembler
 
 import (
 	"asme8/assembler/src/error_listener"
-	"asme8/assembler/src/symbols"
+	"asme8/assembler/src/opcodes"
 	"asme8/assembler/src/types"
+	"asme8/common/object"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
+type ASM_MODE uint8
+
+const (
+	VERSION uint16 = 1
+)
+
+const (
+	ASM_MODE_NONE ASM_MODE = 0
+	ASM_MODE_EXE  ASM_MODE = 1
+	ASM_MODE_ELF  ASM_MODE = 2
+)
+
 type Assembler struct {
-	Coder              *Coder
+	mode               ASM_MODE
 	offset             uint16
 	currentInstruction string
 	currentValue       *types.Value
@@ -24,9 +38,12 @@ type Assembler struct {
 	machineCode        map[uint16]uint8
 	directives         map[uint16]*types.Directive
 	errorListener      *error_listener.CustomErrorListener
+	symbolTracker      *object.Tracker
 	hasVirtualOffset   bool
 	out                []uint8
 	max                uint16
+
+	Coder *Coder
 }
 
 type Coder struct {
@@ -37,8 +54,9 @@ type Coder struct {
 	lastLine     string
 }
 
-func New() *Assembler {
+func New(mode ASM_MODE) *Assembler {
 	return &Assembler{
+		mode:             mode,
 		currentValueList: []*types.Value{},
 		currentRegisters: []*types.Register{},
 		labels:           make(map[string]*types.Label),
@@ -47,21 +65,36 @@ func New() *Assembler {
 		machineCode:      make(map[uint16]uint8),
 		missingSymbols:   make(map[uint16]*types.Tag),
 		directives:       make(map[uint16]*types.Directive),
+		symbolTracker:    object.NewTracker(),
 		Coder: &Coder{
-			linesEndings: []uint16{},
-			blanksLines:  []uint16{},
-			skip:         []uint16{},
-			instructions: []string{},
+			linesEndings: make([]uint16, 0, 16),
+			blanksLines:  make([]uint16, 0, 16),
+			skip:         make([]uint16, 0, 16),
+			instructions: make([]string, 0, 16),
 		},
 	}
 }
 
 func (a *Assembler) Assemble() ([]uint8, error) {
-	errs := a.RestoreMissingSymbols()
-	if len(errs) > 0 {
-		return nil, error_listener.WrapErrors(errs...)
+	out := a.assemble()
+	switch a.mode {
+	case ASM_MODE_ELF:
+		a.RestoreMissingSymbols()
+		a.symbolTracker.AttachBin(out)
+		a.symbolTracker.AttachCode(a.CodeString())
+		elf := object.ELF{
+			Header:  object.NewStdHeader(VERSION),
+			Tracker: a.symbolTracker,
+		}
+		return elf.Encode()
+	case ASM_MODE_EXE:
+		errs := a.RestoreMissingSymbols()
+		if len(errs) > 0 {
+			return nil, error_listener.WrapErrors(errs...)
+		}
+		return out, nil
 	}
-	return a.assemble(), nil
+	return nil, errors.New("unknown assembly mode")
 }
 
 func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErrorListener) {
@@ -94,20 +127,20 @@ func (a *Assembler) assemble() []uint8 {
 	return a.out
 }
 
-func (a *Assembler) assembleSegment() []uint8 {
-	code := make([]uint8, 0, len(a.machineCode))
-	for i := 0; i < 0x10000; i++ {
-		b, ok := a.machineCode[uint16(i)]
-		if !ok {
-			a.Coder.skip = append(a.Coder.skip, uint16(i))
-			continue
-		}
-		code = append(code, b)
-	}
-	a.max = uint16(len(code))
-	a.out = code
-	return code
-}
+// func (a *Assembler) assembleSegment() []uint8 {
+// 	code := make([]uint8, 0, len(a.machineCode))
+// 	for i := 0; i < 0x10000; i++ {
+// 		b, ok := a.machineCode[uint16(i)]
+// 		if !ok {
+// 			a.Coder.skip = append(a.Coder.skip, uint16(i))
+// 			continue
+// 		}
+// 		code = append(code, b)
+// 	}
+// 	a.max = uint16(len(code))
+// 	a.out = code
+// 	return code
+// }
 
 func (a *Assembler) AppendMachineCode(code uint8) {
 	a.machineCode[a.offset] = code
@@ -115,7 +148,7 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 }
 
 func (a *Assembler) ParseRegisterImmediate() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_REG_INM_8)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_INM_8)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -123,13 +156,13 @@ func (a *Assembler) ParseRegisterImmediate() {
 
 func (a *Assembler) ParseRegisterRegister() {
 	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_REG_REG)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_REG)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 }
 
 func (a *Assembler) ParseRegisterPointer() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_MEM_REG)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_MEM_REG)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -137,7 +170,7 @@ func (a *Assembler) ParseRegisterPointer() {
 }
 
 func (a *Assembler) ParsePointerRegister() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_REG_MEM)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_MEM)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -145,9 +178,9 @@ func (a *Assembler) ParsePointerRegister() {
 }
 
 func (a *Assembler) ParseRegisterPointerOffset() {
-	a.GetVariableOrTagMissing(2)
+	a.GetVariableOrTagMissing(2, 16)
 	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_MEM_REG_OFFSET)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_MEM_REG_OFFSET)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -155,9 +188,9 @@ func (a *Assembler) ParseRegisterPointerOffset() {
 }
 
 func (a *Assembler) ParsePointerRegisterOffset() {
-	a.GetVariableOrTagMissing(2)
+	a.GetVariableOrTagMissing(2, 16)
 	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_REG_MEM_OFFSET)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_MEM_OFFSET)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -165,23 +198,23 @@ func (a *Assembler) ParsePointerRegisterOffset() {
 }
 
 func (a *Assembler) ParseRegisterImmediateVariable() {
-	a.GetVariableOrTagMissing(2)
+	a.GetVariableOrTagMissing(2, 8)
 	a.ParseRegisterImmediate()
 }
 
 func (a *Assembler) ParseImpliedRegister() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_IMPL_REG)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_REG)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImplied() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_IMPL)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL)
 	a.AppendMachineCode(opcode)
 }
 
 func (a *Assembler) ParseImpliedImmediate() {
-	opcode := symbols.GetOpCode(a.currentInstruction, symbols.ADDRESSING_MODE_IMPL_INM_16)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_INM_16)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
@@ -197,12 +230,15 @@ func (a *Assembler) ParseImpliedTag() {
 
 	label, exist := a.FindLabel(a.currentTag.Text)
 	if exist {
+		a.symbolTracker.SymbolHit(label.Text, a.offset+1, 16, 0)
+		// fmt.Printf("[*] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d\n", label.Text, a.offset+1, label.Line, label.Column)
 		a.currentValue = types.NewValue(int64(label.Offset))
 		a.ParseImpliedImmediate()
 		return
 	}
 
 	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag, a.offset)
+	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+1] = a.currentTag
 	a.currentValue = types.NewValue(0)
 
@@ -213,6 +249,8 @@ func (a *Assembler) ParseLabel(text string, line, column int, disablePrint bool)
 	label := types.NewLabel(text, line, column, a.offset)
 	label.DisablePrint = disablePrint
 	a.labels[text] = label
+
+	a.symbolTracker.SetIndex(text, a.offset)
 }
 
 func (a *Assembler) ParsePtr(text string, line, column int) {
@@ -228,11 +266,14 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 
 	v, exists := a.FindVariable(text)
 	if exists {
+		a.symbolTracker.SymbolHit(a.currentTag.Text, a.offset+2, 16, 0)
+		// fmt.Printf("[v] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d\n", a.currentTag.Text, a.offset+2, 0, 0)
 		a.currentValue = v
 		return
 	}
 
 	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag, a.offset)
+	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+2] = a.currentTag
 	a.currentValue = types.NewValue(0)
 }
@@ -253,10 +294,13 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 	offset = offset * sign
 	v, exists := a.FindVariable(tag)
 	if exists {
+		a.symbolTracker.SymbolHit(tag, a.offset+2, 16, uint16(offset))
+		// fmt.Printf("[V] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d\n", tag, a.offset+2, line, column, offset)
 		a.currentValue = types.NewValue(int64(v.GetValue()) + int64(offset))
 		// fmt.Println("val", a.currentValue.GetValue())
 		return
 	}
+	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+2] = &types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset}
 	a.currentValue = types.NewValue(0)
 }
@@ -313,6 +357,8 @@ func (a *Assembler) ParseRegister(text string) {
 func (a *Assembler) ParseVariable() {
 	v := types.NewVariable(a.currentTag.Text, a.currentValue.Copy())
 	a.variables[a.currentTag.Text] = v
+
+	a.symbolTracker.SetIndex(a.currentTag.Text, v.Val.GetValue())
 }
 
 func (a *Assembler) ParseInstruction(text string) {
@@ -323,7 +369,7 @@ func (a *Assembler) ParseValue(text string, line, column int) {
 	var ok bool
 	a.currentValue, ok = types.ParseValue(text)
 	if !ok {
-		a.missingSymbols[a.offset] = &types.Tag{Text: text, Line: line, Column: column}
+		a.missingSymbols[a.offset] = &types.Tag{Text: text, Line: line, Column: column, Size: 0}
 	}
 }
 
@@ -339,12 +385,28 @@ func (a *Assembler) ParseValueList(text string, line, column int) {
 		}
 		variable, ok := a.FindVariable(tok)
 		if ok {
+			a.symbolTracker.SymbolHit(tok, a.offset, uint8(variable.GetSize()), 0)
 			valueList = append(valueList, variable)
 		} else {
 			a.missingSymbols[a.offset] = &types.Tag{Text: tok, Line: line, Column: column}
 		}
 	}
 	a.currentValueList = valueList
+}
+
+func (a *Assembler) ParseSegment(text string) {
+	segment := strings.TrimPrefix(text, ".segment \"")
+	segment = strings.TrimSuffix(segment, "\"")
+	a.symbolTracker.SetSegment(segment)
+}
+
+func (a *Assembler) ParseAccessModifier(text string) {
+	if strings.HasPrefix(text, "    extern") {
+		a.symbolTracker.SetExtern(a.currentTag.Text)
+	}
+	if strings.HasPrefix(text, "    global") {
+		a.symbolTracker.SetGlobal(a.currentTag.Text)
+	}
 }
 
 func (a *Assembler) ResetCurrentValues() {
@@ -355,15 +417,17 @@ func (a *Assembler) ResetCurrentValues() {
 	a.hasVirtualOffset = false
 }
 
-func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16) {
+func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16, requiredSize uint8) {
 	if a.currentTag.Text == "" {
 		return
 	}
 	variable, exists := a.FindVariable(a.currentTag.Text)
 	if exists {
+		a.symbolTracker.SymbolHit(a.currentTag.Text, a.offset+offsetPlus, requiredSize, 0)
 		a.currentValue = types.NewValue(int64(variable.GetValue()))
 		return
 	}
+	a.currentTag.Size = int8(requiredSize)
 	a.missingSymbols[a.offset+offsetPlus] = a.currentTag
 	a.currentValue = types.NewValue(0)
 	// fmt.Printf("?? symbol not found. symbol:>%s<, offset: %d\n", a.currentTag, a.offset)
@@ -387,10 +451,18 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 		label, exists := a.FindLabel(symbol.Text)
 		if !exists {
 			// fmt.Println("symbol not found", symbol.Text)
+			size := a.symbolTracker.GetSymbolSize(symbol.Text, uint8(symbol.Size))
+			a.symbolTracker.SetMissing(symbol.Text, offset, size)
+			// fmt.Printf("[x] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", symbol.Text, offset, 0, 0, 0, false)
 			return fmt.Errorf("line %d:%d symbol not found. symbol: '%s'", symbol.Line, symbol.Column, symbol.Text)
 		}
 		// fmt.Printf("* symbol found it is a label. tag:>%s<, label_offset: %d\n", a.currentTag.Text, label.Offset)
 		im = types.NewValue(int64(label.Offset))
+		a.symbolTracker.SymbolHit(label.Text, offset, uint8(symbol.Size), uint16(symbol.OptionalOffset))
+		// fmt.Printf("[?] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", label.Text, offset, label.Line, label.Column, symbol.OptionalOffset, true)
+	} else {
+		a.symbolTracker.SymbolHit(symbol.Text, offset, uint8(symbol.Size), uint16(symbol.OptionalOffset))
+		// fmt.Printf("[!] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", symbol.Text, offset, 0, 0, symbol.OptionalOffset, true)
 	}
 	im.Add(uint16(symbol.OptionalOffset))
 	// fmt.Printf("* restoring symbol. symbol:>%s<, val: %04x, offset: %d\n", symbol.Text, im.GetValue(), offset)

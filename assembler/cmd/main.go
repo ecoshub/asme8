@@ -16,9 +16,11 @@ var (
 	flagPrint       = flag.Bool("print", false, "print the code and the machine code")
 	flagGlobals     = flag.String("globals", "", "globals file path")
 	flagSegmentAddr = flag.Uint("segment-addr", 0, "segment start addr")
+	flagMode        = flag.String("mode", "exe", "assembly mode exe | elf")
 )
 
 func main() {
+
 	var globals utils.FlagArray
 	flag.Var(&globals, "global", "global list")
 	flag.Parse()
@@ -37,11 +39,23 @@ func main() {
 		return
 	}
 
+	mode := assembler.ASM_MODE(0)
+	switch *flagMode {
+	case "exe":
+		mode = assembler.ASM_MODE_EXE
+	case "elf":
+		if *flagOutput == "a.bin" {
+			*flagOutput = "a.o"
+		}
+		mode = assembler.ASM_MODE_ELF
+	}
+
 	out, err := assembler.AssembleFile(&assembler.Options{
 		FilePath:    *flagFile,
 		PrintDetail: *flagPrint,
 		Globals:     globals,
 		SegmentAddr: uint16(*flagSegmentAddr),
+		Mode:        mode,
 	})
 	if err != nil {
 		fmt.Println(err)

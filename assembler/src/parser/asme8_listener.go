@@ -77,6 +77,12 @@ type AsmE8Listener interface {
 	// EnterDirectives is called when entering the directives production.
 	EnterDirectives(c *DirectivesContext)
 
+	// EnterSegment is called when entering the segment production.
+	EnterSegment(c *SegmentContext)
+
+	// EnterAccess is called when entering the access production.
+	EnterAccess(c *AccessContext)
+
 	// EnterImm_list is called when entering the imm_list production.
 	EnterImm_list(c *Imm_listContext)
 
@@ -154,6 +160,12 @@ type AsmE8Listener interface {
 
 	// ExitDirectives is called when exiting the directives production.
 	ExitDirectives(c *DirectivesContext)
+
+	// ExitSegment is called when exiting the segment production.
+	ExitSegment(c *SegmentContext)
+
+	// ExitAccess is called when exiting the access production.
+	ExitAccess(c *AccessContext)
 
 	// ExitImm_list is called when exiting the imm_list production.
 	ExitImm_list(c *Imm_listContext)

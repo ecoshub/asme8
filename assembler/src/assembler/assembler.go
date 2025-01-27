@@ -136,21 +136,6 @@ func (a *Assembler) assemble() []uint8 {
 	return a.out
 }
 
-// func (a *Assembler) assembleSegment() []uint8 {
-// 	code := make([]uint8, 0, len(a.machineCode))
-// 	for i := 0; i < 0x10000; i++ {
-// 		b, ok := a.machineCode[uint16(i)]
-// 		if !ok {
-// 			a.Coder.skip = append(a.Coder.skip, uint16(i))
-// 			continue
-// 		}
-// 		code = append(code, b)
-// 	}
-// 	a.max = uint16(len(code))
-// 	a.out = code
-// 	return code
-// }
-
 func (a *Assembler) AppendMachineCode(code uint8) {
 	a.machineCode[a.offset] = code
 	a.offset++
@@ -246,7 +231,7 @@ func (a *Assembler) ParseImpliedTag() {
 		return
 	}
 
-	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag, a.offset)
+	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+1] = a.currentTag
 	a.currentValue = types.NewValue(0)
@@ -282,7 +267,7 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 		return
 	}
 
-	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag, a.offset)
+	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+2] = a.currentTag
 	a.currentValue = types.NewValue(0)
@@ -310,8 +295,8 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 		// fmt.Println("val", a.currentValue.GetValue())
 		return
 	}
-	a.currentTag.Size = 16
-	a.missingSymbols[a.offset+2] = &types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset}
+	// fmt.Printf("??? text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d\n", tag, a.offset+2, line, column, offset)
+	a.missingSymbols[a.offset+2] = &types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset, Size: 16}
 	a.currentValue = types.NewValue(0)
 }
 
@@ -438,6 +423,7 @@ func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16, requiredSize uint
 		a.currentValue = types.NewValue(int64(variable.GetValue()))
 		return
 	}
+
 	a.currentTag.Size = int8(requiredSize)
 	a.missingSymbols[a.offset+offsetPlus] = a.currentTag
 	a.currentValue = types.NewValue(0)
@@ -461,9 +447,9 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 	if !exists {
 		label, exists := a.FindLabel(symbol.Text)
 		if !exists {
-			// fmt.Println("symbol not found", symbol.Text)
+			// fmt.Println("symbol not found", symbol.Text, "size", uint8(symbol.Size))
 			size := a.symbolTracker.GetSymbolSize(symbol.Text, uint8(symbol.Size))
-			a.symbolTracker.SetMissing(symbol.Text, offset, size)
+			a.symbolTracker.SetMissing(symbol.Text, offset, size, uint16(symbol.OptionalOffset))
 			// fmt.Printf("[x] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", symbol.Text, offset, 0, 0, 0, false)
 			return fmt.Errorf("line %d:%d symbol not found. symbol: '%s'", symbol.Line, symbol.Column, symbol.Text)
 		}

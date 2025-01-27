@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	MEMORY_SIZE int = 0x8000
+	MEMORY_SIZE int = 0x2000
 )
 
 type Linker struct {
@@ -37,12 +37,14 @@ func NewLinker(config *config.Config, objects ...*object.ELF) *Linker {
 }
 
 func (l *Linker) Link() error {
-	err := l.resolveSymbols()
+	l.putLinkerGlobals()
+
+	err := l.putSegments()
 	if err != nil {
 		return err
 	}
 
-	err = l.putSegments()
+	err = l.resolveSymbols()
 	if err != nil {
 		return err
 	}
@@ -113,6 +115,22 @@ func (l *Linker) resolveSymbols() error {
 	return nil
 }
 
+func (l *Linker) putLinkerGlobals() {
+	for _, m := range l.config.Memory {
+		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__MEM_%s_START__", m.Name))
+		linkerGlobalSymbol.SetIndex(m.Start)
+		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
+		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		// fmt.Println(linkerGlobalSymbol.GetSymbol(), linkerGlobalSymbol.GetIndex())
+
+		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__MEM_%s_END__", m.Name))
+		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
+		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
+		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		// fmt.Println(linkerGlobalSymbol.GetSymbol(), linkerGlobalSymbol.GetIndex())
+	}
+}
+
 func (l *Linker) putSegments() error {
 	for _, s := range l.config.Segments {
 		m, ok := l.config.GetMemoryConfig(s.Load)
@@ -170,6 +188,7 @@ func (l *Linker) linkSymbols() error {
 				}
 				index = symbol.GetIndex() + segmentOffset
 			}
+			index += p.GetOptionalOffset()
 			data := []byte{uint8(index), uint8(index >> 8)}
 			size := uint16(1)
 			if p.GetSize() == 16 {

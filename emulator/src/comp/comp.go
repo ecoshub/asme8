@@ -16,7 +16,7 @@ import (
 const (
 	DefaultMemorySize = 1 << 16
 
-	StackStart uint16 = 0xff00
+	StackStart uint16 = 0xf6ef
 )
 
 type Comp struct {
@@ -110,11 +110,11 @@ func (c *Comp) ReadRegister(index uint8) uint8 {
 	return c.registers.Read(index)
 }
 
-func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, rangeEnd uint16) {
+func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, size uint16) {
 	if dev == nil {
 		return
 	}
-	dev.Attach(c.addrBus, c.outputBus, rangeStart, rangeEnd)
+	dev.Attach(c.addrBus, c.outputBus, rangeStart, size)
 	c.devices = append(c.devices, dev)
 }
 

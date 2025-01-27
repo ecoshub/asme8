@@ -35,11 +35,11 @@ func GetComp() *comp.Comp {
 		return MainTestComputer
 	}
 
-	MainROM = rom.New(0x8000)
-	MainRAM = ram.New(0x8000)
+	MainROM = rom.New(0x2000)
+	MainRAM = ram.New(0xd7ee)
 	MainTestComputer = comp.New(MainROM)
-	MainTestComputer.ConnectDevice(MainROM, 0x0000, 0x8000)
-	MainTestComputer.ConnectDevice(MainRAM, 0x8000, 0xffff)
+	MainTestComputer.ConnectDevice(MainROM, 0x0000, 0x2000)
+	MainTestComputer.ConnectDevice(MainRAM, 0x2000, 0xd7ee)
 	MainTestComputer.SetDelay(time.Nanosecond)
 	MainTestComputer.SetPause(false)
 	return MainTestComputer

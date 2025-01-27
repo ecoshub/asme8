@@ -62,8 +62,8 @@ func (t *Tracker) SymbolHit(symbol string, offset uint16, size uint8, optionalOf
 	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, optionalOffset: optionalOffset}
 }
 
-func (t *Tracker) SetMissing(symbol string, offset uint16, size uint8) {
-	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, missing: true}
+func (t *Tracker) SetMissing(symbol string, offset uint16, size uint8, optionalOffset uint16) {
+	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, missing: true, optionalOffset: optionalOffset}
 }
 
 func (t *Tracker) SetIndex(symbol string, index uint16) {

@@ -12,8 +12,8 @@ type Screen struct {
 	name       string
 	addressBus *bus.Bus
 	dataBus    *bus.Bus
-	rangeStart uint16
-	rangeEnd   uint16
+	addrStart  uint16
+	addrSize   uint16
 	buffer     *ScreenBuffer
 	components *Components
 }
@@ -31,15 +31,15 @@ func (s *Screen) GetName() string {
 }
 
 func (s *Screen) GetRange() (uint16, uint16) {
-	return s.rangeStart, s.rangeEnd
+	return s.addrStart, s.addrSize
 }
 
 // Attach implements connectable.Connectable.
-func (s *Screen) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, rangeEnd uint16) {
+func (s *Screen) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, size uint16) {
 	s.addressBus = addrBus
 	s.dataBus = dataBus
-	s.rangeStart = rangeStart
-	s.rangeEnd = rangeEnd
+	s.addrStart = rangeStart
+	s.addrSize = size
 }
 
 // Tick implements connectable.Connectable.
@@ -51,20 +51,20 @@ func (s *Screen) Tick(rw uint8) {
 
 func (s *Screen) WriteRequest() {
 	addr := s.addressBus.Read_16()
-	if !connectable.IsMyRange(s.rangeStart, s.rangeEnd, addr) {
+	if !connectable.IsMyRange(s.addrStart, s.addrSize, addr) {
 		return
 	}
-	addr = addr - s.rangeStart
+	addr = addr - s.addrStart
 	data := s.dataBus.Read_16()
 	s.buffer.write(addr, rune(data))
 	s.components.MainPanel.Write(int(addr), rune(data))
 }
 
 func (s *Screen) Read(addr uint16) uint8 {
-	if !connectable.IsMyRange(s.rangeStart, s.rangeEnd, addr) {
+	if !connectable.IsMyRange(s.addrStart, s.addrSize, addr) {
 		return 0
 	}
-	addr = addr - s.rangeStart
+	addr = addr - s.addrStart
 	return uint8(s.buffer.read(addr))
 }
 

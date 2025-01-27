@@ -11,8 +11,8 @@ type Connectable interface {
 	GetRange() (uint16, uint16)
 }
 
-func IsMyRange(from, to, addr uint16) bool {
-	if addr < from || addr > to {
+func IsMyRange(from, size, addr uint16) bool {
+	if addr < from || addr > from+size-1 {
 		return false
 	}
 	return true

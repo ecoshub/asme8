@@ -15,8 +15,8 @@ type Keyboard struct {
 	name        string
 	addressBus  *bus.Bus
 	dataBus     *bus.Bus
-	rangeStart  uint16
-	rangeEnd    uint16
+	addrStart   uint16
+	addrSize    uint16
 	input       uint8
 	ready       bool
 	cp          *palette.Palette
@@ -53,11 +53,11 @@ func NewKeyboard(cp *palette.Palette) *Keyboard {
 }
 
 // Attach implements connectable.Connectable.
-func (k *Keyboard) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, rangeEnd uint16) {
+func (k *Keyboard) Attach(addrBus *bus.Bus, dataBus *bus.Bus, rangeStart uint16, size uint16) {
 	k.addressBus = addrBus
 	k.dataBus = dataBus
-	k.rangeStart = rangeStart
-	k.rangeEnd = rangeEnd
+	k.addrStart = rangeStart
+	k.addrSize = size
 }
 
 func (k *Keyboard) GetName() string {
@@ -65,7 +65,7 @@ func (k *Keyboard) GetName() string {
 }
 
 func (k *Keyboard) GetRange() (uint16, uint16) {
-	return k.rangeStart, k.rangeEnd
+	return k.addrStart, k.addrSize
 }
 
 // Clear implements connectable.Connectable.
@@ -91,10 +91,10 @@ func (k *Keyboard) Tick(rw uint8) {
 
 func (k *Keyboard) ReadRequest() {
 	addr := k.addressBus.Read_16()
-	if !connectable.IsMyRange(k.rangeStart, k.rangeEnd, addr) {
+	if !connectable.IsMyRange(k.addrStart, k.addrSize, addr) {
 		return
 	}
-	if addr == k.rangeStart {
+	if addr == k.addrStart {
 		if k.ready {
 			k.dataBus.Write_8(1)
 			return
@@ -102,7 +102,7 @@ func (k *Keyboard) ReadRequest() {
 		k.dataBus.Write_8(0)
 		return
 	}
-	if addr == k.rangeStart+1 {
+	if addr == k.addrStart+1 {
 		if k.ready {
 			k.dataBus.Write_8(k.input)
 			k.ready = false

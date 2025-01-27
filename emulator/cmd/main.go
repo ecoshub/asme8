@@ -45,10 +45,10 @@ func main() {
 func EmulatorMode(program []byte) {
 
 	// create the rom that holds the program
-	rom := rom.New(0x8000)
+	rom := rom.New(0x2000)
 
 	// create new raw
-	ram := ram.New(0x8000)
+	ram := ram.New(0xd7ee)
 
 	term, err := terminal.New()
 	if err != nil {
@@ -65,17 +65,17 @@ func EmulatorMode(program []byte) {
 	c.Help()
 
 	// connecting rom at 0x0000 through 0x7fff
-	c.ConnectDevice(rom, 0x0000, 0x7fff)
+	c.ConnectDevice(rom, 0x0000, 0x2000)
 
 	// connecting ram at 0x8000 through 0xffff
-	c.ConnectDevice(ram, 0x8000, 0xffff)
+	c.ConnectDevice(ram, 0x2000, 0xd7ee)
+
+	// connecting terminal screen in at addr 0x7000 through 0x7780 -> 0x7800
+	// 80 x 24 bytes need to hold the screen buffer
+	c.ConnectDevice(term.Screen, 0xf7ee, 0x0800)
 
 	// keyboard needs only 2 bytes to hold char and state
-	c.ConnectDevice(term.Keyboard, 0x6ffe, 0x6fff)
-
-	// connecting terminal screen in at addr 0x7000 through 0x7780
-	// 80 x 24 bytes need to hold the screen buffer
-	c.ConnectDevice(term.Screen, 0x7000, 0x7780)
+	c.ConnectDevice(term.Keyboard, 0xffee, 2)
 
 	// setting base clock speed
 	c.SetDelay(*flagDelay)
@@ -111,18 +111,18 @@ func EmulatorMode(program []byte) {
 func HeadlessMode(program []byte) {
 
 	// create the rom that holds the program
-	rom := rom.New(0x8000)
+	rom := rom.New(0x2000)
 
 	// create new raw
-	ram := ram.New(0x8000)
+	ram := ram.New(0xd7ee)
 
 	c := comp.New(rom)
 
 	// connecting rom at 0x0000 through 0x7fff
-	c.ConnectDevice(rom, 0x0000, 0x7fff)
+	c.ConnectDevice(rom, 0x0000, 0x2000)
 
 	// connecting ram at 0x8000 through 0xffff
-	c.ConnectDevice(ram, 0x8000, 0xffff)
+	c.ConnectDevice(ram, 0x2000, 0xd7ee)
 
 	// setting base clock speed
 	c.SetDelay(*flagDelay)

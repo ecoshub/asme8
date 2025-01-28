@@ -32,6 +32,13 @@ const (
 	MI_ALU_SBB
 	MI_ALU_CMP
 	MI_ALU_XOR
+	MI_ALU_AND
+	MI_ALU_OR
+	MI_ALU_NOT
+	MI_ALU_SHL
+	MI_ALU_SHR
+	MI_ALU_ROL
+	MI_ALU_ROR
 	MI_REG_OP_1_OUT_ALU
 	MI_REG_OP_1_OUT
 	MI_REG_OP_2_OUT_ALU
@@ -80,6 +87,13 @@ var (
 		MI_ALU_ADC:          "ALU_ADC",
 		MI_ALU_SUB:          "ALU_SUB",
 		MI_ALU_SBB:          "ALU_SBB",
+		MI_ALU_AND:          "ALU_AND",
+		MI_ALU_OR:           "ALU_OR",
+		MI_ALU_NOT:          "ALU_NOT",
+		MI_ALU_SHL:          "ALU_SHL",
+		MI_ALU_SHR:          "ALU_SHR",
+		MI_ALU_ROL:          "ALU_ROL",
+		MI_ALU_ROR:          "ALU_ROR",
 		MI_ALU_CMP:          "ALU_CMP",
 		MI_REG_OP_1_OUT_ALU: "REG_OP_1_OUT_ALU",
 		MI_REG_OP_1_OUT:     "REG_OP_1_OUT",
@@ -135,6 +149,13 @@ var (
 		MI_ALU_SBB:          mInstAluSbb,
 		MI_ALU_CMP:          mInstAluCmp,
 		MI_ALU_XOR:          mInstAluXor,
+		MI_ALU_AND:          mInstAluAnd,
+		MI_ALU_OR:           mInstAluOr,
+		MI_ALU_NOT:          mInstAluNot,
+		MI_ALU_SHL:          mInstAluShl,
+		MI_ALU_SHR:          mInstAluShr,
+		MI_ALU_ROL:          mInstAluRol,
+		MI_ALU_ROR:          mInstAluRor,
 		MI_REG_OP_1_OUT_ALU: mInstReg1OutALU,
 		MI_REG_OP_1_OUT:     mInstReg1Out,
 		MI_REG_OP_2_OUT_ALU: mInstReg2OutAlu,

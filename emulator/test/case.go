@@ -20,11 +20,12 @@ type TestCase struct {
 }
 
 type Expect struct {
-	Registers []*RegData
+	Registers []*ExpectRegister
 	Data      []*ExpectData
+	Status    *ExpectStatusData
 }
 
-type RegData struct {
+type ExpectRegister struct {
 	Index uint8
 	Data  uint8
 }
@@ -32,6 +33,10 @@ type RegData struct {
 type ExpectData struct {
 	Type uint8
 	Addr uint16
+	Data uint8
+}
+
+type ExpectStatusData struct {
 	Data uint8
 }
 
@@ -58,6 +63,11 @@ func RunCase(t *testing.T, tc *TestCase) {
 				tt.Fatalf("unexpected device type. type: %d", d.Type)
 			}
 			DataTest(tt, dev, d.Addr, d.Data)
+		}
+		if tc.Expect.Status != nil {
+			if c.GetStatusRegister() != tc.Expect.Status.Data {
+				t.Fatalf("unexpected flag status. expected: 0b%08b, got: 0b%08b", tc.Expect.Status.Data, c.GetStatusRegister())
+			}
 		}
 	})
 }

@@ -36,37 +36,7 @@ func mInstStatusControl(c *Comp, mi uint64) {
 	mInstStepClr(c, mi)
 }
 
-func setFlags(s *status.StatusRegister, op uint8, a uint8, b uint8, withCarry bool) {
-
-	var result uint16
-	var carry uint8
-
-	if withCarry && s.IsSet(status.STATUS_FLAG_CARRY) {
-		carry = 1
-	}
-
-	if op == OPERATION_PLUS {
-		result = uint16(a) + uint16(b) + uint16(carry)
-	}
-	if op == OPERATION_MINUS {
-		result = uint16(a) - uint16(b) - uint16(carry)
-	}
-
-	if op == OPERATION_PLUS {
-		if result > 0xff {
-			s.SetCarryFlag()
-		} else {
-			s.ClearCarryFlag()
-		}
-	}
-
-	if op == OPERATION_MINUS {
-		if a < b {
-		} else {
-			s.ClearCarryFlag()
-		}
-	}
-
+func setFlags(s *status.StatusRegister, result uint16) {
 	if result == 0 {
 		s.SetZeroFlag()
 	} else {

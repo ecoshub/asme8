@@ -21,56 +21,43 @@ func (s *StatusRegister) Clear() { s.flag = 0 }
 
 func (s *StatusRegister) SetZeroFlag() {
 	s.flag |= STATUS_FLAG_ZERO
-	// fmt.Println("setting STATUS_FLAG_ZERO")
 }
 func (s *StatusRegister) SetSignFlag() {
 	s.flag |= STATUS_FLAG_SIGN
-	// fmt.Println("setting STATUS_FLAG_SIGN")
 }
 func (s *StatusRegister) SetParityFlag() {
 	s.flag |= STATUS_FLAG_PARITY
-	// fmt.Println("setting STATUS_FLAG_PARITY")
 }
 func (s *StatusRegister) SetCarryFlag() {
 	s.flag |= STATUS_FLAG_CARRY
-	// fmt.Println("setting STATUS_FLAG_CARRY")
 }
 func (s *StatusRegister) SetOverflowFlag() {
 	s.flag |= STATUS_FLAG_OVERFLOW
-	// fmt.Println("setting STATUS_FLAG_OVERFLOW")
 }
 func (s *StatusRegister) SetInterruptFlag() {
 	s.flag |= STATUS_FLAG_INTERRUPT
-	// fmt.Println("setting STATUS_FLAG_INTERRUPT")
 }
 
 func (s *StatusRegister) ClearZeroFlag() {
 	s.flag &= ^STATUS_FLAG_ZERO
-	// fmt.Println("clearing STATUS_FLAG_ZERO")
 }
 func (s *StatusRegister) ClearSignFlag() {
 	s.flag &= ^STATUS_FLAG_SIGN
-	// fmt.Println("clearing STATUS_FLAG_SIGN")
 }
 func (s *StatusRegister) ClearParityFlag() {
 	s.flag &= ^STATUS_FLAG_PARITY
-	// fmt.Println("clearing STATUS_FLAG_PARITY")
 }
 func (s *StatusRegister) ClearCarryFlag() {
 	s.flag &= ^STATUS_FLAG_CARRY
-	// fmt.Println("clearing STATUS_FLAG_CARRY")
 }
 func (s *StatusRegister) ClearOverflowFlag() {
 	s.flag &= ^STATUS_FLAG_OVERFLOW
-	// fmt.Println("clearing STATUS_FLAG_OVERFLOW")
 }
 func (s *StatusRegister) ClearInterruptFlag() {
 	s.flag &= ^STATUS_FLAG_INTERRUPT
-	// fmt.Println("clearing STATUS_FLAG_INTERRUPT")
 }
 
 func (s *StatusRegister) IsSet(mask uint8) bool {
-	// fmt.Printf("flag: %08b, mask: %08b, result: %08b\n", s.flag, mask, s.flag&mask)
 	return s.flag&mask > 0
 }
 

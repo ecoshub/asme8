@@ -110,6 +110,10 @@ func (c *Comp) ReadRegister(index uint8) uint8 {
 	return c.registers.Read(index)
 }
 
+func (c *Comp) GetStatusRegister() uint8 {
+	return c.status.Flag()
+}
+
 func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, size uint16) {
 	if dev == nil {
 		return

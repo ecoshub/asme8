@@ -48,22 +48,22 @@ const (
 	_                Type = 0x3f
 
 	// Move
-	INST_MOV_REG_REG        Type = 0x40
-	INST_MOV_INM            Type = 0x41
-	INST_MOV_MEM_REG        Type = 0x42
-	INST_MOV_REG_MEM        Type = 0x43
-	INST_MOV_MEM_REG_OFFSET Type = 0x44
-	INST_MOV_REG_MEM_OFFSET Type = 0x45
-	_                       Type = 0x46
-	_                       Type = 0x47
-	_                       Type = 0x48
-	_                       Type = 0x49
-	_                       Type = 0x4a
-	_                       Type = 0x4b
-	_                       Type = 0x4c
-	_                       Type = 0x4d
-	_                       Type = 0x4e
-	_                       Type = 0x4f
+	INST_MOV_REG_REG           Type = 0x40
+	INST_MOV_INM               Type = 0x41
+	INST_MOV_MEM_REG           Type = 0x42
+	INST_MOV_REG_MEM           Type = 0x43
+	INST_MOV_MEM_REG_OFFSET    Type = 0x44
+	INST_MOV_REG_MEM_OFFSET    Type = 0x45
+	INST_MOV_REG_SP            Type = 0x46
+	INST_MOV_SP_REG            Type = 0x47
+	INST_MOV_REG_SP_OFFSET     Type = 0x48
+	INST_MOV_SP_REG_OFFSET     Type = 0x49
+	INST_MOV_REG_SP_OFFSET_REG Type = 0x4a
+	INST_MOV_SP_REG_OFFSET_REG Type = 0x4b
+	_                          Type = 0x4c
+	_                          Type = 0x4d
+	_                          Type = 0x4e
+	_                          Type = 0x4f
 
 	// Logic operations
 	INST_XOR_RR Type = 0x50

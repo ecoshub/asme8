@@ -906,6 +906,102 @@ var (
 				},
 			},
 		},
+		{
+			Name: "mov reg sp",
+			// mov b, 0x10
+			// mov [sp], b
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP, register.IndexRegB,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov sp reg",
+			// mov b, 0x10
+			// mov [sp], b
+			// mov a, [sp]
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP, register.IndexRegB,
+				instruction.INST_MOV_SP_REG, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x10},
+					{Index: register.IndexRegB, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov reg sp offset",
+			// mov b, 0x10
+			// mov [sp+2], b
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP_OFFSET, register.IndexRegB, 0x02,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 2, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov sp reg offset",
+			// mov b, 0x10
+			// mov [sp+2], b
+			// mov a, [sp+2]
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP_OFFSET, register.IndexRegB, 0x02,
+				instruction.INST_MOV_SP_REG_OFFSET, register.IndexRegA, 0x02,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x10},
+					{Index: register.IndexRegB, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov reg sp offset reg",
+			// mov a, 0x02
+			// mov b, 0x10
+			// mov [sp+a], b
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x02,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP_OFFSET_REG, register.IndexRegA<<4 | register.IndexRegB,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 2, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov sp reg offset reg",
+			// mov a, 0x02
+			// mov b, 0x10
+			// mov [sp+a], b
+			// mov b, [sp+a]
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x02,
+				instruction.INST_MOV_INM, register.IndexRegB, 0x10,
+				instruction.INST_MOV_REG_SP_OFFSET_REG, register.IndexRegA<<4 | register.IndexRegB,
+				instruction.INST_MOV_SP_REG_OFFSET_REG, register.IndexRegA<<4 | register.IndexRegB,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegB, Data: 0x10},
+				},
+			},
+		},
 	}
 )
 

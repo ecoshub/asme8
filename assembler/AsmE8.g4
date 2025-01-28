@@ -22,6 +22,7 @@ label: tag  ':';
 inst: 
 	inst_reg_reg
 	| inst_reg_imm
+	| inst_stack_imm
 	| inst_reg_imm_variable
 	| inst_single_reg
 	| inst_implied_stack
@@ -37,6 +38,8 @@ inst:
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
 
 inst_reg_imm: mnemonic ' ' reg  ', ' imm;
+
+inst_stack_imm: mnemonic ' ' stack  ', ' imm;
 
 inst_reg_imm_variable: mnemonic ' ' reg  ', ' tag;
 

@@ -6,8 +6,6 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
-var _ parser.AsmE8Listener = &Assembler{}
-
 func (a *Assembler) ExitSegment(c *parser.SegmentContext) {
 	text := c.GetText()
 	a.ParseSegment(text)
@@ -58,6 +56,10 @@ func (a *Assembler) ExitInst_ptr_reg(c *parser.Inst_ptr_regContext) {
 
 func (a *Assembler) ExitInst_reg_imm(c *parser.Inst_reg_immContext) {
 	a.ParseRegisterImmediate()
+}
+
+func (a *Assembler) ExitInst_stack_imm(c *parser.Inst_stack_immContext) {
+	a.ParseStackImmediate()
 }
 
 func (a *Assembler) ExitInst_reg_imm_variable(c *parser.Inst_reg_imm_variableContext) {
@@ -139,6 +141,8 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterInst_stack_imm(c *parser.Inst_stack_immContext) {}
 
 func (a *Assembler) EnterInst_implied_stack(c *parser.Inst_implied_stackContext) {}
 

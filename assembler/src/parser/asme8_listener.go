@@ -29,6 +29,9 @@ type AsmE8Listener interface {
 	// EnterInst_reg_imm is called when entering the inst_reg_imm production.
 	EnterInst_reg_imm(c *Inst_reg_immContext)
 
+	// EnterInst_stack_imm is called when entering the inst_stack_imm production.
+	EnterInst_stack_imm(c *Inst_stack_immContext)
+
 	// EnterInst_reg_imm_variable is called when entering the inst_reg_imm_variable production.
 	EnterInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
 
@@ -118,6 +121,9 @@ type AsmE8Listener interface {
 
 	// ExitInst_reg_imm is called when exiting the inst_reg_imm production.
 	ExitInst_reg_imm(c *Inst_reg_immContext)
+
+	// ExitInst_stack_imm is called when exiting the inst_stack_imm production.
+	ExitInst_stack_imm(c *Inst_stack_immContext)
 
 	// ExitInst_reg_imm_variable is called when exiting the inst_reg_imm_variable production.
 	ExitInst_reg_imm_variable(c *Inst_reg_imm_variableContext)

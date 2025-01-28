@@ -1,6 +1,5 @@
 start:
-    push sp
-    mov a, 20
-    push a
-    pop b
-    pop sp
+	sub sp, 4
+	mov a, 0x20
+	push a
+    mov b, [0xf6eb]

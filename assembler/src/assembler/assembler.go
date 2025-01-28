@@ -3,6 +3,7 @@ package assembler
 import (
 	"asme8/assembler/src/error_listener"
 	"asme8/assembler/src/opcodes"
+	"asme8/assembler/src/parser"
 	"asme8/assembler/src/types"
 	"asme8/common/object"
 	"errors"
@@ -22,6 +23,8 @@ const (
 	ASM_MODE_EXE  ASM_MODE = 1
 	ASM_MODE_ELF  ASM_MODE = 2
 )
+
+var _ parser.AsmE8Listener = &Assembler{}
 
 type Assembler struct {
 	mode               ASM_MODE
@@ -147,8 +150,14 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 	a.offset++
 }
 
+func (a *Assembler) ParseStackImmediate() {
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_STACK_IMM)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+}
+
 func (a *Assembler) ParseRegisterImmediate() {
-	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_INM_8)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_IMM_8)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
@@ -219,7 +228,7 @@ func (a *Assembler) ParseImplied() {
 }
 
 func (a *Assembler) ParseImpliedImmediate() {
-	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_INM_16)
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_IMM_16)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())

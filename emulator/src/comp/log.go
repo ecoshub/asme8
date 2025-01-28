@@ -85,7 +85,7 @@ func (c *Comp) LogfFlagIndexWithStyle(index int, sty *style.Style, format string
 
 func (c *Comp) LogState() {
 	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
-		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, mar: %04x, addr: %04x, input_bus: %02x, alu_bus: %02x, output_bus: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.memoryAddressRegister, c.addrBus.Read_16(), c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16(), c.rw, c.status.Flag(), c.registers)
+		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, mdr: %02x, mar: %04x, addr: %04x, input_bus: %02x, alu_bus: %02x, output_bus: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.memoryDataRegister, c.memoryAddressRegister, c.addrBus.Read_16(), c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16(), c.rw, c.status.Flag(), c.registers)
 		return
 	}
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])

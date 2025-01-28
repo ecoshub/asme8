@@ -27,6 +27,10 @@ func mInstAluSub(c *Comp, mi uint64) {
 	AluOP(c, mi, OPERATION_MINUS, false)
 }
 
+func mInstAluSbb(c *Comp, mi uint64) {
+	AluOP(c, mi, OPERATION_MINUS, true)
+}
+
 func mInstAluCmp(c *Comp, mi uint64) {
 	setFlags(c.status, OPERATION_MINUS, c.aluBus.Read_8(), c.outputBus.Read_8(), false)
 }
@@ -40,6 +44,7 @@ func AluOP(c *Comp, mi uint64, op uint8, withCarry bool) {
 	if !c.aluOut {
 		return
 	}
+	// fmt.Printf("ALU OP. op: %d, op_1: %02x, op_2: %02x, carry: %5v, result: %02x, flags: %s\n", op, c.aluBus.Read_8(), c.outputBus.Read_8(), withCarry, result, c.status)
 	c.inputBus.Write_8(result)
 	triggerBridge(c)
 }

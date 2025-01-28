@@ -8,3 +8,7 @@ func mInstMemoryDataRegisterOut(c *Comp, _ uint64) {
 	c.outputBus.Write_8(c.memoryDataRegister)
 	triggerBridge(c)
 }
+
+func mInstMemoryDataRegisterOutAlu(c *Comp, _ uint64) {
+	c.aluBus.Write_8(c.memoryDataRegister)
+}

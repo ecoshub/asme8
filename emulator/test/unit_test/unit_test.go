@@ -695,7 +695,7 @@ var (
 		},
 		{
 			// mov a, 0x30
-			// mov [0x9000], a
+			// add [0x9000], a
 			Name: "add reg mem",
 			Program: []uint8{
 				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
@@ -704,6 +704,22 @@ var (
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
 					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x30},
+				},
+			},
+		},
+		{
+			// mov a, 0x30
+			// mov [0x9000], a
+			// add a, [0x9000]
+			Name: "add mem reg",
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
+				instruction.INST_MOV_REG_MEM, register.IndexRegA, 0x00, 0x90,
+				instruction.INST_ADD_MEM_REG, register.IndexRegA, 0x00, 0x90,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x60},
 				},
 			},
 		},
@@ -858,13 +874,56 @@ var (
 				},
 			},
 		},
+		{
+			Name: "add sp",
+			// add sp, 4
+			// mov a, 0x10
+			// push a
+			Program: []uint8{
+				instruction.INST_ADD_SP, 0x04,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_PUSH_REG, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 4, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "sub sp",
+			// sub sp, 4
+			// mov a, 0x10
+			// push a
+			Program: []uint8{
+				instruction.INST_SUB_SP, 0x04,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_PUSH_REG, register.IndexRegA,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 4, Data: 0x10},
+				},
+			},
+		},
 	}
 )
 
 func TestCore(t *testing.T) {
-	// c := test.GetComp()
-	// c.SetDebug(true)
+	// Run only test cases with debug flag
 	for _, tc := range Tests {
+		if tc.Debug {
+			c := test.GetComp()
+			c.SetDebug(true)
+			test.RunCase(t, tc)
+			return
+		}
+	}
+	// Run all test case unless disabled
+	for _, tc := range Tests {
+		if tc.Disable {
+			continue
+		}
 		test.RunCase(t, tc)
 	}
 }

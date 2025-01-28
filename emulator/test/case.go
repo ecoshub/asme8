@@ -15,6 +15,8 @@ type TestCase struct {
 	Name    string
 	Program []byte
 	Expect  *Expect
+	Disable bool
+	Debug   bool
 }
 
 type Expect struct {

@@ -41,9 +41,9 @@ const (
 	INST_INC         Type = 0x38
 	INST_DEC         Type = 0x39
 	INST_ADD_REG_MEM Type = 0x3a
-	_                Type = 0x3b
-	_                Type = 0x3c
-	_                Type = 0x3d
+	INST_ADD_MEM_REG Type = 0x3b // NOT IMPLEMENTED YET
+	INST_ADD_SP      Type = 0x3c
+	INST_SUB_SP      Type = 0x3d
 	_                Type = 0x3e
 	_                Type = 0x3f
 

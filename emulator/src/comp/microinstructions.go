@@ -24,10 +24,12 @@ const (
 	MI_MAR_H_IN
 	MI_MDR_IN
 	MI_MDR_OUT
+	MI_MDR_OUT_ALU
 	MI_ALU_OUT
 	MI_ALU_ADD
 	MI_ALU_ADC
 	MI_ALU_SUB
+	MI_ALU_SBB
 	MI_ALU_CMP
 	MI_ALU_XOR
 	MI_REG_OP_1_OUT_ALU
@@ -77,6 +79,7 @@ var (
 		MI_ALU_ADD:          "ALU_ADD",
 		MI_ALU_ADC:          "ALU_ADC",
 		MI_ALU_SUB:          "ALU_SUB",
+		MI_ALU_SBB:          "ALU_SBB",
 		MI_ALU_CMP:          "ALU_CMP",
 		MI_REG_OP_1_OUT_ALU: "REG_OP_1_OUT_ALU",
 		MI_REG_OP_1_OUT:     "REG_OP_1_OUT",
@@ -124,10 +127,12 @@ var (
 		MI_MAR_H_IN:         mInstMemoryAddressRegisterHighIn,
 		MI_MDR_IN:           mInstMemoryDataRegisterIn,
 		MI_MDR_OUT:          mInstMemoryDataRegisterOut,
+		MI_MDR_OUT_ALU:      mInstMemoryDataRegisterOutAlu,
 		MI_ALU_OUT:          mInstAluOut,
 		MI_ALU_ADD:          mInstAluAdd,
 		MI_ALU_ADC:          mInstAluAdc,
 		MI_ALU_SUB:          mInstAluSub,
+		MI_ALU_SBB:          mInstAluSbb,
 		MI_ALU_CMP:          mInstAluCmp,
 		MI_ALU_XOR:          mInstAluXor,
 		MI_REG_OP_1_OUT_ALU: mInstReg1OutALU,

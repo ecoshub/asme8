@@ -44,6 +44,12 @@ type AsmE8Listener interface {
 	// EnterInst_reg_ptr_offset is called when entering the inst_reg_ptr_offset production.
 	EnterInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext)
 
+	// EnterInst_indirect_reg_stack is called when entering the inst_indirect_reg_stack production.
+	EnterInst_indirect_reg_stack(c *Inst_indirect_reg_stackContext)
+
+	// EnterInst_indirect_stack_register is called when entering the inst_indirect_stack_register production.
+	EnterInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
+
 	// EnterInst_ptr_offset_reg is called when entering the inst_ptr_offset_reg production.
 	EnterInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
 
@@ -79,6 +85,9 @@ type AsmE8Listener interface {
 
 	// EnterPtr_offset is called when entering the ptr_offset production.
 	EnterPtr_offset(c *Ptr_offsetContext)
+
+	// EnterStack_offset is called when entering the stack_offset production.
+	EnterStack_offset(c *Stack_offsetContext)
 
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
@@ -137,6 +146,12 @@ type AsmE8Listener interface {
 	// ExitInst_reg_ptr_offset is called when exiting the inst_reg_ptr_offset production.
 	ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext)
 
+	// ExitInst_indirect_reg_stack is called when exiting the inst_indirect_reg_stack production.
+	ExitInst_indirect_reg_stack(c *Inst_indirect_reg_stackContext)
+
+	// ExitInst_indirect_stack_register is called when exiting the inst_indirect_stack_register production.
+	ExitInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
+
 	// ExitInst_ptr_offset_reg is called when exiting the inst_ptr_offset_reg production.
 	ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
 
@@ -172,6 +187,9 @@ type AsmE8Listener interface {
 
 	// ExitPtr_offset is called when exiting the ptr_offset production.
 	ExitPtr_offset(c *Ptr_offsetContext)
+
+	// ExitStack_offset is called when exiting the stack_offset production.
+	ExitStack_offset(c *Stack_offsetContext)
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)

@@ -74,6 +74,16 @@ func (a *Assembler) ExitInst_reg_ptr_offset(c *parser.Inst_reg_ptr_offsetContext
 	a.ParseRegisterPointerOffset()
 }
 
+func (a *Assembler) ExitInst_indirect_reg_stack(c *parser.Inst_indirect_reg_stackContext) {
+	a.ParseStackRegister(false)
+}
+
+func (a *Assembler) ExitInst_indirect_stack_register(c *parser.Inst_indirect_stack_registerContext) {
+	a.ParseStackRegister(true)
+}
+
+func (a *Assembler) ExitStack_offset(c *parser.Stack_offsetContext) {}
+
 func (a *Assembler) ExitInst_reg_reg(c *parser.Inst_reg_regContext) {
 	a.ParseRegisterRegister()
 }
@@ -141,6 +151,13 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterInst_indirect_reg_stack(c *parser.Inst_indirect_reg_stackContext) {}
+
+func (a *Assembler) EnterInst_indirect_stack_register(c *parser.Inst_indirect_stack_registerContext) {
+}
+
+func (a *Assembler) EnterStack_offset(c *parser.Stack_offsetContext) {}
 
 func (a *Assembler) EnterInst_stack_imm(c *parser.Inst_stack_immContext) {}
 

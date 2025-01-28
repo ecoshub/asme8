@@ -93,6 +93,20 @@ func (s *BaseAsmE8Listener) EnterInst_reg_ptr_offset(ctx *Inst_reg_ptr_offsetCon
 // ExitInst_reg_ptr_offset is called when production inst_reg_ptr_offset is exited.
 func (s *BaseAsmE8Listener) ExitInst_reg_ptr_offset(ctx *Inst_reg_ptr_offsetContext) {}
 
+// EnterInst_indirect_reg_stack is called when production inst_indirect_reg_stack is entered.
+func (s *BaseAsmE8Listener) EnterInst_indirect_reg_stack(ctx *Inst_indirect_reg_stackContext) {}
+
+// ExitInst_indirect_reg_stack is called when production inst_indirect_reg_stack is exited.
+func (s *BaseAsmE8Listener) ExitInst_indirect_reg_stack(ctx *Inst_indirect_reg_stackContext) {}
+
+// EnterInst_indirect_stack_register is called when production inst_indirect_stack_register is entered.
+func (s *BaseAsmE8Listener) EnterInst_indirect_stack_register(ctx *Inst_indirect_stack_registerContext) {
+}
+
+// ExitInst_indirect_stack_register is called when production inst_indirect_stack_register is exited.
+func (s *BaseAsmE8Listener) ExitInst_indirect_stack_register(ctx *Inst_indirect_stack_registerContext) {
+}
+
 // EnterInst_ptr_offset_reg is called when production inst_ptr_offset_reg is entered.
 func (s *BaseAsmE8Listener) EnterInst_ptr_offset_reg(ctx *Inst_ptr_offset_regContext) {}
 
@@ -164,6 +178,12 @@ func (s *BaseAsmE8Listener) EnterPtr_offset(ctx *Ptr_offsetContext) {}
 
 // ExitPtr_offset is called when production ptr_offset is exited.
 func (s *BaseAsmE8Listener) ExitPtr_offset(ctx *Ptr_offsetContext) {}
+
+// EnterStack_offset is called when production stack_offset is entered.
+func (s *BaseAsmE8Listener) EnterStack_offset(ctx *Stack_offsetContext) {}
+
+// ExitStack_offset is called when production stack_offset is exited.
+func (s *BaseAsmE8Listener) ExitStack_offset(ctx *Stack_offsetContext) {}
 
 // EnterVariable is called when production variable is entered.
 func (s *BaseAsmE8Listener) EnterVariable(ctx *VariableContext) {}

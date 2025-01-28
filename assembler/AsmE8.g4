@@ -33,6 +33,8 @@ inst:
     | inst_reg_ptr
 	| inst_reg_ptr_offset
 	| inst_ptr_offset_reg
+	| inst_indirect_reg_stack
+	| inst_indirect_stack_register
     ;
 
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
@@ -48,6 +50,10 @@ inst_ptr_reg: mnemonic ' ' ptr ', ' reg;
 inst_reg_ptr: mnemonic ' ' reg ', ' ptr;
 
 inst_reg_ptr_offset: mnemonic ' ' reg ', ' ptr_offset;
+
+inst_indirect_reg_stack: mnemonic ' ' reg ', ' stack_offset;
+
+inst_indirect_stack_register: mnemonic ' ' stack_offset ', ' reg;
 
 inst_ptr_offset_reg: mnemonic ' ' ptr_offset ', ' reg;
 
@@ -96,19 +102,24 @@ reg:
 stack: 'sp';
 
 ptr: 
-	'[' WHITE_SPACE? imm WHITE_SPACE? ']'
-	| '[' WHITE_SPACE? tag WHITE_SPACE? ']'
+	'[' imm ']'
+	| '[' tag ']'
 	| ptr_virtual_offset
 	;
 
 ptr_virtual_offset: '[' STR  ('+' | '-' ) INT ']' ;
 
 ptr_offset: 
-	'[' WHITE_SPACE? imm WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
-	| '[' WHITE_SPACE? tag WHITE_SPACE? '+' WHITE_SPACE? reg WHITE_SPACE? ']'
+	'[' imm '+' reg ']'
+	| '[' tag '+' reg ']'
 	;
 
-variable: tag  WHITE_SPACE? '=' WHITE_SPACE? imm;
+stack_offset: '[' stack ']'
+	| '[' stack '+' imm ']'
+	| '[' stack '+' reg ']'
+	;
+
+variable: tag  '=' imm;
 
 directives: '.byte '  imm_list
 	| '.word '  imm_list

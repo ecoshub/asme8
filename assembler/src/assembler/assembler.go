@@ -222,6 +222,52 @@ func (a *Assembler) ParseImpliedStack() {
 	a.AppendMachineCode(opcode)
 }
 
+func (a *Assembler) ParseStackRegister(rm bool) {
+	if len(a.currentRegisters) == 2 {
+		if a.currentValue == nil {
+			if rm {
+				// mov [sp], a
+				opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_STACK)
+				a.AppendMachineCode(opcode)
+				a.AppendMachineCode(a.currentRegisters[1].GetCode())
+				return
+			}
+			// mov a, [sp]
+			opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_STACK_REG)
+			a.AppendMachineCode(opcode)
+			a.AppendMachineCode(a.currentRegisters[0].GetCode())
+			return
+		}
+		if rm {
+			// mov a, [sp+4]
+			opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_STACK_OFFSET)
+			a.AppendMachineCode(opcode)
+			a.AppendMachineCode(a.currentRegisters[1].GetCode())
+			a.AppendMachineCode(a.currentValue.GetLowByte())
+			return
+		}
+		// mov [sp+4], a
+		opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_STACK_REG_OFFSET)
+		a.AppendMachineCode(opcode)
+		a.AppendMachineCode(a.currentRegisters[0].GetCode())
+		a.AppendMachineCode(a.currentValue.GetLowByte())
+		return
+	}
+	if rm {
+		// mov a, [sp+b]
+		opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_REG_STACK_OFFSET_REG)
+		a.AppendMachineCode(opcode)
+		var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[2].GetCode() << 4)
+		a.AppendMachineCode(val)
+		return
+	}
+	// mov [sp+b], a
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_STACK_REG_OFFSET_REG)
+	a.AppendMachineCode(opcode)
+	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	a.AppendMachineCode(val)
+}
+
 func (a *Assembler) ParseImplied() {
 	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL)
 	a.AppendMachineCode(opcode)

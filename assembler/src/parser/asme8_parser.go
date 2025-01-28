@@ -35,17 +35,18 @@ func asme8ParserInit() {
 	staticData.LiteralNames = []string{
 		"", "'\\t'", "'    '", "'  '", "' '", "'\\n'", "':'", "', '", "'mov'",
 		"'add'", "'adc'", "'sub'", "'sbb'", "'cmp'", "'inc'", "'dec'", "'xor'",
-		"'jmp'", "'jz'", "'jnz'", "'jc'", "'js'", "'jns'", "'jsr'", "'rts'",
-		"'brk'", "'nop'", "'push'", "'pop'", "'clc'", "'a'", "'b'", "'c'", "'d'",
-		"'sp'", "'['", "']'", "'+'", "'-'", "'='", "'.byte '", "'.word '", "'.resb '",
+		"'and'", "'or'", "'not'", "'shl'", "'shr'", "'rol'", "'ror'", "'jmp'",
+		"'jz'", "'jnz'", "'jc'", "'js'", "'jns'", "'jsr'", "'rts'", "'brk'",
+		"'nop'", "'push'", "'pop'", "'clc'", "'a'", "'b'", "'c'", "'d'", "'sp'",
+		"'['", "']'", "'+'", "'-'", "'='", "'.byte '", "'.word '", "'.resb '",
 		"'.org '", "'.segment '", "'\"'", "'global '", "'extern '",
 	}
 	staticData.SymbolicNames = []string{
 		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "LINE_COMMENT",
-		"SUFFIX_WHITESPACE", "WHITE_SPACE", "BINARY", "INT", "CHAR", "HEX",
-		"STR",
+		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "LINE_COMMENT", "SUFFIX_WHITESPACE", "WHITE_SPACE",
+		"BINARY", "INT", "CHAR", "HEX", "STR",
 	}
 	staticData.RuleNames = []string{
 		"prog", "instruction", "line", "label", "inst", "inst_reg_reg", "inst_reg_imm",
@@ -58,7 +59,7 @@ func asme8ParserInit() {
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 55, 302, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 62, 302, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
@@ -89,8 +90,8 @@ func asme8ParserInit() {
 		5, 31, 293, 8, 31, 10, 31, 12, 31, 296, 9, 31, 1, 32, 1, 32, 1, 33, 1,
 		33, 1, 33, 0, 0, 34, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26,
 		28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62,
-		64, 66, 0, 5, 1, 0, 1, 3, 1, 0, 8, 29, 1, 0, 30, 33, 1, 0, 37, 38, 1, 0,
-		51, 54, 305, 0, 68, 1, 0, 0, 0, 2, 87, 1, 0, 0, 0, 4, 101, 1, 0, 0, 0,
+		64, 66, 0, 5, 1, 0, 1, 3, 1, 0, 8, 36, 1, 0, 37, 40, 1, 0, 44, 45, 1, 0,
+		58, 61, 305, 0, 68, 1, 0, 0, 0, 2, 87, 1, 0, 0, 0, 4, 101, 1, 0, 0, 0,
 		6, 103, 1, 0, 0, 0, 8, 121, 1, 0, 0, 0, 10, 123, 1, 0, 0, 0, 12, 129, 1,
 		0, 0, 0, 14, 135, 1, 0, 0, 0, 16, 141, 1, 0, 0, 0, 18, 147, 1, 0, 0, 0,
 		20, 153, 1, 0, 0, 0, 22, 159, 1, 0, 0, 0, 24, 165, 1, 0, 0, 0, 26, 171,
@@ -102,10 +103,10 @@ func asme8ParserInit() {
 		0, 62, 285, 1, 0, 0, 0, 64, 297, 1, 0, 0, 0, 66, 299, 1, 0, 0, 0, 68, 69,
 		3, 2, 1, 0, 69, 70, 5, 0, 0, 1, 70, 1, 1, 0, 0, 0, 71, 73, 3, 4, 2, 0,
 		72, 71, 1, 0, 0, 0, 73, 74, 1, 0, 0, 0, 74, 72, 1, 0, 0, 0, 74, 75, 1,
-		0, 0, 0, 75, 77, 1, 0, 0, 0, 76, 78, 5, 48, 0, 0, 77, 76, 1, 0, 0, 0, 77,
+		0, 0, 0, 75, 77, 1, 0, 0, 0, 76, 78, 5, 55, 0, 0, 77, 76, 1, 0, 0, 0, 77,
 		78, 1, 0, 0, 0, 78, 88, 1, 0, 0, 0, 79, 81, 3, 4, 2, 0, 80, 79, 1, 0, 0,
 		0, 81, 82, 1, 0, 0, 0, 82, 80, 1, 0, 0, 0, 82, 83, 1, 0, 0, 0, 83, 85,
-		1, 0, 0, 0, 84, 86, 5, 49, 0, 0, 85, 84, 1, 0, 0, 0, 85, 86, 1, 0, 0, 0,
+		1, 0, 0, 0, 84, 86, 5, 56, 0, 0, 85, 84, 1, 0, 0, 0, 85, 86, 1, 0, 0, 0,
 		86, 88, 1, 0, 0, 0, 87, 72, 1, 0, 0, 0, 87, 80, 1, 0, 0, 0, 88, 3, 1, 0,
 		0, 0, 89, 102, 3, 54, 27, 0, 90, 91, 7, 0, 0, 0, 91, 102, 3, 8, 4, 0, 92,
 		102, 3, 58, 29, 0, 93, 102, 3, 60, 30, 0, 94, 95, 3, 6, 3, 0, 95, 96, 5,
@@ -149,40 +150,40 @@ func asme8ParserInit() {
 		64, 32, 0, 194, 35, 1, 0, 0, 0, 195, 196, 3, 40, 20, 0, 196, 197, 5, 4,
 		0, 0, 197, 198, 3, 66, 33, 0, 198, 37, 1, 0, 0, 0, 199, 200, 3, 40, 20,
 		0, 200, 39, 1, 0, 0, 0, 201, 202, 7, 1, 0, 0, 202, 41, 1, 0, 0, 0, 203,
-		204, 7, 2, 0, 0, 204, 43, 1, 0, 0, 0, 205, 206, 5, 34, 0, 0, 206, 45, 1,
-		0, 0, 0, 207, 208, 5, 35, 0, 0, 208, 209, 3, 64, 32, 0, 209, 210, 5, 36,
-		0, 0, 210, 217, 1, 0, 0, 0, 211, 212, 5, 35, 0, 0, 212, 213, 3, 66, 33,
-		0, 213, 214, 5, 36, 0, 0, 214, 217, 1, 0, 0, 0, 215, 217, 3, 48, 24, 0,
+		204, 7, 2, 0, 0, 204, 43, 1, 0, 0, 0, 205, 206, 5, 41, 0, 0, 206, 45, 1,
+		0, 0, 0, 207, 208, 5, 42, 0, 0, 208, 209, 3, 64, 32, 0, 209, 210, 5, 43,
+		0, 0, 210, 217, 1, 0, 0, 0, 211, 212, 5, 42, 0, 0, 212, 213, 3, 66, 33,
+		0, 213, 214, 5, 43, 0, 0, 214, 217, 1, 0, 0, 0, 215, 217, 3, 48, 24, 0,
 		216, 207, 1, 0, 0, 0, 216, 211, 1, 0, 0, 0, 216, 215, 1, 0, 0, 0, 217,
-		47, 1, 0, 0, 0, 218, 219, 5, 35, 0, 0, 219, 220, 5, 55, 0, 0, 220, 221,
-		7, 3, 0, 0, 221, 222, 5, 52, 0, 0, 222, 223, 5, 36, 0, 0, 223, 49, 1, 0,
-		0, 0, 224, 225, 5, 35, 0, 0, 225, 226, 3, 64, 32, 0, 226, 227, 5, 37, 0,
-		0, 227, 228, 3, 42, 21, 0, 228, 229, 5, 36, 0, 0, 229, 237, 1, 0, 0, 0,
-		230, 231, 5, 35, 0, 0, 231, 232, 3, 66, 33, 0, 232, 233, 5, 37, 0, 0, 233,
-		234, 3, 42, 21, 0, 234, 235, 5, 36, 0, 0, 235, 237, 1, 0, 0, 0, 236, 224,
-		1, 0, 0, 0, 236, 230, 1, 0, 0, 0, 237, 51, 1, 0, 0, 0, 238, 239, 5, 35,
-		0, 0, 239, 240, 3, 44, 22, 0, 240, 241, 5, 36, 0, 0, 241, 255, 1, 0, 0,
-		0, 242, 243, 5, 35, 0, 0, 243, 244, 3, 44, 22, 0, 244, 245, 5, 37, 0, 0,
-		245, 246, 3, 64, 32, 0, 246, 247, 5, 36, 0, 0, 247, 255, 1, 0, 0, 0, 248,
-		249, 5, 35, 0, 0, 249, 250, 3, 44, 22, 0, 250, 251, 5, 37, 0, 0, 251, 252,
-		3, 42, 21, 0, 252, 253, 5, 36, 0, 0, 253, 255, 1, 0, 0, 0, 254, 238, 1,
+		47, 1, 0, 0, 0, 218, 219, 5, 42, 0, 0, 219, 220, 5, 62, 0, 0, 220, 221,
+		7, 3, 0, 0, 221, 222, 5, 59, 0, 0, 222, 223, 5, 43, 0, 0, 223, 49, 1, 0,
+		0, 0, 224, 225, 5, 42, 0, 0, 225, 226, 3, 64, 32, 0, 226, 227, 5, 44, 0,
+		0, 227, 228, 3, 42, 21, 0, 228, 229, 5, 43, 0, 0, 229, 237, 1, 0, 0, 0,
+		230, 231, 5, 42, 0, 0, 231, 232, 3, 66, 33, 0, 232, 233, 5, 44, 0, 0, 233,
+		234, 3, 42, 21, 0, 234, 235, 5, 43, 0, 0, 235, 237, 1, 0, 0, 0, 236, 224,
+		1, 0, 0, 0, 236, 230, 1, 0, 0, 0, 237, 51, 1, 0, 0, 0, 238, 239, 5, 42,
+		0, 0, 239, 240, 3, 44, 22, 0, 240, 241, 5, 43, 0, 0, 241, 255, 1, 0, 0,
+		0, 242, 243, 5, 42, 0, 0, 243, 244, 3, 44, 22, 0, 244, 245, 5, 44, 0, 0,
+		245, 246, 3, 64, 32, 0, 246, 247, 5, 43, 0, 0, 247, 255, 1, 0, 0, 0, 248,
+		249, 5, 42, 0, 0, 249, 250, 3, 44, 22, 0, 250, 251, 5, 44, 0, 0, 251, 252,
+		3, 42, 21, 0, 252, 253, 5, 43, 0, 0, 253, 255, 1, 0, 0, 0, 254, 238, 1,
 		0, 0, 0, 254, 242, 1, 0, 0, 0, 254, 248, 1, 0, 0, 0, 255, 53, 1, 0, 0,
-		0, 256, 257, 3, 66, 33, 0, 257, 258, 5, 39, 0, 0, 258, 259, 3, 64, 32,
-		0, 259, 55, 1, 0, 0, 0, 260, 261, 5, 40, 0, 0, 261, 269, 3, 62, 31, 0,
-		262, 263, 5, 41, 0, 0, 263, 269, 3, 62, 31, 0, 264, 265, 5, 42, 0, 0, 265,
-		269, 3, 62, 31, 0, 266, 267, 5, 43, 0, 0, 267, 269, 3, 62, 31, 0, 268,
+		0, 256, 257, 3, 66, 33, 0, 257, 258, 5, 46, 0, 0, 258, 259, 3, 64, 32,
+		0, 259, 55, 1, 0, 0, 0, 260, 261, 5, 47, 0, 0, 261, 269, 3, 62, 31, 0,
+		262, 263, 5, 48, 0, 0, 263, 269, 3, 62, 31, 0, 264, 265, 5, 49, 0, 0, 265,
+		269, 3, 62, 31, 0, 266, 267, 5, 50, 0, 0, 267, 269, 3, 62, 31, 0, 268,
 		260, 1, 0, 0, 0, 268, 262, 1, 0, 0, 0, 268, 264, 1, 0, 0, 0, 268, 266,
-		1, 0, 0, 0, 269, 57, 1, 0, 0, 0, 270, 271, 5, 44, 0, 0, 271, 272, 5, 45,
-		0, 0, 272, 273, 5, 55, 0, 0, 273, 274, 5, 45, 0, 0, 274, 59, 1, 0, 0, 0,
-		275, 276, 5, 2, 0, 0, 276, 277, 5, 46, 0, 0, 277, 282, 3, 66, 33, 0, 278,
-		279, 5, 2, 0, 0, 279, 280, 5, 47, 0, 0, 280, 282, 3, 66, 33, 0, 281, 275,
+		1, 0, 0, 0, 269, 57, 1, 0, 0, 0, 270, 271, 5, 51, 0, 0, 271, 272, 5, 52,
+		0, 0, 272, 273, 5, 62, 0, 0, 273, 274, 5, 52, 0, 0, 274, 59, 1, 0, 0, 0,
+		275, 276, 5, 2, 0, 0, 276, 277, 5, 53, 0, 0, 277, 282, 3, 66, 33, 0, 278,
+		279, 5, 2, 0, 0, 279, 280, 5, 54, 0, 0, 280, 282, 3, 66, 33, 0, 281, 275,
 		1, 0, 0, 0, 281, 278, 1, 0, 0, 0, 282, 61, 1, 0, 0, 0, 283, 286, 3, 64,
 		32, 0, 284, 286, 3, 66, 33, 0, 285, 283, 1, 0, 0, 0, 285, 284, 1, 0, 0,
 		0, 286, 294, 1, 0, 0, 0, 287, 290, 5, 7, 0, 0, 288, 291, 3, 64, 32, 0,
 		289, 291, 3, 66, 33, 0, 290, 288, 1, 0, 0, 0, 290, 289, 1, 0, 0, 0, 291,
 		293, 1, 0, 0, 0, 292, 287, 1, 0, 0, 0, 293, 296, 1, 0, 0, 0, 294, 292,
 		1, 0, 0, 0, 294, 295, 1, 0, 0, 0, 295, 63, 1, 0, 0, 0, 296, 294, 1, 0,
-		0, 0, 297, 298, 7, 4, 0, 0, 298, 65, 1, 0, 0, 0, 299, 300, 5, 55, 0, 0,
+		0, 0, 297, 298, 7, 4, 0, 0, 298, 65, 1, 0, 0, 0, 299, 300, 5, 62, 0, 0,
 		300, 67, 1, 0, 0, 0, 15, 74, 77, 82, 85, 87, 101, 121, 216, 236, 254, 268,
 		281, 285, 290, 294,
 	}
@@ -270,14 +271,21 @@ const (
 	AsmE8ParserT__44             = 45
 	AsmE8ParserT__45             = 46
 	AsmE8ParserT__46             = 47
-	AsmE8ParserLINE_COMMENT      = 48
-	AsmE8ParserSUFFIX_WHITESPACE = 49
-	AsmE8ParserWHITE_SPACE       = 50
-	AsmE8ParserBINARY            = 51
-	AsmE8ParserINT               = 52
-	AsmE8ParserCHAR              = 53
-	AsmE8ParserHEX               = 54
-	AsmE8ParserSTR               = 55
+	AsmE8ParserT__47             = 48
+	AsmE8ParserT__48             = 49
+	AsmE8ParserT__49             = 50
+	AsmE8ParserT__50             = 51
+	AsmE8ParserT__51             = 52
+	AsmE8ParserT__52             = 53
+	AsmE8ParserT__53             = 54
+	AsmE8ParserLINE_COMMENT      = 55
+	AsmE8ParserSUFFIX_WHITESPACE = 56
+	AsmE8ParserWHITE_SPACE       = 57
+	AsmE8ParserBINARY            = 58
+	AsmE8ParserINT               = 59
+	AsmE8ParserCHAR              = 60
+	AsmE8ParserHEX               = 61
+	AsmE8ParserSTR               = 62
 )
 
 // AsmE8Parser rules.
@@ -574,7 +582,7 @@ func (p *AsmE8Parser) Instruction() (localctx IInstructionContext) {
 		}
 		_la = p.GetTokenStream().LA(1)
 
-		for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&36062881879425070) != 0) {
+		for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4616048880566403118) != 0) {
 			{
 				p.SetState(71)
 				p.Line()
@@ -615,7 +623,7 @@ func (p *AsmE8Parser) Instruction() (localctx IInstructionContext) {
 		}
 		_la = p.GetTokenStream().LA(1)
 
-		for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&36062881879425070) != 0) {
+		for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4616048880566403118) != 0) {
 			{
 				p.SetState(79)
 				p.Line()
@@ -3843,7 +3851,7 @@ func (p *AsmE8Parser) Mnemonic() (localctx IMnemonicContext) {
 		p.SetState(201)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1073741568) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&137438953216) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -3935,7 +3943,7 @@ func (p *AsmE8Parser) Reg() (localctx IRegContext) {
 		p.SetState(203)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&16106127360) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&2061584302080) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -4023,7 +4031,7 @@ func (p *AsmE8Parser) Stack() (localctx IStackContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(205)
-		p.Match(AsmE8ParserT__33)
+		p.Match(AsmE8ParserT__40)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -4173,7 +4181,7 @@ func (p *AsmE8Parser) Ptr() (localctx IPtrContext) {
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(207)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4185,7 +4193,7 @@ func (p *AsmE8Parser) Ptr() (localctx IPtrContext) {
 		}
 		{
 			p.SetState(209)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4196,7 +4204,7 @@ func (p *AsmE8Parser) Ptr() (localctx IPtrContext) {
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(211)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4208,7 +4216,7 @@ func (p *AsmE8Parser) Ptr() (localctx IPtrContext) {
 		}
 		{
 			p.SetState(213)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4322,7 +4330,7 @@ func (p *AsmE8Parser) Ptr_virtual_offset() (localctx IPtr_virtual_offsetContext)
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(218)
-		p.Match(AsmE8ParserT__34)
+		p.Match(AsmE8ParserT__41)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -4340,7 +4348,7 @@ func (p *AsmE8Parser) Ptr_virtual_offset() (localctx IPtr_virtual_offsetContext)
 		p.SetState(220)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(_la == AsmE8ParserT__36 || _la == AsmE8ParserT__37) {
+		if !(_la == AsmE8ParserT__43 || _la == AsmE8ParserT__44) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -4357,7 +4365,7 @@ func (p *AsmE8Parser) Ptr_virtual_offset() (localctx IPtr_virtual_offsetContext)
 	}
 	{
 		p.SetState(222)
-		p.Match(AsmE8ParserT__35)
+		p.Match(AsmE8ParserT__42)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -4507,7 +4515,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(224)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4519,7 +4527,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		}
 		{
 			p.SetState(226)
-			p.Match(AsmE8ParserT__36)
+			p.Match(AsmE8ParserT__43)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4531,7 +4539,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		}
 		{
 			p.SetState(228)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4542,7 +4550,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(230)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4554,7 +4562,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		}
 		{
 			p.SetState(232)
-			p.Match(AsmE8ParserT__36)
+			p.Match(AsmE8ParserT__43)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4566,7 +4574,7 @@ func (p *AsmE8Parser) Ptr_offset() (localctx IPtr_offsetContext) {
 		}
 		{
 			p.SetState(234)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4720,7 +4728,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(238)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4732,7 +4740,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		}
 		{
 			p.SetState(240)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4743,7 +4751,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(242)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4755,7 +4763,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		}
 		{
 			p.SetState(244)
-			p.Match(AsmE8ParserT__36)
+			p.Match(AsmE8ParserT__43)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4767,7 +4775,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		}
 		{
 			p.SetState(246)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4778,7 +4786,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(248)
-			p.Match(AsmE8ParserT__34)
+			p.Match(AsmE8ParserT__41)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4790,7 +4798,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		}
 		{
 			p.SetState(250)
-			p.Match(AsmE8ParserT__36)
+			p.Match(AsmE8ParserT__43)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4802,7 +4810,7 @@ func (p *AsmE8Parser) Stack_offset() (localctx IStack_offsetContext) {
 		}
 		{
 			p.SetState(252)
-			p.Match(AsmE8ParserT__35)
+			p.Match(AsmE8ParserT__42)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -4935,7 +4943,7 @@ func (p *AsmE8Parser) Variable() (localctx IVariableContext) {
 	}
 	{
 		p.SetState(257)
-		p.Match(AsmE8ParserT__38)
+		p.Match(AsmE8ParserT__45)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -5051,11 +5059,11 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 	}
 
 	switch p.GetTokenStream().LA(1) {
-	case AsmE8ParserT__39:
+	case AsmE8ParserT__46:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(260)
-			p.Match(AsmE8ParserT__39)
+			p.Match(AsmE8ParserT__46)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5066,11 +5074,11 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 			p.Imm_list()
 		}
 
-	case AsmE8ParserT__40:
+	case AsmE8ParserT__47:
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(262)
-			p.Match(AsmE8ParserT__40)
+			p.Match(AsmE8ParserT__47)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5081,11 +5089,11 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 			p.Imm_list()
 		}
 
-	case AsmE8ParserT__41:
+	case AsmE8ParserT__48:
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(264)
-			p.Match(AsmE8ParserT__41)
+			p.Match(AsmE8ParserT__48)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5096,11 +5104,11 @@ func (p *AsmE8Parser) Directives() (localctx IDirectivesContext) {
 			p.Imm_list()
 		}
 
-	case AsmE8ParserT__42:
+	case AsmE8ParserT__49:
 		p.EnterOuterAlt(localctx, 4)
 		{
 			p.SetState(266)
-			p.Match(AsmE8ParserT__42)
+			p.Match(AsmE8ParserT__49)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5205,7 +5213,7 @@ func (p *AsmE8Parser) Segment() (localctx ISegmentContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(270)
-		p.Match(AsmE8ParserT__43)
+		p.Match(AsmE8ParserT__50)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -5213,7 +5221,7 @@ func (p *AsmE8Parser) Segment() (localctx ISegmentContext) {
 	}
 	{
 		p.SetState(271)
-		p.Match(AsmE8ParserT__44)
+		p.Match(AsmE8ParserT__51)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -5229,7 +5237,7 @@ func (p *AsmE8Parser) Segment() (localctx ISegmentContext) {
 	}
 	{
 		p.SetState(273)
-		p.Match(AsmE8ParserT__44)
+		p.Match(AsmE8ParserT__51)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
@@ -5353,7 +5361,7 @@ func (p *AsmE8Parser) Access() (localctx IAccessContext) {
 		}
 		{
 			p.SetState(276)
-			p.Match(AsmE8ParserT__45)
+			p.Match(AsmE8ParserT__52)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5376,7 +5384,7 @@ func (p *AsmE8Parser) Access() (localctx IAccessContext) {
 		}
 		{
 			p.SetState(279)
-			p.Match(AsmE8ParserT__46)
+			p.Match(AsmE8ParserT__53)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
@@ -5740,7 +5748,7 @@ func (p *AsmE8Parser) Imm() (localctx IImmContext) {
 		p.SetState(297)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&33776997205278720) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4323455642275676160) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)

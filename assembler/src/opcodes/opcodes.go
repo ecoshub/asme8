@@ -14,6 +14,13 @@ const (
 	INST_SUB  string = "sub"
 	INST_SBB  string = "sbb"
 	INST_XOR  string = "xor"
+	INST_AND  string = "and"
+	INST_OR   string = "or"
+	INST_NOT  string = "not"
+	INST_SHL  string = "shl"
+	INST_SHR  string = "shr"
+	INST_ROL  string = "rol"
+	INST_ROR  string = "ror"
 	INST_CMP  string = "cmp"
 	INST_JMP  string = "jmp"
 	INST_JZ   string = "jz"
@@ -92,6 +99,40 @@ var (
 		INST_XOR: {
 			// xor b, a
 			ADDRESSING_MODE_REG_REG: 0x50,
+			// xor b, 0x10
+			ADDRESSING_MODE_REG_IMM_8: 0x51,
+		},
+		INST_AND: {
+			// and b, a
+			ADDRESSING_MODE_REG_REG: 0x52,
+			// and b, 0x10
+			ADDRESSING_MODE_REG_IMM_8: 0x53,
+		},
+		INST_OR: {
+			// or b, a
+			ADDRESSING_MODE_REG_REG: 0x54,
+			// or b, 0x10
+			ADDRESSING_MODE_REG_IMM_8: 0x55,
+		},
+		INST_NOT: {
+			// not a
+			ADDRESSING_MODE_IMPL_REG: 0x56,
+		},
+		INST_SHL: {
+			// shl a
+			ADDRESSING_MODE_IMPL_REG: 0x57,
+		},
+		INST_SHR: {
+			// shr a
+			ADDRESSING_MODE_IMPL_REG: 0x58,
+		},
+		INST_ROL: {
+			// rol a
+			ADDRESSING_MODE_IMPL_REG: 0x59,
+		},
+		INST_ROR: {
+			// ror a
+			ADDRESSING_MODE_IMPL_REG: 0x5a,
 		},
 		INST_CMP: {
 			// cmp b, a

@@ -1,4 +1,11 @@
-	mov a, 0x02
-	mov b, 0x10
-	mov [sp+a], b
-	mov b, [sp+a]
+start:
+	xor c, 0x10
+	and c, b
+	and c, 0x10
+	or c, b
+	or c, 0x10
+	not b
+	shl b
+	shr b
+	rol b
+	ror b

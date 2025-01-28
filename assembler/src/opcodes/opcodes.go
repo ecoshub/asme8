@@ -1,10 +1,11 @@
 package opcodes
 
 const (
-	REGISTER_SYMBOL_A string = "a"
-	REGISTER_SYMBOL_B string = "b"
-	REGISTER_SYMBOL_C string = "c"
-	REGISTER_SYMBOL_D string = "d"
+	REGISTER_SYMBOL_A  string = "a"
+	REGISTER_SYMBOL_B  string = "b"
+	REGISTER_SYMBOL_C  string = "c"
+	REGISTER_SYMBOL_D  string = "d"
+	REGISTER_SYMBOL_SP string = "sp"
 
 	INST_BRK  string = "brk"
 	INST_MOV  string = "mov"
@@ -39,14 +40,16 @@ const (
 	ADDRESSING_MODE_MEM_REG
 	ADDRESSING_MODE_MEM_REG_OFFSET
 	ADDRESSING_MODE_REG_MEM_OFFSET
+	ADDRESSING_MODE_IMPL_STACK
 )
 
 var (
 	REGISTER_OPCODE = map[string]uint8{
-		REGISTER_SYMBOL_A: 0,
-		REGISTER_SYMBOL_B: 1,
-		REGISTER_SYMBOL_C: 2,
-		REGISTER_SYMBOL_D: 3,
+		REGISTER_SYMBOL_A:  0,
+		REGISTER_SYMBOL_B:  1,
+		REGISTER_SYMBOL_C:  2,
+		REGISTER_SYMBOL_D:  3,
+		REGISTER_SYMBOL_SP: 4,
 	}
 
 	_MNEMONIC_TO_OPCODE = map[string]map[uint8]uint8{
@@ -139,12 +142,16 @@ var (
 			ADDRESSING_MODE_IMPL: 0xff,
 		},
 		INST_PUSH: {
+			// push sp
+			ADDRESSING_MODE_IMPL_STACK: 0xee,
 			// push a
 			ADDRESSING_MODE_IMPL_REG: 0xf0,
 			// push 0x10
 			ADDRESSING_MODE_REG_INM_8: 0xf1,
 		},
 		INST_POP: {
+			// pop sp
+			ADDRESSING_MODE_IMPL_STACK: 0xef,
 			// pop a
 			ADDRESSING_MODE_IMPL_REG: 0xf2,
 		},

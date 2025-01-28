@@ -47,6 +47,9 @@ type AsmE8Listener interface {
 	// EnterInst_single_reg is called when entering the inst_single_reg production.
 	EnterInst_single_reg(c *Inst_single_regContext)
 
+	// EnterInst_implied_stack is called when entering the inst_implied_stack production.
+	EnterInst_implied_stack(c *Inst_implied_stackContext)
+
 	// EnterInst_single_imm is called when entering the inst_single_imm production.
 	EnterInst_single_imm(c *Inst_single_immContext)
 
@@ -61,6 +64,9 @@ type AsmE8Listener interface {
 
 	// EnterReg is called when entering the reg production.
 	EnterReg(c *RegContext)
+
+	// EnterStack is called when entering the stack production.
+	EnterStack(c *StackContext)
 
 	// EnterPtr is called when entering the ptr production.
 	EnterPtr(c *PtrContext)
@@ -131,6 +137,9 @@ type AsmE8Listener interface {
 	// ExitInst_single_reg is called when exiting the inst_single_reg production.
 	ExitInst_single_reg(c *Inst_single_regContext)
 
+	// ExitInst_implied_stack is called when exiting the inst_implied_stack production.
+	ExitInst_implied_stack(c *Inst_implied_stackContext)
+
 	// ExitInst_single_imm is called when exiting the inst_single_imm production.
 	ExitInst_single_imm(c *Inst_single_immContext)
 
@@ -145,6 +154,9 @@ type AsmE8Listener interface {
 
 	// ExitReg is called when exiting the reg production.
 	ExitReg(c *RegContext)
+
+	// ExitStack is called when exiting the stack production.
+	ExitStack(c *StackContext)
 
 	// ExitPtr is called when exiting the ptr production.
 	ExitPtr(c *PtrContext)

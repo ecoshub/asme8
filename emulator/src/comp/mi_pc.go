@@ -23,12 +23,12 @@ func mInstProgramCounterHighIn(c *Comp, _ uint64) {
 }
 
 func mInstProgramCounterLowOut(c *Comp, _ uint64) {
-	c.outputBus.Write_8(uint8(c.programCounter >> 8))
+	c.outputBus.Write_8(uint8(c.programCounter))
 	triggerBridge(c)
 }
 
 func mInstProgramCounterHighOut(c *Comp, _ uint64) {
-	c.outputBus.Write_8(uint8(c.programCounter))
+	c.outputBus.Write_8(uint8(c.programCounter >> 8))
 	triggerBridge(c)
 }
 

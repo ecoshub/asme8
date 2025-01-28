@@ -72,6 +72,8 @@ const (
 	INST_CLC Type = 0xe0
 
 	// Stack base
+	INST_PUSH_SP  Type = 0xee
+	INST_POP_SP   Type = 0xef
 	INST_PUSH_REG Type = 0xf0
 	INST_PUSH_INM Type = 0xf1
 	INST_POP_REG  Type = 0xf2
@@ -106,6 +108,8 @@ var (
 		0x43: "MOV_RM",
 		0x44: "MOV_MR_OFF",
 		0x45: "MOV_RM_OFF",
+		0xee: "PUSH_SP",
+		0xef: "POP_SP",
 		0xf0: "PUSH_REG",
 		0xf1: "PUSH_INM",
 		0xf2: "POP_REG",

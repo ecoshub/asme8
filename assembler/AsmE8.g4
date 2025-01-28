@@ -24,6 +24,7 @@ inst:
 	| inst_reg_imm
 	| inst_reg_imm_variable
 	| inst_single_reg
+	| inst_implied_stack
 	| inst_single_imm
 	| inst_single_tag 
 	| inst_single
@@ -48,6 +49,8 @@ inst_reg_ptr_offset: mnemonic ' ' reg ', ' ptr_offset;
 inst_ptr_offset_reg: mnemonic ' ' ptr_offset ', ' reg;
 
 inst_single_reg: mnemonic ' ' reg;
+
+inst_implied_stack: mnemonic ' ' stack;
 
 inst_single_imm: mnemonic ' ' imm;
 
@@ -86,6 +89,8 @@ reg:
 	| 'c'
 	| 'd'
 	;
+
+stack: 'sp';
 
 ptr: 
 	'[' WHITE_SPACE? imm WHITE_SPACE? ']'

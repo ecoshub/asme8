@@ -99,6 +99,12 @@ func (s *BaseAsmE8Listener) EnterInst_single_reg(ctx *Inst_single_regContext) {}
 // ExitInst_single_reg is called when production inst_single_reg is exited.
 func (s *BaseAsmE8Listener) ExitInst_single_reg(ctx *Inst_single_regContext) {}
 
+// EnterInst_implied_stack is called when production inst_implied_stack is entered.
+func (s *BaseAsmE8Listener) EnterInst_implied_stack(ctx *Inst_implied_stackContext) {}
+
+// ExitInst_implied_stack is called when production inst_implied_stack is exited.
+func (s *BaseAsmE8Listener) ExitInst_implied_stack(ctx *Inst_implied_stackContext) {}
+
 // EnterInst_single_imm is called when production inst_single_imm is entered.
 func (s *BaseAsmE8Listener) EnterInst_single_imm(ctx *Inst_single_immContext) {}
 
@@ -128,6 +134,12 @@ func (s *BaseAsmE8Listener) EnterReg(ctx *RegContext) {}
 
 // ExitReg is called when production reg is exited.
 func (s *BaseAsmE8Listener) ExitReg(ctx *RegContext) {}
+
+// EnterStack is called when production stack is entered.
+func (s *BaseAsmE8Listener) EnterStack(ctx *StackContext) {}
+
+// ExitStack is called when production stack is exited.
+func (s *BaseAsmE8Listener) ExitStack(ctx *StackContext) {}
 
 // EnterPtr is called when production ptr is entered.
 func (s *BaseAsmE8Listener) EnterPtr(ctx *PtrContext) {}

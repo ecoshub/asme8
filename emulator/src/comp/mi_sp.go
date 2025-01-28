@@ -19,12 +19,12 @@ func mInstStackPointerHighIn(c *Comp, _ uint64) {
 }
 
 func mInstStackPointerLowOut(c *Comp, _ uint64) {
-	c.outputBus.Write_8(uint8(c.stackPointer >> 8))
+	c.outputBus.Write_8(uint8(c.stackPointer))
 	triggerBridge(c)
 }
 
 func mInstStackPointerHighOut(c *Comp, _ uint64) {
-	c.outputBus.Write_8(uint8(c.stackPointer))
+	c.outputBus.Write_8(uint8(c.stackPointer >> 8))
 	triggerBridge(c)
 }
 

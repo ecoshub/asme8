@@ -39,6 +39,15 @@ func (a *Assembler) ExitImm_list(c *parser.Imm_listContext) {
 	a.ParseValueList(text, line, column)
 }
 
+func (a *Assembler) ExitInst_implied_stack(c *parser.Inst_implied_stackContext) {
+	a.ParseImpliedStack()
+}
+
+func (a *Assembler) ExitStack(c *parser.StackContext) {
+	text := c.GetText()
+	a.ParseRegister(text)
+}
+
 func (a *Assembler) ExitInst_ptr_offset_reg(c *parser.Inst_ptr_offset_regContext) {
 	a.ParsePointerRegisterOffset()
 }
@@ -130,6 +139,10 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterInst_implied_stack(c *parser.Inst_implied_stackContext) {}
+
+func (a *Assembler) EnterStack(c *parser.StackContext) {}
 
 func (a *Assembler) EnterSegment(c *parser.SegmentContext) {}
 

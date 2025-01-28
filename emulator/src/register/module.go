@@ -3,10 +3,11 @@ package register
 import "fmt"
 
 const (
-	IndexRegA uint8 = 0
-	IndexRegB uint8 = 1
-	IndexRegC uint8 = 2
-	IndexRegD uint8 = 3
+	IndexRegA  uint8 = 0
+	IndexRegB  uint8 = 1
+	IndexRegC  uint8 = 2
+	IndexRegD  uint8 = 3
+	IndexRegSP uint8 = 4
 )
 
 type Module []byte

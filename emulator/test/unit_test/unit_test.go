@@ -1,6 +1,7 @@
 package unit_test
 
 import (
+	"asme8/emulator/src/comp"
 	"asme8/emulator/src/instruction"
 	"asme8/emulator/src/register"
 	"asme8/emulator/test"
@@ -837,6 +838,23 @@ var (
 			Expect: &test.Expect{
 				Registers: []*test.RegData{
 					{Index: register.IndexRegA, Data: 0x20},
+				},
+			},
+		},
+		{
+			Name: "push pop sp",
+			// mov a, 0x20
+			// push a
+			// push sp
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_PUSH_REG, register.IndexRegA,
+				instruction.INST_PUSH_SP,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 1, Data: 0xee},
+					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 2, Data: 0xf6},
 				},
 			},
 		},

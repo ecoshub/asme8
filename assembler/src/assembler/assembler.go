@@ -122,7 +122,7 @@ func (a *Assembler) assemble() []uint8 {
 			topAddress = offset
 		}
 	}
-	if topAddress == 0 {
+	if len(a.machineCode) == 0 {
 		a.out = []byte{}
 		a.topAddress = 0
 		return a.out
@@ -206,6 +206,11 @@ func (a *Assembler) ParseImpliedRegister() {
 	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_REG)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+}
+
+func (a *Assembler) ParseImpliedStack() {
+	opcode := opcodes.GetOpCode(a.currentInstruction, opcodes.ADDRESSING_MODE_IMPL_STACK)
+	a.AppendMachineCode(opcode)
 }
 
 func (a *Assembler) ParseImplied() {

@@ -1,4 +1,4 @@
-ADDR_CHAR_OUT=0x7000
+ADDR_PUT_CHAR=0x7000
 
 start:
     mov b, 0
@@ -11,7 +11,7 @@ loop:
     jmp loop
 
 print_char:
-    mov [ADDR_CHAR_OUT+b], a
+    mov [ADDR_PUT_CHAR+b], a
     rts
 
 done:

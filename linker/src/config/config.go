@@ -25,3 +25,12 @@ func (c *Config) GetMemoryConfig(name string) (*memory.Memory, bool) {
 	}
 	return nil, false
 }
+
+func (c *Config) GetSegmentConfig(name string) (*segment.Segment, bool) {
+	for _, c := range c.Segments {
+		if c.Name == name {
+			return c, true
+		}
+	}
+	return nil, false
+}

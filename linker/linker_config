@@ -10,6 +10,6 @@ MEMORY {
 SEGMENTS {
     SEG_ECHO: load=ROM, type=rw;
     SEG_KERNEL: load=ROM, type=ro;
-    SEG_CHAR_IN: load=ROM, type=rw;
-    SEG_CHAR_OUT: load=ROM, type=rw;
+    SEG_GET_CHAR: load=ROM, type=rw;
+    SEG_PUT_CHAR: load=ROM, type=rw;
 }

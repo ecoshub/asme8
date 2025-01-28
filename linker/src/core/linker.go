@@ -117,13 +117,13 @@ func (l *Linker) resolveSymbols() error {
 
 func (l *Linker) putLinkerGlobals() {
 	for _, m := range l.config.Memory {
-		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__MEM_%s_START__", m.Name))
+		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		// fmt.Println(linkerGlobalSymbol.GetSymbol(), linkerGlobalSymbol.GetIndex())
 
-		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__MEM_%s_END__", m.Name))
+		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
@@ -156,11 +156,15 @@ func (l *Linker) putSegments() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
+		_, exists := l.config.GetSegmentConfig(segment)
+		if !exists {
+			continue
+		}
+
 		// fmt.Println("---", segment, "---")
 		// symbols := o.Tracker.GetSymbols()
 		positions := o.Tracker.GetPositions()
 		for _, p := range positions {
-
 			offset := uint16(0)
 			index := uint16(0)
 			sym := p.GetSymbol()
@@ -186,7 +190,16 @@ func (l *Linker) linkSymbols() error {
 				if !ok {
 					return fmt.Errorf("fatal error object file claims have the symbol but not found in defined symbols. segment: %s, symbol: %s", segment, sym)
 				}
-				index = symbol.GetIndex() + segmentOffset
+				_type := symbol.GetType()
+				switch _type {
+				case object.SYMBOL_TYPE_VAR:
+					index = symbol.GetIndex()
+				case object.SYMBOL_TYPE_LABEL:
+					globalSegmentOffset := l.segmentOffsets[segment]
+					index = symbol.GetIndex() + globalSegmentOffset
+				default:
+					return fmt.Errorf("unknown symbol type. symbol: %s, type: %d", sym, _type)
+				}
 			}
 			index += p.GetOptionalOffset()
 			data := []byte{uint8(index), uint8(index >> 8)}
@@ -195,7 +208,7 @@ func (l *Linker) linkSymbols() error {
 				size = 2
 			}
 			copy(l.memory[offset:offset+size], data)
-			// fmt.Printf("RESTORING LABEL >> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", segment, offset, globalSegment, globalSymbol.GetType(), globalSymbol.GetIndex())
+			// fmt.Printf("RESTORING LABEL [missing: %v]>> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", p.IsMissing(), segment, offset, "globalSegment", 0, 0)
 			// fmt.Printf("writing to segment %s, symbol: %s, from: %04x, to: %04x, data: %04x\n", segment, sym, offset, offset+size, data)
 		}
 	}

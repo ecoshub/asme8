@@ -1,4 +1,4 @@
-ADDR_CHAR_OUT=0x7000
+ADDR_PUT_CHAR=0xf7ee
 ADDR_CHAR_RDY=0x6ffe
 ADDR_CHAR_READ=0x6fff
 
@@ -24,10 +24,10 @@ key_del:
     jz char_wait                ; if not jump to wait
     dec c                       ; dec cursor index by 1
     mov a, CHAR_SPACE           ; store space char in to a
-    mov [ADDR_CHAR_OUT+c], a    ; write screen buffer to a with offset c
+    mov [ADDR_PUT_CHAR+c], a    ; write screen buffer to a with offset c
     jmp char_wait               ; jump to char wait
 
 char_out:
-    mov [ADDR_CHAR_OUT+c], a    ; write content of a in to screen buffer with offset c
+    mov [ADDR_PUT_CHAR+c], a    ; write content of a in to screen buffer with offset c
     inc c                       ; increment cursor index by 1
     jmp char_wait               ; jump to char out

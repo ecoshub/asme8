@@ -5,19 +5,21 @@
 ; Description..: Converts an ASCII character in register A to its
 ;                hexadecimal equivalent. 
 ;                - If the input is a valid hex character, the 
-;                  converted value is stored in register A, and
-;                  register B is set to 1 (valid).
+;                  converted value is stored in register A.
 ;                - If the input is not a valid hex character,
-;                  register B is set to 0 (invalid).
+;                  register A is set to 0 (invalid).
 ; 
 ; Input........: Register A (ASCII value)
-; Output.......: Register A (hexadecimal value, if valid)
-;                Register B (validation flag: 1 for valid, 0 for invalid)
-; Modified.....: Register A, Register B
+; Output.......: Register A (hexadecimal value, if not valid = 0)
+; Modified.....: Register A
 ; ----------------------------------------------------------
 
+
+.segment "SEG_STR_TO_HEX"
+
+    global STR_TO_HEX
+
 STR_TO_HEX:
-    mov a, 'b'
 start:
     ; check if its in rage '0' and '9'
     cmp a, 0x30             ; '0' = 0x30
@@ -40,19 +42,16 @@ start:
 
 process_lower:
     sub a, 0x57
-    mov b, 1
-    brk
+    rts
 
 process_upper:
     sub a, 0x37
-    mov b, 1
-    brk
+    rts
 
 process_number:
     sub a, 0x30
-    mov b, 1
-    brk
+    rts
 
 not_valid:
-    mov b, 0
-    brk
+    mov a, 0
+    rts

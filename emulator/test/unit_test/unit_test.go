@@ -792,6 +792,54 @@ var (
 				},
 			},
 		},
+		{
+			// start:
+			//     mov a, 0x10
+			//     cmp a, 0x20
+			//     js here
+			//     mov a, 0x20
+			//     brk
+			// here:
+			//     mov a, 0x30
+			Name: "cmp and js",
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x10,
+				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x20,
+				instruction.INST_JS_INM, 0x0d, 0x00,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_BRK,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x30},
+				},
+			},
+		},
+		{
+			// start:
+			//     mov a, 0x20
+			//     cmp a, 0x10
+			//     js here
+			//     mov a, 0x20
+			//     brk
+			// here:
+			//     mov a, 0x30
+			Name: "cmp and js no jump",
+			Program: []uint8{
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_CMP_REG_INM, register.IndexRegA, 0x10,
+				instruction.INST_JS_INM, 0x0d, 0x00,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x20,
+				instruction.INST_BRK,
+				instruction.INST_MOV_INM, register.IndexRegA, 0x30,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.RegData{
+					{Index: register.IndexRegA, Data: 0x20},
+				},
+			},
+		},
 	}
 )
 

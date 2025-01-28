@@ -10,3 +10,4 @@ TODO.md
 assembler/.antlr
 a.bin
 a.o
+*.o

@@ -11,8 +11,8 @@ const (
 	INST_JMP_INM     Type = 0x10
 	_                Type = 0x11
 	_                Type = 0x12
-	_                Type = 0x13
-	_                Type = 0x14
+	INST_JS_INM      Type = 0x13
+	INST_JNS_INM     Type = 0x14
 	INST_JZ_INM      Type = 0x15
 	INST_JNZ_INM     Type = 0x16
 	INST_JC_INM      Type = 0x17
@@ -84,6 +84,8 @@ var (
 		0x00: "BRK",
 		0xff: "NOP",
 		0x10: "JMP_INM",
+		0x13: "JS_INM",
+		0x14: "JNS_INM",
 		0x15: "JZ_INM",
 		0x16: "JNZ_INM",
 		0x1a: "CMP_RR",

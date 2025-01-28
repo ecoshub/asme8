@@ -11,4 +11,9 @@ build-linker:
 build-emulator:
 	go build -o bin/emu_asm8 emulator/cmd/main.go
 
+build-tools-and-source: build build-source
+
+build-source:
+	@cd source && make && cd ..
+
 .PHONY: build

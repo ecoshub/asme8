@@ -18,6 +18,8 @@ const (
 	INST_JZ   string = "jz"
 	INST_JNZ  string = "jnz"
 	INST_JC   string = "jc"
+	INST_JS   string = "js"
+	INST_JNS  string = "jns"
 	INST_CLC  string = "clc"
 	INST_PUSH string = "push"
 	INST_POP  string = "pop"
@@ -112,6 +114,14 @@ var (
 		INST_JMP: {
 			// jmp 0x5500
 			ADDRESSING_MODE_IMPL_INM_16: 0x10,
+		},
+		INST_JS: {
+			// js 0x6000
+			ADDRESSING_MODE_IMPL_INM_16: 0x13,
+		},
+		INST_JNS: {
+			// jns 0x6000
+			ADDRESSING_MODE_IMPL_INM_16: 0x14,
 		},
 		INST_JZ: {
 			// jz 0x6000

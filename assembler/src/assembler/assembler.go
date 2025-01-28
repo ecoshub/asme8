@@ -76,14 +76,15 @@ func New(mode ASM_MODE) *Assembler {
 }
 
 func (a *Assembler) Assemble() ([]uint8, error) {
-	out := a.assemble()
-	err := a.errorListener.GetError()
-	if err != nil {
-		return nil, err
-	}
+
 	switch a.mode {
 	case ASM_MODE_ELF:
 		a.RestoreMissingSymbols()
+		out := a.assemble()
+		err := a.errorListener.GetError()
+		if err != nil {
+			return nil, err
+		}
 		a.symbolTracker.AttachBin(out)
 		a.symbolTracker.AttachCode(a.CodeString())
 		elf := object.ELF{
@@ -95,6 +96,11 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 		errs := a.RestoreMissingSymbols()
 		if len(errs) > 0 {
 			return nil, error_listener.WrapErrors(errs...)
+		}
+		out := a.assemble()
+		err := a.errorListener.GetError()
+		if err != nil {
+			return nil, err
 		}
 		return out, nil
 	}
@@ -267,6 +273,14 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 		return
 	}
 
+	number := strings.TrimPrefix(text, "[")
+	number = strings.TrimSuffix(number, "]")
+	val, ok := types.ParseValue(number)
+	if ok {
+		a.currentValue = val
+		return
+	}
+
 	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+2] = a.currentTag
@@ -427,7 +441,7 @@ func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16, requiredSize uint
 	a.currentTag.Size = int8(requiredSize)
 	a.missingSymbols[a.offset+offsetPlus] = a.currentTag
 	a.currentValue = types.NewValue(0)
-	// fmt.Printf("?? symbol not found. symbol:>%s<, offset: %d\n", a.currentTag, a.offset)
+	// fmt.Printf("?? symbol not found. symbol:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 }
 
 func (a *Assembler) RestoreMissingSymbols() []error {

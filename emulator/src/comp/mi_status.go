@@ -20,7 +20,13 @@ func mInstStatusControl(c *Comp, mi uint64) {
 		not = true
 	case instruction.INST_JC_INM:
 		statusMask = status.STATUS_FLAG_CARRY
+	case instruction.INST_JS_INM:
+		statusMask = status.STATUS_FLAG_SIGN
+	case instruction.INST_JNS_INM:
+		statusMask = status.STATUS_FLAG_SIGN
+		not = true
 	}
+
 	if c.status.IsSet(statusMask) == !not {
 		mInstStepInc(c, mi)
 		return

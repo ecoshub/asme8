@@ -31,4 +31,4 @@ char_wait:
 
 char_read:
     mov a, [ADDR_GET_CHAR]     ; read from char addr
-    rts
+    ret

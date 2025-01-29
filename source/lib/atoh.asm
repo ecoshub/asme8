@@ -42,16 +42,16 @@ start:
 
 process_lower:
     sub a, 0x57
-    rts
+    ret
 
 process_upper:
     sub a, 0x37
-    rts
+    ret
 
 process_number:
     sub a, 0x30
-    rts
+    ret
 
 not_valid:
     mov a, 0
-    rts
+    ret

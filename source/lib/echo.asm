@@ -31,10 +31,10 @@ CHAR_SPACE=' '
 ECHO:
     xor b, b                        ; clear input index
 start:
-    jsr __GET_CHAR__                ; read from stdin
+    call __GET_CHAR__                ; read from stdin
     cmp a, CHAR_DEL                 ; check if char is 'del'
     jz key_del                      ; jump to key_del label if char 'del'
-    jsr __PUT_CHAR__                ; print char to screen
+    call __PUT_CHAR__                ; print char to screen
     inc b                           ; increment input index
     jmp start                       ; start over
 
@@ -43,5 +43,5 @@ key_del:
     jz start                        ; if not jump to wait
     dec b                           ; dec cursor index by 1
     mov a, CHAR_SPACE               ; store space char in to a
-    jsr __PUT_CHAR__                ; print space char to screen
+    call __PUT_CHAR__                ; print space char to screen
     jmp start                       ; start over

@@ -36,7 +36,7 @@ func asme8ParserInit() {
 		"", "'\\t'", "'    '", "'  '", "' '", "'\\n'", "':'", "', '", "'mov'",
 		"'add'", "'adc'", "'sub'", "'sbb'", "'cmp'", "'inc'", "'dec'", "'xor'",
 		"'and'", "'or'", "'not'", "'shl'", "'shr'", "'rol'", "'ror'", "'jmp'",
-		"'jz'", "'jnz'", "'jc'", "'js'", "'jns'", "'jsr'", "'rts'", "'brk'",
+		"'jz'", "'jnz'", "'jc'", "'js'", "'jns'", "'call'", "'ret'", "'brk'",
 		"'nop'", "'push'", "'pop'", "'clc'", "'a'", "'b'", "'c'", "'d'", "'sp'",
 		"'['", "']'", "'+'", "'-'", "'='", "'.byte '", "'.word '", "'.resb '",
 		"'.org '", "'.segment '", "'\"'", "'global '", "'extern '",

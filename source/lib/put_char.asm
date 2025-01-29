@@ -19,4 +19,4 @@
 
 __PUT_CHAR__:
     mov [ADDR_PUT_CHAR+b], a
-    rts
+    ret

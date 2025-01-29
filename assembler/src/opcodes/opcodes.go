@@ -33,8 +33,8 @@ const (
 	INST_POP  string = "pop"
 	INST_INC  string = "inc"
 	INST_DEC  string = "dec"
-	INST_JSR  string = "jsr"
-	INST_RTS  string = "rts"
+	INST_CALL string = "call"
+	INST_RET  string = "ret"
 	INST_NOP  string = "nop"
 
 	ADDRESSING_MODE_NONE uint8 = iota
@@ -219,12 +219,12 @@ var (
 			// pop a
 			ADDRESSING_MODE_IMPL_REG: 0xf2,
 		},
-		INST_JSR: {
-			// jsr
+		INST_CALL: {
+			// call
 			ADDRESSING_MODE_IMPL_IMM_16: 0xf3,
 		},
-		INST_RTS: {
-			// rts
+		INST_RET: {
+			// ret
 			ADDRESSING_MODE_IMPL: 0xf4,
 		},
 		INST_CLC: {

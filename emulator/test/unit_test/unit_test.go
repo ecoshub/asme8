@@ -637,23 +637,23 @@ var (
 			},
 		},
 		{
-			Name: "jsr and rts",
+			Name: "call and ret",
 			// start:
-			//     jsr hello
+			//     call hello
 			//     mov a, 0x10
 			//     brk
 			// hello:
 			//     mov a, 0x20
 			//     mov b, 0x20
-			//     rts
+			//     ret
 			//     brk
 			Program: []uint8{
-				instruction.INST_JSR, 0x07, 0x00,
+				instruction.INST_CALL, 0x07, 0x00,
 				instruction.INST_MOV_IMM, register.IndexRegA, 0x10,
 				instruction.INST_BRK,
 				instruction.INST_MOV_IMM, register.IndexRegA, 0x20,
 				instruction.INST_MOV_IMM, register.IndexRegB, 0x20,
-				instruction.INST_RTS,
+				instruction.INST_RET,
 				instruction.INST_BRK,
 			},
 			Expect: &test.Expect{

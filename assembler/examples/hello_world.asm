@@ -6,13 +6,13 @@ loop:
     mov a, [message+b]
     cmp a, 0
     jz done
-    jsr print_char
+    call print_char
     inc b
     jmp loop
 
 print_char:
     mov [ADDR_PUT_CHAR+b], a
-    rts
+    ret
 
 done:
     brk

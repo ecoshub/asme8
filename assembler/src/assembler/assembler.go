@@ -79,7 +79,6 @@ func New(mode ASM_MODE) *Assembler {
 }
 
 func (a *Assembler) Assemble() ([]uint8, error) {
-
 	switch a.mode {
 	case ASM_MODE_ELF:
 		a.RestoreMissingSymbols()
@@ -506,11 +505,25 @@ func (a *Assembler) ParseInstruction(text string) {
 	a.currentInstruction = strings.ToLower(text)
 }
 
+func (a *Assembler) ParsePtrImm(text string, line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_PTR_IMM, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
+}
+
 func (a *Assembler) ParseValue(text string, line, column int) {
 	var ok bool
-	a.currentValue, ok = types.ParseValue(text)
+
+	val, ok := types.ParseValue(text)
 	if !ok {
 		a.missingSymbols[a.offset] = &types.Tag{Text: text, Line: line, Column: column, Size: 0}
+	} else {
+		if a.currentValue != nil {
+			a.currentValueList = append(a.currentValueList, a.currentValue)
+		}
+		a.currentValue = val
 	}
 }
 

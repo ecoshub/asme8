@@ -26,6 +26,7 @@ inst:
 	| inst_index_imm
 	| inst_reg_imm_variable
 	| inst_ptr_reg
+	| inst_ptr_imm
 	| inst_reg_ptr
 	| inst_reg_ptr_offset
 	| inst_indirect_reg_stack
@@ -52,6 +53,8 @@ inst_index_imm: mnemonic ' ' index  ', ' imm;
 inst_reg_imm_variable: mnemonic ' ' reg  ', ' tag;
 
 inst_ptr_reg: mnemonic ' ' ptr ', ' reg;
+
+inst_ptr_imm: mnemonic ' ' ptr ', ' imm;
 
 inst_reg_ptr: mnemonic ' ' reg ', ' ptr;
 

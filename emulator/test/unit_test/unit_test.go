@@ -1440,6 +1440,53 @@ var (
 				},
 			},
 		},
+		{
+			Name: "add ptr imm",
+			// mov a, 4
+			// mov [0x8000], a
+			// add [0x8000], 5
+			// mov b, [0x8000]
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x4,
+				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
+				instruction.INST_ADD_PTR_IMM, 0x5, 0x00, 0x80,
+				instruction.INST_MOV_MEM_REG, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x8000, Data: 0x9},
+				},
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x4},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x9},
+				},
+			},
+		},
+		{
+			Name: "adc ptr imm",
+			// mov a, 0xff
+			// mov [0x8000], a
+			// add [0x8000], 5
+			// adc [0x8001], 0
+			// mov b, [0x8000]
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
+				instruction.INST_ADD_PTR_IMM, 0x5, 0x00, 0x80,
+				instruction.INST_ADC_PTR_IMM, 0x0, 0x01, 0x80,
+				instruction.INST_MOV_MEM_REG, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x8000, Data: 0x04},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x8001, Data: 0x01},
+				},
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0xff},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x4},
+				},
+			},
+		},
 	}
 )
 

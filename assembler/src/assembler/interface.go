@@ -6,6 +6,13 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
+func (a *Assembler) ExitInst_ptr_imm(c *parser.Inst_ptr_immContext) {
+	text := c.GetText()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParsePtrImm(text, line, column)
+}
+
 func (a *Assembler) ExitSegment(c *parser.SegmentContext) {
 	text := c.GetText()
 	a.ParseSegment(text)
@@ -212,6 +219,8 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterInst_ptr_imm(c *parser.Inst_ptr_immContext) {}
 
 func (a *Assembler) EnterIndex(c *parser.IndexContext) {}
 

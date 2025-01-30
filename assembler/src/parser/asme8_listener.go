@@ -41,6 +41,9 @@ type AsmE8Listener interface {
 	// EnterInst_ptr_reg is called when entering the inst_ptr_reg production.
 	EnterInst_ptr_reg(c *Inst_ptr_regContext)
 
+	// EnterInst_ptr_imm is called when entering the inst_ptr_imm production.
+	EnterInst_ptr_imm(c *Inst_ptr_immContext)
+
 	// EnterInst_reg_ptr is called when entering the inst_reg_ptr production.
 	EnterInst_reg_ptr(c *Inst_reg_ptrContext)
 
@@ -160,6 +163,9 @@ type AsmE8Listener interface {
 
 	// ExitInst_ptr_reg is called when exiting the inst_ptr_reg production.
 	ExitInst_ptr_reg(c *Inst_ptr_regContext)
+
+	// ExitInst_ptr_imm is called when exiting the inst_ptr_imm production.
+	ExitInst_ptr_imm(c *Inst_ptr_immContext)
 
 	// ExitInst_reg_ptr is called when exiting the inst_reg_ptr production.
 	ExitInst_reg_ptr(c *Inst_reg_ptrContext)

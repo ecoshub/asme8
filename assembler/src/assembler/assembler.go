@@ -150,6 +150,12 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 	a.offset++
 }
 
+func (a *Assembler) ParseIndexImmediate(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+}
+
 func (a *Assembler) ParseStackImmediate(line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_IMM, line, column)
 	a.AppendMachineCode(opcode)
@@ -217,6 +223,11 @@ func (a *Assembler) ParseImpliedStack(line, column int) {
 	a.AppendMachineCode(opcode)
 }
 
+func (a *Assembler) ParseImpliedIndex(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL_IP, line, column)
+	a.AppendMachineCode(opcode)
+}
+
 func (a *Assembler) ParseStackRegister(rm bool, line, column int) {
 	if len(a.currentRegisters) == 2 {
 		if a.currentValue == nil {
@@ -258,6 +269,52 @@ func (a *Assembler) ParseStackRegister(rm bool, line, column int) {
 	}
 	// mov [sp+b], a
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_REG_OFFSET_REG, line, column)
+	a.AppendMachineCode(opcode)
+	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	a.AppendMachineCode(val)
+}
+
+func (a *Assembler) ParseIndexRegister(rm bool, line, column int) {
+	if len(a.currentRegisters) == 2 {
+		if a.currentValue == nil {
+			if rm {
+				// mov [sp], a
+				opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP, line, column)
+				a.AppendMachineCode(opcode)
+				a.AppendMachineCode(a.currentRegisters[1].GetCode())
+				return
+			}
+			// mov a, [sp]
+			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG, line, column)
+			a.AppendMachineCode(opcode)
+			a.AppendMachineCode(a.currentRegisters[0].GetCode())
+			return
+		}
+		if rm {
+			// mov a, [sp+4]
+			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP_OFFSET, line, column)
+			a.AppendMachineCode(opcode)
+			a.AppendMachineCode(a.currentRegisters[1].GetCode())
+			a.AppendMachineCode(a.currentValue.GetLowByte())
+			return
+		}
+		// mov [sp+4], a
+		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG_OFFSET, line, column)
+		a.AppendMachineCode(opcode)
+		a.AppendMachineCode(a.currentRegisters[0].GetCode())
+		a.AppendMachineCode(a.currentValue.GetLowByte())
+		return
+	}
+	if rm {
+		// mov a, [sp+b]
+		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP_OFFSET_REG, line, column)
+		a.AppendMachineCode(opcode)
+		var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[2].GetCode() << 4)
+		a.AppendMachineCode(val)
+		return
+	}
+	// mov [sp+b], a
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG_OFFSET_REG, line, column)
 	a.AppendMachineCode(opcode)
 	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[0].GetCode() << 4)
 	a.AppendMachineCode(val)
@@ -350,7 +407,7 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 func (a *Assembler) GetOrFailOpCode(inst string, mode uint8, line, column int) uint8 {
 	opcode, ok := instruction.GetOpCode(inst, mode)
 	if !ok {
-		msg := fmt.Sprintf("opcode not found fot this instruction and addressing mode. inst: '%02x', mode: %02x", a.currentInstruction, mode)
+		msg := fmt.Sprintf("opcode not found for this instruction and addressing mode. inst: '%s', mode: %02x", a.currentInstruction, mode)
 		if a.errorListener == nil {
 			panic(msg)
 		} else {

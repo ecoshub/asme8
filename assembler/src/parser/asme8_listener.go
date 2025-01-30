@@ -32,6 +32,9 @@ type AsmE8Listener interface {
 	// EnterInst_stack_imm is called when entering the inst_stack_imm production.
 	EnterInst_stack_imm(c *Inst_stack_immContext)
 
+	// EnterInst_index_imm is called when entering the inst_index_imm production.
+	EnterInst_index_imm(c *Inst_index_immContext)
+
 	// EnterInst_reg_imm_variable is called when entering the inst_reg_imm_variable production.
 	EnterInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
 
@@ -50,6 +53,12 @@ type AsmE8Listener interface {
 	// EnterInst_indirect_stack_register is called when entering the inst_indirect_stack_register production.
 	EnterInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
 
+	// EnterInst_indirect_reg_index is called when entering the inst_indirect_reg_index production.
+	EnterInst_indirect_reg_index(c *Inst_indirect_reg_indexContext)
+
+	// EnterInst_indirect_index_register is called when entering the inst_indirect_index_register production.
+	EnterInst_indirect_index_register(c *Inst_indirect_index_registerContext)
+
 	// EnterInst_ptr_offset_reg is called when entering the inst_ptr_offset_reg production.
 	EnterInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
 
@@ -58,6 +67,9 @@ type AsmE8Listener interface {
 
 	// EnterInst_implied_stack is called when entering the inst_implied_stack production.
 	EnterInst_implied_stack(c *Inst_implied_stackContext)
+
+	// EnterInst_implied_index is called when entering the inst_implied_index production.
+	EnterInst_implied_index(c *Inst_implied_indexContext)
 
 	// EnterInst_single_imm is called when entering the inst_single_imm production.
 	EnterInst_single_imm(c *Inst_single_immContext)
@@ -77,6 +89,9 @@ type AsmE8Listener interface {
 	// EnterStack is called when entering the stack production.
 	EnterStack(c *StackContext)
 
+	// EnterIndex is called when entering the index production.
+	EnterIndex(c *IndexContext)
+
 	// EnterPtr is called when entering the ptr production.
 	EnterPtr(c *PtrContext)
 
@@ -88,6 +103,9 @@ type AsmE8Listener interface {
 
 	// EnterStack_offset is called when entering the stack_offset production.
 	EnterStack_offset(c *Stack_offsetContext)
+
+	// EnterIndex_offset is called when entering the index_offset production.
+	EnterIndex_offset(c *Index_offsetContext)
 
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
@@ -134,6 +152,9 @@ type AsmE8Listener interface {
 	// ExitInst_stack_imm is called when exiting the inst_stack_imm production.
 	ExitInst_stack_imm(c *Inst_stack_immContext)
 
+	// ExitInst_index_imm is called when exiting the inst_index_imm production.
+	ExitInst_index_imm(c *Inst_index_immContext)
+
 	// ExitInst_reg_imm_variable is called when exiting the inst_reg_imm_variable production.
 	ExitInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
 
@@ -152,6 +173,12 @@ type AsmE8Listener interface {
 	// ExitInst_indirect_stack_register is called when exiting the inst_indirect_stack_register production.
 	ExitInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
 
+	// ExitInst_indirect_reg_index is called when exiting the inst_indirect_reg_index production.
+	ExitInst_indirect_reg_index(c *Inst_indirect_reg_indexContext)
+
+	// ExitInst_indirect_index_register is called when exiting the inst_indirect_index_register production.
+	ExitInst_indirect_index_register(c *Inst_indirect_index_registerContext)
+
 	// ExitInst_ptr_offset_reg is called when exiting the inst_ptr_offset_reg production.
 	ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
 
@@ -160,6 +187,9 @@ type AsmE8Listener interface {
 
 	// ExitInst_implied_stack is called when exiting the inst_implied_stack production.
 	ExitInst_implied_stack(c *Inst_implied_stackContext)
+
+	// ExitInst_implied_index is called when exiting the inst_implied_index production.
+	ExitInst_implied_index(c *Inst_implied_indexContext)
 
 	// ExitInst_single_imm is called when exiting the inst_single_imm production.
 	ExitInst_single_imm(c *Inst_single_immContext)
@@ -179,6 +209,9 @@ type AsmE8Listener interface {
 	// ExitStack is called when exiting the stack production.
 	ExitStack(c *StackContext)
 
+	// ExitIndex is called when exiting the index production.
+	ExitIndex(c *IndexContext)
+
 	// ExitPtr is called when exiting the ptr production.
 	ExitPtr(c *PtrContext)
 
@@ -190,6 +223,9 @@ type AsmE8Listener interface {
 
 	// ExitStack_offset is called when exiting the stack_offset production.
 	ExitStack_offset(c *Stack_offsetContext)
+
+	// ExitIndex_offset is called when exiting the index_offset production.
+	ExitIndex_offset(c *Index_offsetContext)
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)

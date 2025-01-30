@@ -37,6 +37,37 @@ func (a *Assembler) ExitImm_list(c *parser.Imm_listContext) {
 	a.ParseValueList(text, line, column)
 }
 
+func (a *Assembler) ExitIndex(c *parser.IndexContext) {
+	text := c.GetText()
+	a.ParseRegister(text)
+}
+
+func (a *Assembler) ExitIndex_offset(c *parser.Index_offsetContext) {}
+
+func (a *Assembler) ExitInst_implied_index(c *parser.Inst_implied_indexContext) {
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedIndex(line, column)
+}
+
+func (a *Assembler) ExitInst_index_imm(c *parser.Inst_index_immContext) {
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseIndexImmediate(line, column)
+}
+
+func (a *Assembler) ExitInst_indirect_index_register(c *parser.Inst_indirect_index_registerContext) {
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseIndexRegister(true, line, column)
+}
+
+func (a *Assembler) ExitInst_indirect_reg_index(c *parser.Inst_indirect_reg_indexContext) {
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseIndexRegister(false, line, column)
+}
+
 func (a *Assembler) ExitInst_implied_stack(c *parser.Inst_implied_stackContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
@@ -181,6 +212,19 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterIndex(c *parser.IndexContext) {}
+
+func (a *Assembler) EnterIndex_offset(c *parser.Index_offsetContext) {}
+
+func (a *Assembler) EnterInst_implied_index(c *parser.Inst_implied_indexContext) {}
+
+func (a *Assembler) EnterInst_index_imm(c *parser.Inst_index_immContext) {}
+
+func (a *Assembler) EnterInst_indirect_index_register(c *parser.Inst_indirect_index_registerContext) {
+}
+
+func (a *Assembler) EnterInst_indirect_reg_index(c *parser.Inst_indirect_reg_indexContext) {}
 
 func (a *Assembler) EnterInst_indirect_reg_stack(c *parser.Inst_indirect_reg_stackContext) {}
 

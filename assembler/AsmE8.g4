@@ -23,18 +23,22 @@ inst:
 	inst_reg_reg
 	| inst_reg_imm
 	| inst_stack_imm
+	| inst_index_imm
 	| inst_reg_imm_variable
-	| inst_single_reg
-	| inst_implied_stack
-	| inst_single_imm
-	| inst_single_tag 
-	| inst_single
 	| inst_ptr_reg
-    | inst_reg_ptr
+	| inst_reg_ptr
 	| inst_reg_ptr_offset
-	| inst_ptr_offset_reg
 	| inst_indirect_reg_stack
 	| inst_indirect_stack_register
+	| inst_indirect_reg_index
+	| inst_indirect_index_register
+	| inst_ptr_offset_reg
+	| inst_single_reg
+	| inst_implied_stack
+	| inst_implied_index
+	| inst_single_imm
+	| inst_single_tag
+	| inst_single
     ;
 
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
@@ -42,6 +46,8 @@ inst_reg_reg: mnemonic ' ' reg  ', ' reg;
 inst_reg_imm: mnemonic ' ' reg  ', ' imm;
 
 inst_stack_imm: mnemonic ' ' stack  ', ' imm;
+
+inst_index_imm: mnemonic ' ' index  ', ' imm;
 
 inst_reg_imm_variable: mnemonic ' ' reg  ', ' tag;
 
@@ -55,11 +61,17 @@ inst_indirect_reg_stack: mnemonic ' ' reg ', ' stack_offset;
 
 inst_indirect_stack_register: mnemonic ' ' stack_offset ', ' reg;
 
+inst_indirect_reg_index: mnemonic ' ' reg ', ' index_offset;
+
+inst_indirect_index_register: mnemonic ' ' index_offset ', ' reg;
+
 inst_ptr_offset_reg: mnemonic ' ' ptr_offset ', ' reg;
 
 inst_single_reg: mnemonic ' ' reg;
 
 inst_implied_stack: mnemonic ' ' stack;
+
+inst_implied_index: mnemonic ' ' index;
 
 inst_single_imm: mnemonic ' ' imm;
 
@@ -104,9 +116,13 @@ reg:
 	| 'b' 
 	| 'c'
 	| 'd'
+	| 'ipl'
+	| 'iph'
 	;
 
 stack: 'sp';
+
+index: 'ip';
 
 ptr: 
 	'[' imm ']'
@@ -124,6 +140,11 @@ ptr_offset:
 stack_offset: '[' stack ']'
 	| '[' stack '+' imm ']'
 	| '[' stack '+' reg ']'
+	;
+
+index_offset: '[' index ']'
+	| '[' index '+' imm ']'
+	| '[' index '+' reg ']'
 	;
 
 variable: tag  '=' imm;

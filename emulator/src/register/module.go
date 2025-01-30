@@ -2,26 +2,28 @@ package register
 
 import "fmt"
 
-const (
-	IndexRegA  uint8 = 0
-	IndexRegB  uint8 = 1
-	IndexRegC  uint8 = 2
-	IndexRegD  uint8 = 3
-	IndexRegSP uint8 = 4
-)
+type Module []uint8
 
-type Module []byte
-
-func NewModule() Module {
-	return make([]byte, 4)
+func NewModule(size int) Module {
+	return make([]uint8, size)
 }
 
-func (m Module) Read(index uint8) byte {
+func (m Module) Read_8(index uint8) uint8 {
 	return m[index]
 }
 
-func (m Module) Write(index uint8, val byte) {
+func (m Module) Read_16(index uint8) uint16 {
+	return uint16(m[index])
+}
+
+func (m Module) Write(index uint8, val uint8) {
 	m[index] = val
+}
+
+func (m Module) Clear() {
+	for i := range m {
+		m[i] = 0
+	}
 }
 
 func (m Module) String() string {

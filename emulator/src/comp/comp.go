@@ -32,7 +32,6 @@ type Comp struct {
 	programCounter        uint16
 	memoryAddressRegister uint16
 	stackPointer          uint16
-	indexPointer          uint16
 	memoryDataRegister    uint8
 
 	aluOut       bool
@@ -61,7 +60,7 @@ type Comp struct {
 func New(rom *rom.Rom) *Comp {
 	c := &Comp{
 		rom:           rom,
-		registers:     register.NewModule(),
+		registers:     register.NewModule(6),
 		status:        status.NewStatusRegister(),
 		stackPointer:  StackStart,
 		aluBus:        bus.New(),
@@ -108,7 +107,7 @@ func (c *Comp) PrintBusses() {
 }
 
 func (c *Comp) ReadRegister(index uint8) uint8 {
-	return c.registers.Read(index)
+	return c.registers.Read_8(index)
 }
 
 func (c *Comp) GetStatusRegister() uint8 {
@@ -212,10 +211,7 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 		}
 		dev.Clear()
 	}
-	c.registers.Write(register.IndexRegA, 0)
-	c.registers.Write(register.IndexRegB, 0)
-	c.registers.Write(register.IndexRegC, 0)
-	c.registers.Write(register.IndexRegD, 0)
+	c.registers.Clear()
 	c.status.Clear()
 	c.step = 0
 	c.instructionRegister = 0

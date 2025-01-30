@@ -18,7 +18,7 @@ func ParseRegister(text string) *Register {
 	identifier := strings.ToLower(text)
 	return &Register{
 		identifier: identifier,
-		code:       instruction.REGISTER_OPCODE[identifier],
+		code:       instruction.REGISTER_SYMBOL_TO_OPCODE[identifier],
 	}
 }
 

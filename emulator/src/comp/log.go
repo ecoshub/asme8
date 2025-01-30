@@ -1,7 +1,7 @@
 package comp
 
 import (
-	"asme8/emulator/src/instruction"
+	"asme8/common/instruction"
 	"asme8/emulator/utils"
 	"fmt"
 	"strings"
@@ -96,7 +96,7 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(2, DefaultStyle6, "%s", c.status)
 	c.LogfFlagIndexWithStyle(3, DefaultStyle7, "A  B  C  D")
 	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "%s", c.registers)
-	c.LogfFlagIndexWithStyle(5, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_MNEMONICS[c.instructionRegister])
+	c.LogfFlagIndexWithStyle(5, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_HUMAN_READABLE[c.instructionRegister])
 	c.LogfFlagIndexWithStyle(6, DefaultStyle1, "STEP  : %d/%d", visualStep, stepLen)
 	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "PC    : %04x", c.programCounter)
 	c.LogfFlagIndexWithStyle(8, DefaultStyle1, "SP    : %04x", c.stackPointer)

@@ -1,7 +1,7 @@
 package comp
 
 import (
-	"asme8/emulator/src/instruction"
+	"asme8/common/instruction"
 )
 
 func mInstInstructionRegisterIn(c *Comp, _ uint64) {

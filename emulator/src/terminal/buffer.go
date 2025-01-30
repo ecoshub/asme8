@@ -7,8 +7,7 @@ type ScreenBuffer struct {
 	buffer []rune
 }
 
-func NewScreenBuffer() *ScreenBuffer {
-	size := SCREEN_WIDTH * SCREEN_HEIGHT
+func NewScreenBuffer(size int) *ScreenBuffer {
 	return &ScreenBuffer{
 		width:  SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,

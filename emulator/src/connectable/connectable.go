@@ -1,6 +1,8 @@
 package connectable
 
-import "asme8/emulator/src/bus"
+import (
+	"asme8/emulator/src/bus"
+)
 
 type Connectable interface {
 	GetName() string
@@ -12,7 +14,10 @@ type Connectable interface {
 }
 
 func IsMyRange(from, size, addr uint16) bool {
-	if addr < from || addr > from+size-1 {
+	if addr < from {
+		return false
+	}
+	if addr > from+size-1 {
 		return false
 	}
 	return true

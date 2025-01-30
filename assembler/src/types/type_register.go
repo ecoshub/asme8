@@ -1,7 +1,7 @@
 package types
 
 import (
-	"asme8/assembler/src/opcodes"
+	"asme8/common/instruction"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ func ParseRegister(text string) *Register {
 	identifier := strings.ToLower(text)
 	return &Register{
 		identifier: identifier,
-		code:       opcodes.REGISTER_OPCODE[identifier],
+		code:       instruction.REGISTER_OPCODE[identifier],
 	}
 }
 

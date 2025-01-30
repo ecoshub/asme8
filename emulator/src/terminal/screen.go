@@ -18,10 +18,10 @@ type Screen struct {
 	components *Components
 }
 
-func NewScreen(components *Components) (*Screen, error) {
+func NewScreen(components *Components, size int) (*Screen, error) {
 	return &Screen{
 		name:       "SCREEN",
-		buffer:     NewScreenBuffer(),
+		buffer:     NewScreenBuffer(size),
 		components: components,
 	}, nil
 }
@@ -31,7 +31,7 @@ func (s *Screen) GetName() string {
 }
 
 func (s *Screen) GetRange() (uint16, uint16) {
-	return s.addrStart, s.addrSize
+	return s.addrStart, s.addrStart + s.addrSize
 }
 
 // Attach implements connectable.Connectable.

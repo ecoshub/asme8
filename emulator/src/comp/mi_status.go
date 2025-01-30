@@ -1,7 +1,7 @@
 package comp
 
 import (
-	"asme8/emulator/src/instruction"
+	"asme8/common/instruction"
 	"asme8/emulator/src/status"
 )
 

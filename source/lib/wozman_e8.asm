@@ -7,15 +7,14 @@
     global WOZMAN
 
 CHAR_DEL=0x7f
-CHAR_SPACE=' '
 
 WOZMAN:
     xor b, b                        ; b in index
 start:
-    call __GET_CHAR__                ; read from stdin
+    call __GET_CHAR__               ; read from stdin
     cmp a, CHAR_DEL                 ; check if char is 'del'
     jz key_del                      ; jump to key_del label if char 'del'
-    call __PUT_CHAR__                ; print char to screen
+    call __PUT_CHAR__               ; print char to screen
     mov [__RAM_START__+b], a        ; write char to input buffer 
     cmp b, 0x10                     ; if its hit the 16 bytes
     jz clear_index                  ; clear index and start over
@@ -41,8 +40,8 @@ key_del:
     jz rotate_index                 ; if not jump to wait
 continue_delete:
     dec b                           ; dec cursor index by 1
-    mov a, CHAR_SPACE               ; store space char in to a
-    call __PUT_CHAR__                ; print space char to screen
+    mov a, 0                        ; store space char in to a
+    call __PUT_CHAR__               ; print space char to screen
     mov [__RAM_START__+b], a        ; write char to input buffer 
     jmp start                       ; start over
 

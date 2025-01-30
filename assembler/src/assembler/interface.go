@@ -38,7 +38,9 @@ func (a *Assembler) ExitImm_list(c *parser.Imm_listContext) {
 }
 
 func (a *Assembler) ExitInst_implied_stack(c *parser.Inst_implied_stackContext) {
-	a.ParseImpliedStack()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedStack(line, column)
 }
 
 func (a *Assembler) ExitStack(c *parser.StackContext) {
@@ -47,61 +49,89 @@ func (a *Assembler) ExitStack(c *parser.StackContext) {
 }
 
 func (a *Assembler) ExitInst_ptr_offset_reg(c *parser.Inst_ptr_offset_regContext) {
-	a.ParsePointerRegisterOffset()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParsePointerRegisterOffset(line, column)
 }
 
 func (a *Assembler) ExitInst_ptr_reg(c *parser.Inst_ptr_regContext) {
-	a.ParsePointerRegister()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParsePointerRegister(line, column)
 }
 
 func (a *Assembler) ExitInst_reg_imm(c *parser.Inst_reg_immContext) {
-	a.ParseRegisterImmediate()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseRegisterImmediate(line, column)
 }
 
 func (a *Assembler) ExitInst_stack_imm(c *parser.Inst_stack_immContext) {
-	a.ParseStackImmediate()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseStackImmediate(line, column)
 }
 
 func (a *Assembler) ExitInst_reg_imm_variable(c *parser.Inst_reg_imm_variableContext) {
-	a.ParseRegisterImmediateVariable()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseRegisterImmediateVariable(line, column)
 }
 
 func (a *Assembler) ExitInst_reg_ptr(c *parser.Inst_reg_ptrContext) {
-	a.ParseRegisterPointer()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseRegisterPointer(line, column)
 }
 
 func (a *Assembler) ExitInst_reg_ptr_offset(c *parser.Inst_reg_ptr_offsetContext) {
-	a.ParseRegisterPointerOffset()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseRegisterPointerOffset(line, column)
 }
 
 func (a *Assembler) ExitInst_indirect_reg_stack(c *parser.Inst_indirect_reg_stackContext) {
-	a.ParseStackRegister(false)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseStackRegister(false, line, column)
 }
 
 func (a *Assembler) ExitInst_indirect_stack_register(c *parser.Inst_indirect_stack_registerContext) {
-	a.ParseStackRegister(true)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseStackRegister(true, line, column)
 }
 
 func (a *Assembler) ExitStack_offset(c *parser.Stack_offsetContext) {}
 
 func (a *Assembler) ExitInst_reg_reg(c *parser.Inst_reg_regContext) {
-	a.ParseRegisterRegister()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseRegisterRegister(line, column)
 }
 
 func (a *Assembler) ExitInst_single(c *parser.Inst_singleContext) {
-	a.ParseImplied()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImplied(line, column)
 }
 
 func (a *Assembler) ExitInst_single_imm(c *parser.Inst_single_immContext) {
-	a.ParseImpliedImmediate()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedImmediate(line, column)
 }
 
 func (a *Assembler) ExitInst_single_reg(c *parser.Inst_single_regContext) {
-	a.ParseImpliedRegister()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedRegister(line, column)
 }
 
 func (a *Assembler) ExitInst_single_tag(c *parser.Inst_single_tagContext) {
-	a.ParseImpliedTag()
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedTag(line, column)
 }
 
 func (a *Assembler) ExitLabel(c *parser.LabelContext) {

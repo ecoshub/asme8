@@ -50,7 +50,7 @@ func EmulatorMode(program []byte) {
 	// create new raw
 	ram := ram.New(0xd7ee)
 
-	term, err := terminal.New()
+	term, err := terminal.New(0x0800)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -11,7 +11,7 @@ type Terminal struct {
 	running    bool
 }
 
-func New() (*Terminal, error) {
+func New(sizeBufferSize int) (*Terminal, error) {
 	components, err := NewSetup()
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func New() (*Terminal, error) {
 			components.SysLogPanel.Push("<< Keyboard input directed to command pallet ( use CTRL + D to switch)")
 		}
 	})
-	s, err := NewScreen(components)
+	s, err := NewScreen(components, sizeBufferSize)
 	if err != nil {
 		return nil, err
 	}

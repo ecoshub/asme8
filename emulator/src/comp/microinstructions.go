@@ -18,6 +18,12 @@ const (
 	MI_SP_H_IN
 	MI_SP_INC
 	MI_SP_DEC
+	MI_IP_IN_ADDR
+	MI_IP_OUT_ADDR
+	MI_IP_L_OUT
+	MI_IP_H_OUT
+	MI_IP_L_IN
+	MI_IP_H_IN
 	MI_MAR_OUT_ADDR
 	MI_MAR_IN_ADDR
 	MI_MAR_L_IN
@@ -133,6 +139,12 @@ var (
 		MI_SP_H_OUT:         mInstStackPointerHighOut,
 		MI_SP_L_IN:          mInstStackPointerLowIn,
 		MI_SP_H_IN:          mInstStackPointerHighIn,
+		MI_IP_IN_ADDR:       mInstIndexPointerInAddr,
+		MI_IP_OUT_ADDR:      mInstIndexPointerOutAddr,
+		MI_IP_L_OUT:         mInstIndexPointerLowOut,
+		MI_IP_H_OUT:         mInstIndexPointerHighOut,
+		MI_IP_L_IN:          mInstIndexPointerLowIn,
+		MI_IP_H_IN:          mInstIndexPointerHighIn,
 		MI_SP_INC:           mInstStackPointerInc,
 		MI_SP_DEC:           mInstStackPointerDec,
 		MI_MAR_OUT_ADDR:     mInstMemoryAddressRegisterOutAddr,

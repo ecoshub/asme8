@@ -1,9 +1,9 @@
 package comp
 
 import (
+	"asme8/common/instruction"
 	"asme8/emulator/src/bus"
 	"asme8/emulator/src/connectable"
-	"asme8/emulator/src/instruction"
 	"asme8/emulator/src/register"
 	"asme8/emulator/src/rom"
 	"asme8/emulator/src/status"
@@ -32,6 +32,7 @@ type Comp struct {
 	programCounter        uint16
 	memoryAddressRegister uint16
 	stackPointer          uint16
+	indexPointer          uint16
 	memoryDataRegister    uint8
 
 	aluOut       bool

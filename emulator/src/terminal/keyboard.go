@@ -65,7 +65,7 @@ func (k *Keyboard) GetName() string {
 }
 
 func (k *Keyboard) GetRange() (uint16, uint16) {
-	return k.addrStart, k.addrSize
+	return k.addrStart, k.addrStart + k.addrSize
 }
 
 // Clear implements connectable.Connectable.

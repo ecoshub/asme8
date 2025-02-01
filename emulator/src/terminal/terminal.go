@@ -33,7 +33,6 @@ func New(sizeBufferSize int) (*Terminal, error) {
 		Screen:     s,
 		Components: components,
 	}, nil
-
 }
 
 func (t *Terminal) Run() {

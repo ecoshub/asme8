@@ -2,7 +2,6 @@ package unit_test
 
 import (
 	"asme8/common/instruction"
-	"asme8/emulator/src/comp"
 	"asme8/emulator/src/status"
 	"asme8/emulator/test"
 	"testing"
@@ -1095,8 +1094,8 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 1, Data: 0xee},
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 2, Data: 0xf6},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 1, Data: 0xfe},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 2, Data: 0x20},
 				},
 			},
 		},
@@ -1112,7 +1111,7 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 4, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff + 4, Data: 0x10},
 				},
 			},
 		},
@@ -1128,7 +1127,7 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 4, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 4, Data: 0x10},
 				},
 			},
 		},
@@ -1142,7 +1141,7 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff, Data: 0x10},
 				},
 			},
 		},
@@ -1173,7 +1172,7 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 2, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff + 2, Data: 0x10},
 				},
 			},
 		},
@@ -1206,7 +1205,7 @@ var (
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart + 2, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff + 2, Data: 0x10},
 				},
 			},
 		},
@@ -1244,8 +1243,8 @@ var (
 					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
 				},
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart, Data: 0x20},
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 1, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 1, Data: 0x10},
 				},
 			},
 		},
@@ -1271,24 +1270,47 @@ var (
 					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
 				},
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart, Data: 0x10},
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart - 1, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 1, Data: 0x20},
 				},
 			},
 		},
 		{
-			Name: "push pop ip",
-			// mov a, 0x20
-			// push a
+			Name: "push ip",
+			// mov ipl, 0x30
+			// mov iph, 0x20
 			// push ip
 			Program: []uint8{
-				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x20,
-				instruction.INST_PUSH_REG, instruction.REGISTER_OPCODE_A,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPL, 0x30,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPH, 0x20,
 				instruction.INST_PUSH_IP,
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: comp.StackStart, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff, Data: 0x30},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x20ff - 1, Data: 0x20},
+				},
+			},
+		},
+		{
+			Debug: true,
+			Name:  "push pop ip",
+			// mov ipl, 0x30
+			// mov iph, 0x20
+			// push ip
+			// mov ip, 0x4000
+			// pop ip
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPL, 0x30,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPH, 0x20,
+				instruction.INST_PUSH_IP,
+				instruction.INST_MOV_IP_IMM_16, 0x00, 0x40,
+				instruction.INST_POP_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x30},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
 				},
 			},
 		},

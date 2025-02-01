@@ -1,8 +1,18 @@
-START=3
-NEXT=START+1
-END=NEXT+2
-
-    mov a, END
-    mov b, NEXT
-    mov c, START
-
+ADDR=0x4000
+start:
+    mov a, 0x10
+    mov [ADDR], a
+    mov a, 0x11
+    mov [ADDR+1], a
+    mov a, 0x12
+    mov [ADDR+2], a
+    mov a, 0x13
+    mov [ADDR+3], a
+    mov ip, ADDR
+    mov a, [ip+b]
+    ; add ip, 1
+    ; mov b, [ip]
+    ; add ip, 1
+    ; mov c, [ip]
+    ; add ip, 1
+    ; mov d, [ip]

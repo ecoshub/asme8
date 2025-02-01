@@ -1,18 +1,17 @@
 package main
 
 import (
-	"asme8/linker/src/config"
+	"asme8/common/config"
 	"asme8/linker/src/core"
-	"asme8/linker/src/object"
 	"flag"
 	"fmt"
-	"log"
 )
 
 var (
-	flagConfigPath   = flag.String("config", "", "Path to the linker config file")
-	flagOutput       = flag.String("output", "a.bin", "output file name")
-	flagPrintSymbols = flag.Bool("print", false, "print all symbol tables")
+	flagMemoryConfigPath  = flag.String("memory-config", "", "Path to the memory config file")
+	flagSegmentConfigPath = flag.String("segment-config", "", "Path to the segment config file")
+	flagOutput            = flag.String("output", "a.bin", "output file name")
+	flagPrintSymbols      = flag.Bool("print", false, "print all symbol tables")
 )
 
 func main() {
@@ -22,25 +21,36 @@ func main() {
 	objectFilePaths := flag.Args()
 
 	// Check if config path is provided
-	if *flagConfigPath == "" {
-		fmt.Println("Config path is required")
+
+	if *flagMemoryConfigPath == "" {
+		fmt.Println("Memory config path required")
 		return
 	}
 
-	// Load config
-	conf := config.NewConfig()
-	err := conf.ParseConfig(*flagConfigPath)
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+	if *flagSegmentConfigPath == "" {
+		fmt.Println("Segment config path required")
+		return
 	}
 
-	objectFiles, err := object.ReadObjectFiles(objectFilePaths...)
+	memoryConfig, err := config.ParseMemoryConfig(*flagMemoryConfigPath)
+	if err != nil {
+		fmt.Printf("Memory config parse failed. err: %s", err.Error())
+		return
+	}
+
+	segmentConfig, err := config.ParseSegmentConfig(*flagSegmentConfigPath)
+	if err != nil {
+		fmt.Printf("Segment config parse failed. err: %s", err.Error())
+		return
+	}
+
+	objectFiles, err := config.ReadObjectFiles(objectFilePaths...)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	l := core.NewLinker(conf, objectFiles...)
+	l := core.NewLinker(memoryConfig, segmentConfig, objectFiles...)
 	err = l.Link()
 	if err != nil {
 		fmt.Println(err)

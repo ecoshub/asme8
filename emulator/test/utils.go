@@ -26,7 +26,7 @@ func RegTest(t *testing.T, index uint8, inm uint8) {
 func DataTest(t *testing.T, dev connectable.Connectable, addr uint16, data uint8) {
 	val := dev.Read(addr)
 	if val != data {
-		t.Fatalf("data read is wrong. expected: 0x%x, got: 0x%x", data, val)
+		t.Fatalf("data is wrong. addr: 0x%04x, expected: 0x%x, got: 0x%x", addr, data, val)
 	}
 }
 
@@ -37,7 +37,8 @@ func GetComp() *comp.Comp {
 
 	MainROM = rom.New(0x2000)
 	MainRAM = ram.New(0xd7ee)
-	MainTestComputer = comp.New(MainROM)
+	MainTestComputer = comp.New()
+	MainTestComputer.SetStackStart(0x2000 + 0xff)
 	MainTestComputer.ConnectDevice(MainROM, 0x0000, 0x2000)
 	MainTestComputer.ConnectDevice(MainRAM, 0x2000, 0xd7ee)
 	MainTestComputer.SetDelay(time.Nanosecond)

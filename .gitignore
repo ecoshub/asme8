@@ -9,5 +9,7 @@ assembler/test.asm
 TODO.md
 assembler/.antlr
 a.bin
+source/bin
+source/elf
 a.o
 *.o

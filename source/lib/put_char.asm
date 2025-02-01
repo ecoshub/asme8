@@ -20,8 +20,8 @@
     extern ADDR_ROW_COUNT               ; reserved
     extern __VIDEO_START__
     global __PUT_CHAR__
+    global __DEL_CHAR__
     global __PUT_CURSOR_HOME__
-    global __PRINT__
 
 SCREEN_BUFFER_START=__VIDEO_START__
 
@@ -40,22 +40,30 @@ __PUT_CHAR__:
     mov [ADDR_CURSOR_INDEX_H], iph
     ret
 
+__DEL_CHAR__:
+    mov ipl, [ADDR_CURSOR_INDEX_L]
+    cmp ipl, 0
+    jz ipl_zero
+keep:
+    sub ip, 1
+    mov [ADDR_CURSOR_INDEX_L], ipl
+    mov [ADDR_CURSOR_INDEX_H], iph
+    mov a, ' '
+    call __PUT_CHAR__
+    sub ip, 1
+    mov [ADDR_CURSOR_INDEX_L], ipl
+    mov [ADDR_CURSOR_INDEX_H], iph
+del_finish:
+    ret
+
+ipl_zero:
+    mov iph, [ADDR_CURSOR_INDEX_H]
+    cmp iph, 0
+    jz del_finish
+    jmp keep
+
 __PUT_CURSOR_HOME__:
     xor a, a
     mov [ADDR_CURSOR_INDEX_L], a
     mov [ADDR_CURSOR_INDEX_H], a
-    ret
-
-__PRINT__:
-    xor c, c
-loop_print:
-    mov a, [ip+c]
-    cmp a, 0
-    jz done_print
-    push ip
-    call __PUT_CHAR__
-    pop ip
-    inc c
-    jmp loop_print
-done_print:
     ret

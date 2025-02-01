@@ -1,4 +1,4 @@
-package object
+package config
 
 import (
 	"asme8/common/object"

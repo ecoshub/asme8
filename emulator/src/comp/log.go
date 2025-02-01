@@ -23,25 +23,25 @@ var (
 )
 
 func (c *Comp) Log(str string) {
-	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
+	if c.terminal == nil || c.terminal.Components.SysLogPanel == nil {
 		fmt.Println(str)
 		return
 	}
-	c.terminalComponents.SysLogPanel.Push(str)
+	c.terminal.Components.SysLogPanel.Push(str)
 }
 
 func (c *Comp) LogWithStyle(str string, sty *style.Style) {
-	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
+	if c.terminal == nil || c.terminal.Components.SysLogPanel == nil {
 		if c.debug {
 			fmt.Println(str)
 		}
 		return
 	}
-	c.terminalComponents.SysLogPanel.Push(str, sty)
+	c.terminal.Components.SysLogPanel.Push(str, sty)
 }
 
 func (c *Comp) Logf(format string, a ...any) {
-	if c.terminalComponents == nil || c.terminalComponents.SysLogPanel == nil {
+	if c.terminal == nil || c.terminal.Components.SysLogPanel == nil {
 		if c.debug {
 			if !strings.HasSuffix(format, "\n") {
 				format += "\n"
@@ -50,41 +50,41 @@ func (c *Comp) Logf(format string, a ...any) {
 		}
 		return
 	}
-	c.terminalComponents.SysLogPanel.Push(fmt.Sprintf(format, a...))
+	c.terminal.Components.SysLogPanel.Push(fmt.Sprintf(format, a...))
 }
 
 func (c *Comp) LogfFlag(format string, a ...any) {
-	if c.terminalComponents == nil || c.terminalComponents.MemoryPanel == nil {
+	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
 		if c.debug {
 			fmt.Printf(format, a...)
 		}
 		return
 	}
-	c.terminalComponents.MemoryPanel.Push(fmt.Sprintf(format, a...))
+	c.terminal.Components.MemoryPanel.Push(fmt.Sprintf(format, a...))
 }
 
 func (c *Comp) LogfFlagIndex(index int, format string, a ...any) {
-	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
+	if c.terminal == nil || c.terminal.Components.FlagPanel == nil {
 		if c.debug {
 			fmt.Printf(format, a...)
 		}
 		return
 	}
-	c.terminalComponents.FlagPanel.Write(index, fmt.Sprintf(format, a...))
+	c.terminal.Components.FlagPanel.Write(index, fmt.Sprintf(format, a...))
 }
 
 func (c *Comp) LogfFlagIndexWithStyle(index int, sty *style.Style, format string, a ...any) {
-	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
+	if c.terminal == nil || c.terminal.Components.FlagPanel == nil {
 		if c.debug {
 			fmt.Printf(format, a...)
 		}
 		return
 	}
-	c.terminalComponents.FlagPanel.Write(index, fmt.Sprintf(format, a...), sty)
+	c.terminal.Components.FlagPanel.Write(index, fmt.Sprintf(format, a...), sty)
 }
 
 func (c *Comp) LogState() {
-	if c.terminalComponents == nil || c.terminalComponents.FlagPanel == nil {
+	if c.terminal == nil || c.terminal.Components.FlagPanel == nil {
 		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, mdr: %02x, mar: %04x, addr: %04x, input_bus: %02x, alu_bus: %02x, output_bus: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.memoryDataRegister, c.memoryAddressRegister, c.addrBus.Read_16(), c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16(), c.rw, c.status.Flag(), c.registers)
 		return
 	}
@@ -114,7 +114,7 @@ func (c *Comp) LogState() {
 }
 
 func (c *Comp) LogMemory() {
-	if c.terminalComponents == nil || c.terminalComponents.MemoryPanel == nil {
+	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
 		return
 	}
 	buffer := make([]uint8, 0x10000)
@@ -124,7 +124,7 @@ func (c *Comp) LogMemory() {
 			buffer[i] = dev.Read(i)
 		}
 	}
-	height := c.terminalComponents.MemoryPanel.Config.Height
+	height := c.terminal.Components.MemoryPanel.Config.Height
 	lineCount := 0
 	logLines := make([]string, 0, height)
 	for i := 0; i < 0x10000; i += 8 {
@@ -145,7 +145,7 @@ func (c *Comp) LogMemory() {
 		}
 	}
 
-	c.terminalComponents.MemoryPanel.WriteMultiStyle(logLines, DefaultStyle5)
+	c.terminal.Components.MemoryPanel.WriteMultiStyle(logLines, DefaultStyle5)
 }
 
 func (c *Comp) ListBreakPoints() {

@@ -326,7 +326,7 @@ func (a *Assembler) ParseIndexRegister(rm bool, line, column int) {
 	// mov [sp+b], a
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG_OFFSET_REG, line, column)
 	a.AppendMachineCode(opcode)
-	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[2].GetCode() << 4)
 	a.AppendMachineCode(val)
 }
 

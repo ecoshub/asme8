@@ -17,7 +17,7 @@ build-source:
 	@cd source && make && cd ..
 
 clean-source:
-	@rm -r source/bin
-	@rm -r source/elf
+	@rm -rf source/bin
+	@rm -rf source/elf
 
 .PHONY: build

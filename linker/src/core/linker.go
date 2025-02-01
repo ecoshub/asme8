@@ -1,47 +1,53 @@
 package core
 
 import (
+	"asme8/common/config"
 	"asme8/common/object"
-	"asme8/linker/src/config"
 	"encoding/binary"
 	"fmt"
 	"os"
 )
 
-const (
-	MEMORY_SIZE int = 0x2000
-)
-
 type Linker struct {
-	config            *config.Config
-	objects           []*object.ELF
-	memory            []byte
-	lastMemoryOffsets map[string]uint16
-	segmentOffsets    map[string]uint16
-	globals           map[string][]*object.Symbol
-	externs           map[string][]*object.Symbol
-	missing           map[string][]*object.Symbol
-	resolvedSymbols   map[string][]*ResolvedSymbol
+	memoryConfig            *config.MemoryConfig
+	segmentConfig           *config.SegmentConfig
+	objects                 []*object.ELF
+	memory                  []byte
+	memoryLastSegmentOffset map[string]uint16
+	segmentOffsets          map[string]uint16
+	globals                 map[string][]*object.Symbol
+	linkerSymbols           []*object.Symbol
+	externs                 map[string][]*object.Symbol
+	missing                 map[string][]*object.Symbol
+	resolvedSymbols         map[string][]*ResolvedSymbol
 }
 
-func NewLinker(config *config.Config, objects ...*object.ELF) *Linker {
+func NewLinker(memoryConfig *config.MemoryConfig, segmentConfig *config.SegmentConfig, objects ...*object.ELF) *Linker {
 	return &Linker{
-		config:            config,
-		objects:           objects,
-		memory:            make([]byte, MEMORY_SIZE),
-		lastMemoryOffsets: make(map[string]uint16),
-		segmentOffsets:    make(map[string]uint16),
-		globals:           make(map[string][]*object.Symbol),
-		externs:           make(map[string][]*object.Symbol),
-		missing:           make(map[string][]*object.Symbol),
-		resolvedSymbols:   make(map[string][]*ResolvedSymbol),
+		memoryConfig:            memoryConfig,
+		segmentConfig:           segmentConfig,
+		objects:                 objects,
+		memory:                  make([]byte, 0xffff),
+		memoryLastSegmentOffset: make(map[string]uint16),
+		segmentOffsets:          make(map[string]uint16),
+		linkerSymbols:           make([]*object.Symbol, 0, 4),
+		globals:                 make(map[string][]*object.Symbol),
+		externs:                 make(map[string][]*object.Symbol),
+		missing:                 make(map[string][]*object.Symbol),
+		resolvedSymbols:         make(map[string][]*ResolvedSymbol),
 	}
 }
 
 func (l *Linker) Link() error {
+
+	err := ResolveMemoryLayout(l.memoryConfig.Configs)
+	if err != nil {
+		return err
+	}
+
 	l.putLinkerGlobals()
 
-	err := l.putSegments()
+	err = l.putSegments()
 	if err != nil {
 		return err
 	}
@@ -76,23 +82,40 @@ func (l *Linker) Out(path string) (int, error) {
 func (l *Linker) putLinkerGlobals() {
 	// fmt.Println("LINKER GLOBALS:")
 	// fmt.Println("    VALUE        SYMBOL")
-	for _, m := range l.config.Memory {
+	for _, m := range l.memoryConfig.Configs {
 		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start)
+		linkerGlobalSymbol.SetIndex(m.Start.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
 		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
+		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
 		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 	}
 }
 
+func ResolveMemoryLayout(ml []*config.Memory) error {
+	offset := uint16(0)
+	for _, m := range ml {
+		if m.Start == nil {
+			if m.Size == nil {
+				return fmt.Errorf("malformed memory definition. memory: %s", m.Name)
+			}
+			m.Start = &config.NullableValue{Value: offset}
+			offset += m.Size.Value
+		}
+		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size.Value, m.Type)
+	}
+	return nil
+}
+
 func (l *Linker) putSegments() error {
-	for _, s := range l.config.Segments {
-		m, ok := l.config.GetMemoryConfig(s.Load)
+	for _, s := range l.segmentConfig.Configs {
+		m, ok := l.memoryConfig.GetMemoryConfig(s.Load)
 		if !ok {
 			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
 		}
@@ -100,15 +123,46 @@ func (l *Linker) putSegments() error {
 		if !ok {
 			return fmt.Errorf("segment not found in given object files. segment: '%s'", s.Name)
 		}
-		bin := o.Tracker.GetBin()
-		length := uint16(len(bin))
-		offset := l.lastMemoryOffsets[m.Name]
-		position := m.Start + offset
-		l.segmentOffsets[s.Name] = position
-		// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
-		copy(l.memory[position:], bin[:])
-		l.lastMemoryOffsets[m.Name] += length
+		if s.Start != nil {
+			continue
+		}
+		l.putExplicitSegment(o, m, s)
 	}
+	for _, s := range l.segmentConfig.Configs {
+		m, _ := l.memoryConfig.GetMemoryConfig(s.Load)
+		o, _ := findObjectFile(s.Name, l.objects)
+		if s.Start == nil {
+			continue
+		}
+		l.putImplicitSegments(o, m, s)
+	}
+	return nil
+}
+
+func (l *Linker) putImplicitSegments(o *object.ELF, m *config.Memory, s *config.Segment) error {
+	bin := o.Tracker.GetBin()
+	length := uint16(len(bin))
+	position := s.Start.Value
+	if position+length > m.Start.Value+m.Size.Value {
+		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
+	}
+	copy(l.memory[position:position+length], bin[:length])
+	return nil
+}
+
+func (l *Linker) putExplicitSegment(o *object.ELF, m *config.Memory, s *config.Segment) error {
+	bin := o.Tracker.GetBin()
+	length := uint16(len(bin))
+	offset := l.memoryLastSegmentOffset[m.Name]
+	position := m.Start.Value + offset
+	l.segmentOffsets[s.Name] = position
+	// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
+	if position+length > m.Start.Value+m.Size.Value {
+		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
+	}
+	// fmt.Println(m.Name, s.Name, position, length, position+length)
+	copy(l.memory[position:position+length], bin[:length])
+	l.memoryLastSegmentOffset[m.Name] += length
 	return nil
 }
 
@@ -164,7 +218,7 @@ func (l *Linker) resolveReference() error {
 	// fmt.Println("REFERENCE RESOLVING")
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.config.GetSegmentConfig(segment)
+		_, exists := l.segmentConfig.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}
@@ -192,7 +246,7 @@ func (l *Linker) resolveReference() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.config.GetSegmentConfig(segment)
+		_, exists := l.segmentConfig.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}

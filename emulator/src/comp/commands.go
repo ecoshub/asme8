@@ -45,7 +45,7 @@ func (c *Comp) HandleCommands(command string) {
 	case "c":
 		fallthrough
 	case "clear":
-		c.terminalComponents.SysLogPanel.Clear()
+		c.terminal.Components.SysLogPanel.Clear()
 		return
 	case "r":
 		fallthrough
@@ -73,7 +73,7 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		c.rom.Load(0, program)
+		// c.rom.Load(0, program)
 		c.programLoaded = true
 		c.Restart(true)
 		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
@@ -92,7 +92,7 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		c.rom.Load(0, program)
+		// c.rom.Load(0, program)
 		c.programLoaded = true
 		c.Restart(true)
 		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
@@ -204,7 +204,7 @@ func SplitStringCommand(command string, prefix string) (bool, string, error) {
 }
 
 func (c *Comp) pushToCommandPalletHistory(command string) {
-	c.terminalComponents.Screen.CommandPalette.AddToHistory(command)
+	c.terminal.Components.Screen.CommandPalette.AddToHistory(command)
 }
 
 func (c *Comp) Help() {

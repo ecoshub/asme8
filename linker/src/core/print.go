@@ -12,12 +12,23 @@ type ResolvedSymbol struct {
 }
 
 func (l *Linker) PrintSymbols() {
+
+	fmt.Println("--------------------------------------------------------------------------------------------")
+	fmt.Println("GLOBAL LINKER SYMBOLS:")
+	fmt.Println("--------------------------------------------------------------------------------------------")
+	for _, s := range l.linkerSymbols {
+		fmt.Printf("%04x        <%s>\n", s.GetIndex(), s.GetSymbol())
+	}
+	fmt.Println("--------------------------------------------------------------------------------------------")
+
+	fmt.Println("")
+
 	fmt.Println("--------------------------------------------------------------------------------------------")
 	fmt.Println("RESOLVED SYMBOLS:")
 	fmt.Println("--------------------------------------------------------------------------------------------")
 	fmt.Println("SEGMENT                       INDEX       SYMBOL")
 	fmt.Println("--------------------------------------------------------------------------------------------")
-	for _, seg := range l.config.Segments {
+	for _, seg := range l.segmentConfig.Configs {
 		rss := l.resolvedSymbols[seg.Name]
 		unique := map[string]*ResolvedSymbol{}
 		for _, rs := range rss {

@@ -5,7 +5,6 @@ import (
 	"asme8/emulator/src/bus"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/src/register"
-	"asme8/emulator/src/rom"
 	"asme8/emulator/src/status"
 	"asme8/emulator/src/terminal"
 	"asme8/emulator/utils"
@@ -15,13 +14,13 @@ import (
 
 const (
 	DefaultMemorySize = 1 << 16
+)
 
-	StackStart uint16 = 0x20ff
+var (
+	StackStart uint16
 )
 
 type Comp struct {
-	rom *rom.Rom
-
 	registers register.Module
 	status    *status.StatusRegister
 	step      uint8
@@ -44,7 +43,7 @@ type Comp struct {
 	rw        uint8 // read 1 write 0
 	devices   []connectable.Connectable
 
-	terminalComponents     *terminal.Components
+	terminal               *terminal.Terminal
 	singleTicker           chan struct{}
 	breakPoints            []uint16
 	inspectionMemoryOffset uint16
@@ -57,12 +56,10 @@ type Comp struct {
 	delay         time.Duration
 }
 
-func New(rom *rom.Rom) *Comp {
+func New() *Comp {
 	c := &Comp{
-		rom:           rom,
 		registers:     register.NewModule(6),
 		status:        status.NewStatusRegister(),
-		stackPointer:  StackStart,
 		aluBus:        bus.New(),
 		outputBus:     bus.New(),
 		inputBus:      bus.New(),
@@ -75,15 +72,20 @@ func New(rom *rom.Rom) *Comp {
 	return c
 }
 
-func (c *Comp) AttachTerminalComponents(terminalComponents *terminal.Components) {
-	c.terminalComponents = terminalComponents
-	terminalComponents.Screen.CommandPalette.ListenKeyEventEnter(func(input string) {
+func (c *Comp) AttachTerminal(terminal *terminal.Terminal) {
+	c.terminal = terminal
+	c.terminal.Components.Screen.CommandPalette.ListenKeyEventEnter(func(input string) {
 		c.HandleCommands(input)
 	})
 }
 
 func (c *Comp) ProgramLoaded() {
 	c.programLoaded = true
+}
+
+func (c *Comp) SetStackStart(start uint16) {
+	StackStart = start
+	c.stackPointer = start
 }
 
 func (c *Comp) SetPause(enable bool) {
@@ -123,6 +125,13 @@ func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, siz
 }
 
 func (c *Comp) Run() {
+	if c.running {
+		return
+	}
+
+	if c.terminal != nil {
+		go c.terminal.Run()
+	}
 
 	c.inputBus.AttachBusChange(func(rw uint8) {
 		if rw == utils.IO_WRITE {
@@ -217,8 +226,8 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.instructionRegister = 0
 	c.operandRegister = 0
 	c.programCounter = 0
-	c.memoryAddressRegister = 0
 	c.stackPointer = StackStart
+	c.memoryAddressRegister = 0
 	c.memoryAddressRegister = 0
 	c.rw = utils.IO_READ
 	c.stopChan = make(chan struct{}, 1)

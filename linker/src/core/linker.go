@@ -73,6 +73,45 @@ func (l *Linker) Out(path string) (int, error) {
 	return len(l.memory), nil
 }
 
+func (l *Linker) putLinkerGlobals() {
+	// fmt.Println("LINKER GLOBALS:")
+	// fmt.Println("    VALUE        SYMBOL")
+	for _, m := range l.config.Memory {
+		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
+		linkerGlobalSymbol.SetIndex(m.Start)
+		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
+		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
+		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
+		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
+		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
+		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
+		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
+	}
+}
+
+func (l *Linker) putSegments() error {
+	for _, s := range l.config.Segments {
+		m, ok := l.config.GetMemoryConfig(s.Load)
+		if !ok {
+			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
+		}
+		o, ok := findObjectFile(s.Name, l.objects)
+		if !ok {
+			return fmt.Errorf("segment not found in given object files. segment: '%s'", s.Name)
+		}
+		bin := o.Tracker.GetBin()
+		length := uint16(len(bin))
+		offset := l.lastMemoryOffsets[m.Name]
+		position := m.Start + offset
+		l.segmentOffsets[s.Name] = position
+		// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
+		copy(l.memory[position:], bin[:])
+		l.lastMemoryOffsets[m.Name] += length
+	}
+	return nil
+}
+
 func (l *Linker) resolveSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
@@ -146,45 +185,6 @@ func (l *Linker) resolveReference() error {
 			}
 			return fmt.Errorf("reference symbol not found. segment: %s, symbol: %s, reference: %s", segment, s.GetSymbol(), ref)
 		}
-	}
-	return nil
-}
-
-func (l *Linker) putLinkerGlobals() {
-	// fmt.Println("LINKER GLOBALS:")
-	// fmt.Println("    VALUE        SYMBOL")
-	for _, m := range l.config.Memory {
-		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start)
-		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
-		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
-		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
-		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
-		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
-		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
-		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
-	}
-}
-
-func (l *Linker) putSegments() error {
-	for _, s := range l.config.Segments {
-		m, ok := l.config.GetMemoryConfig(s.Load)
-		if !ok {
-			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
-		}
-		o, ok := findObjectFile(s.Name, l.objects)
-		if !ok {
-			return fmt.Errorf("segment not found in given object files. segment: '%s'", s.Name)
-		}
-		bin := o.Tracker.GetBin()
-		length := uint16(len(bin))
-		offset := l.lastMemoryOffsets[m.Name]
-		position := m.Start + offset
-		l.segmentOffsets[s.Name] = position
-		// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
-		copy(l.memory[position:], bin[:])
-		l.lastMemoryOffsets[m.Name] += length
 	}
 	return nil
 }

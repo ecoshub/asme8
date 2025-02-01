@@ -8,14 +8,6 @@ import (
 
 func (a *Assembler) CreatePrintable() string {
 	buffer := "\n"
-	if len(a.globals) > 0 {
-		buffer += "; globals:\n"
-		buffer += "-----------------\n"
-		for k, v := range a.globals {
-			buffer += fmt.Sprintf("; %-20s = 0x%02x\n", k, v.Val.GetValue())
-		}
-		buffer += "\n"
-	}
 	if len(a.labels) > 0 {
 		buffer += "; labels:\n"
 		buffer += "-----------------\n"
@@ -76,12 +68,6 @@ func (a *Assembler) CreatePrintable() string {
 func (a *Assembler) CreatePrintable2() string {
 	buffer := "\n"
 	buffer += "SYMBOLS:\n"
-	if len(a.globals) > 0 {
-		for k, v := range a.globals {
-			buffer += fmt.Sprintf("%04x %30s\n", v.Val.GetValue(), k)
-		}
-		buffer += "\n"
-	}
 	if len(a.labels) > 0 {
 		for k, v := range a.labels {
 			buffer += fmt.Sprintf("%04x %30s\n", v.Offset, k)

@@ -6,6 +6,6 @@ object-files:
 
 link: 
 	@mkdir -p bin
-	@cd bin && ../../bin/./ld --config ../linker_config --output link.bin ../elf/*.o
+	@cd bin && ../../bin/./ld --config ../linker_config --print --output link.bin ../elf/*.o
 
 .PHONY: build

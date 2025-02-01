@@ -23,10 +23,12 @@ const (
 )
 
 type Symbol struct {
-	symbol string
-	index  uint16
-	share  uint8
-	_type  uint8
+	symbol          string
+	index           uint16
+	share           uint8
+	_type           uint8
+	referenceName   string
+	referenceOffset int32
 }
 
 func NewSymbol(symbol string) *Symbol {
@@ -68,6 +70,15 @@ func (s *Symbol) SetType(_type uint8) {
 	s._type = _type
 }
 
+func (s *Symbol) SetReference(name string, offset int32) {
+	s.referenceName = name
+	s.referenceOffset = offset
+}
+
+func (s *Symbol) GetReference() (string, int32) {
+	return s.referenceName, s.referenceOffset
+}
+
 func (s *Symbol) Encode(buf *bytes.Buffer) error {
 	// Encode symbol string length and value
 	if err := binary.Write(buf, binary.LittleEndian, uint16(len(s.symbol))); err != nil {
@@ -89,6 +100,19 @@ func (s *Symbol) Encode(buf *bytes.Buffer) error {
 
 	// Encode type
 	if err := binary.Write(buf, binary.LittleEndian, s._type); err != nil {
+		return err
+	}
+
+	// Encode reference name string length and value
+	if err := binary.Write(buf, binary.LittleEndian, uint16(len(s.referenceName))); err != nil {
+		return err
+	}
+	if _, err := buf.WriteString(s.referenceName); err != nil {
+		return err
+	}
+
+	// Encode reference offset
+	if err := binary.Write(buf, binary.LittleEndian, s.referenceOffset); err != nil {
 		return err
 	}
 
@@ -119,6 +143,22 @@ func (s *Symbol) Decode(buf *bytes.Reader) error {
 
 	// Decode type
 	if err := binary.Read(buf, binary.LittleEndian, &s._type); err != nil {
+		return err
+	}
+
+	// Decode reference name string length and value
+	var referenceNameLen uint16
+	if err := binary.Read(buf, binary.LittleEndian, &referenceNameLen); err != nil {
+		return err
+	}
+	referenceName := make([]byte, referenceNameLen)
+	if _, err := buf.Read(referenceName); err != nil {
+		return err
+	}
+	s.referenceName = string(referenceName)
+
+	// Decode reference offset
+	if err := binary.Read(buf, binary.LittleEndian, &s.referenceOffset); err != nil {
 		return err
 	}
 

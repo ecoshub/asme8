@@ -15,6 +15,7 @@ type Screen struct {
 	addrStart  uint16
 	addrSize   uint16
 	buffer     *ScreenBuffer
+	dataBuffer []uint8
 	components *Components
 }
 
@@ -22,6 +23,7 @@ func NewScreen(components *Components, size int) (*Screen, error) {
 	return &Screen{
 		name:       "SCREEN",
 		buffer:     NewScreenBuffer(size),
+		dataBuffer: make([]uint8, 8),
 		components: components,
 	}, nil
 }

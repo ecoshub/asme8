@@ -69,6 +69,14 @@ func (s *BaseAsmE8Listener) EnterInst_stack_imm(ctx *Inst_stack_immContext) {}
 // ExitInst_stack_imm is called when production inst_stack_imm is exited.
 func (s *BaseAsmE8Listener) ExitInst_stack_imm(ctx *Inst_stack_immContext) {}
 
+// EnterInst_index_register_imm_variable is called when production inst_index_register_imm_variable is entered.
+func (s *BaseAsmE8Listener) EnterInst_index_register_imm_variable(ctx *Inst_index_register_imm_variableContext) {
+}
+
+// ExitInst_index_register_imm_variable is called when production inst_index_register_imm_variable is exited.
+func (s *BaseAsmE8Listener) ExitInst_index_register_imm_variable(ctx *Inst_index_register_imm_variableContext) {
+}
+
 // EnterInst_index_imm is called when production inst_index_imm is entered.
 func (s *BaseAsmE8Listener) EnterInst_index_imm(ctx *Inst_index_immContext) {}
 
@@ -234,6 +242,18 @@ func (s *BaseAsmE8Listener) EnterVariable(ctx *VariableContext) {}
 
 // ExitVariable is called when production variable is exited.
 func (s *BaseAsmE8Listener) ExitVariable(ctx *VariableContext) {}
+
+// EnterVariable_reference is called when production variable_reference is entered.
+func (s *BaseAsmE8Listener) EnterVariable_reference(ctx *Variable_referenceContext) {}
+
+// ExitVariable_reference is called when production variable_reference is exited.
+func (s *BaseAsmE8Listener) ExitVariable_reference(ctx *Variable_referenceContext) {}
+
+// EnterReference is called when production reference is entered.
+func (s *BaseAsmE8Listener) EnterReference(ctx *ReferenceContext) {}
+
+// ExitReference is called when production reference is exited.
+func (s *BaseAsmE8Listener) ExitReference(ctx *ReferenceContext) {}
 
 // EnterDirectives is called when production directives is entered.
 func (s *BaseAsmE8Listener) EnterDirectives(ctx *DirectivesContext) {}

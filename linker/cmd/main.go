@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	flagConfigPath = flag.String("config", "", "Path to the linker config file")
-	flagOutput     = flag.String("output", "a.bin", "output file name")
+	flagConfigPath   = flag.String("config", "", "Path to the linker config file")
+	flagOutput       = flag.String("output", "a.bin", "output file name")
+	flagPrintSymbols = flag.Bool("print", false, "print all symbol tables")
 )
 
 func main() {
@@ -50,6 +51,10 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+
+	if *flagPrintSymbols {
+		l.PrintSymbols()
 	}
 
 	fmt.Printf("link success. files: %v, output file: %s\n", objectFilePaths, *flagOutput)

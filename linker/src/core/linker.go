@@ -21,6 +21,7 @@ type Linker struct {
 	globals           map[string][]*object.Symbol
 	externs           map[string][]*object.Symbol
 	missing           map[string][]*object.Symbol
+	resolvedSymbols   map[string][]*ResolvedSymbol
 }
 
 func NewLinker(config *config.Config, objects ...*object.ELF) *Linker {
@@ -33,6 +34,7 @@ func NewLinker(config *config.Config, objects ...*object.ELF) *Linker {
 		globals:           make(map[string][]*object.Symbol),
 		externs:           make(map[string][]*object.Symbol),
 		missing:           make(map[string][]*object.Symbol),
+		resolvedSymbols:   make(map[string][]*ResolvedSymbol),
 	}
 }
 
@@ -103,6 +105,10 @@ func (l *Linker) resolveSymbols() error {
 			}
 		}
 	}
+	err := l.resolveReference()
+	if err != nil {
+		return err
+	}
 	for segment, exs := range l.externs {
 		for _, ex := range exs {
 			externSymbol := ex.GetSymbol()
@@ -115,19 +121,49 @@ func (l *Linker) resolveSymbols() error {
 	return nil
 }
 
+func (l *Linker) resolveReference() error {
+	// fmt.Println("REFERENCE RESOLVING")
+	for _, o := range l.objects {
+		segment := o.Tracker.GetSegment()
+		_, exists := l.config.GetSegmentConfig(segment)
+		if !exists {
+			continue
+		}
+		symbols := o.Tracker.GetSymbols()
+		for _, s := range symbols {
+			ref, offset := s.GetReference()
+			if ref == "" {
+				continue
+			}
+			segment, sym, exists := findGlobal(ref, l.globals)
+			if exists {
+				s.SetIndex(uint16(int32(sym.GetIndex()) + offset))
+				s.SetReference("", 0)
+				s.SetType(sym.GetType())
+				// fmt.Println("REFERENCE RESTORED", s.GetSymbol(), ref, offset)
+				pushSymbol(segment, s, l.globals)
+				continue
+			}
+			return fmt.Errorf("reference symbol not found. segment: %s, symbol: %s, reference: %s", segment, s.GetSymbol(), ref)
+		}
+	}
+	return nil
+}
+
 func (l *Linker) putLinkerGlobals() {
+	// fmt.Println("LINKER GLOBALS:")
+	// fmt.Println("    VALUE        SYMBOL")
 	for _, m := range l.config.Memory {
 		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
-		// fmt.Println(linkerGlobalSymbol.GetSymbol(), linkerGlobalSymbol.GetIndex())
-
+		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start + m.Size)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
-		// fmt.Println(linkerGlobalSymbol.GetSymbol(), linkerGlobalSymbol.GetIndex())
+		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 	}
 }
 
@@ -170,6 +206,7 @@ func (l *Linker) linkSymbols() error {
 			sym := p.GetSymbol()
 			segmentOffset := l.segmentOffsets[segment]
 			offset = segmentOffset + p.GetOffset()
+			globalSegmentOffset := uint16(0)
 			if p.IsMissing() {
 				globalSegment, globalSymbol, ok := findGlobal(sym, l.globals)
 				if !ok {
@@ -180,10 +217,10 @@ func (l *Linker) linkSymbols() error {
 				case object.SYMBOL_TYPE_VAR:
 					index = globalSymbol.GetIndex()
 				case object.SYMBOL_TYPE_LABEL:
-					globalSegmentOffset := l.segmentOffsets[globalSegment]
+					globalSegmentOffset = l.segmentOffsets[globalSegment]
 					index = globalSymbol.GetIndex() + globalSegmentOffset
 				default:
-					return fmt.Errorf("unknown symbol type. symbol: %s, type: %d", sym, _type)
+					return fmt.Errorf("unknown symbol type for missing symbol. segment: %s, symbol: %s, type: %d", segment, sym, _type)
 				}
 			} else {
 				symbol, ok := o.Tracker.GetDefinedSymbol(sym)
@@ -195,10 +232,10 @@ func (l *Linker) linkSymbols() error {
 				case object.SYMBOL_TYPE_VAR:
 					index = symbol.GetIndex()
 				case object.SYMBOL_TYPE_LABEL:
-					globalSegmentOffset := l.segmentOffsets[segment]
+					globalSegmentOffset = l.segmentOffsets[segment]
 					index = symbol.GetIndex() + globalSegmentOffset
 				default:
-					return fmt.Errorf("unknown symbol type. symbol: %s, type: %d", sym, _type)
+					return fmt.Errorf("unknown symbol type. segment: %s, symbol: %s, type: %d", segment, sym, _type)
 				}
 			}
 			index += p.GetOptionalOffset()
@@ -208,11 +245,22 @@ func (l *Linker) linkSymbols() error {
 				size = 2
 			}
 			copy(l.memory[offset:offset+size], data)
-			// fmt.Printf("RESTORING LABEL [missing: %v]>> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", p.IsMissing(), segment, offset, "globalSegment", 0, 0)
+			// fmt.Printf("RESTORING LABEL [missing: %v]>> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", p.IsMissing(), segment, offset, globalSegmentOffset, 0, 0)
+			rs := &ResolvedSymbol{segment: segment, symbol: sym, index: index}
+			// l.resolvedSymbols[segment] = rs
+			pushResolvedSymbol(segment, rs, l.resolvedSymbols)
 			// fmt.Printf("writing to segment %s, symbol: %s, from: %04x, to: %04x, data: %04x\n", segment, sym, offset, offset+size, data)
 		}
 	}
 	return nil
+}
+
+func pushResolvedSymbol(segment string, s *ResolvedSymbol, m map[string][]*ResolvedSymbol) {
+	_, ok := m[segment]
+	if !ok {
+		m[segment] = make([]*ResolvedSymbol, 0, 4)
+	}
+	m[segment] = append(m[segment], s)
 }
 
 func pushSymbol(segment string, s *object.Symbol, m map[string][]*object.Symbol) {

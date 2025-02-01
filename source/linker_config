@@ -1,10 +1,11 @@
 MEMORY {
     ROM: start=0x0000, size=0x2000, type=ro;
-    RAM: start=0x2000, size=0xd6ef, type=rw;
-    STACK: start=0xf6ef, size=0xff, type=rw;
-    VIDEO: start=0xf7ee, size=0x800, type=rw;
-    KEYBOARD: start=0xffee, size=0x2, type=rw;
-    INTR: start=0xfff0, size=0xf, type=rw;
+    STACK: start=0x2000, size=0xff, type=rw;
+    RAM: start=0x20ff, size=0xd748, type=rw;
+    VIDEO: start=0xf847, size=0x780, type=rw;
+    VIDEO_ATTR: start=0xffc7, size=0x20, type=rw;
+    KEYBOARD: start=0xffe7, size=0x8, type=rw;
+    INTR: start=0xffef, size=0x10, type=rw;
 }
 
 SEGMENTS {

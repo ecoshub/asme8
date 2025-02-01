@@ -4,7 +4,10 @@
     extern __PUT_CHAR__
     extern __RAM_START__
     extern STR_TO_HEX
+    extern __PRINT__
     global WOZMAN
+    extern ADDR_CURSOR_INDEX_L          ; address of cursor index low byte
+    extern ADDR_CURSOR_INDEX_H          ; address of cursor index high byte
 
 CHAR_DEL=0x7f
 

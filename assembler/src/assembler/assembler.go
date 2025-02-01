@@ -27,24 +27,25 @@ const (
 var _ parser.AsmE8Listener = &Assembler{}
 
 type Assembler struct {
-	mode               ASM_MODE
-	offset             uint16
-	currentInstruction string
-	currentValue       *types.Value
-	currentValueList   []*types.Value
-	currentTag         *types.Tag
-	currentRegisters   []*types.Register
-	labels             map[string]*types.Label
-	globals            map[string]*types.Variable
-	variables          map[string]*types.Variable
-	missingSymbols     map[uint16]*types.Tag
-	machineCode        map[uint16]uint8
-	directives         map[uint16]*types.Directive
-	errorListener      *error_listener.CustomErrorListener
-	symbolTracker      *object.Tracker
-	hasVirtualOffset   bool
-	out                []uint8
-	topAddress         uint16
+	mode                ASM_MODE
+	offset              uint16
+	currentInstruction  string
+	currentValue        *types.Value
+	reference           *types.Variable
+	currentValueList    []*types.Value
+	currentTag          *types.Tag
+	currentRegisters    []*types.Register
+	labels              map[string]*types.Label
+	variables           map[string]*types.Variable
+	unresolvedVariables map[string]*types.Variable
+	missingSymbols      map[uint16]*types.Tag
+	machineCode         map[uint16]uint8
+	directives          map[uint16]*types.Directive
+	errorListener       *error_listener.CustomErrorListener
+	symbolTracker       *object.Tracker
+	hasVirtualOffset    bool
+	out                 []uint8
+	topAddress          uint16
 
 	Coder *Coder
 }
@@ -59,16 +60,16 @@ type Coder struct {
 
 func New(mode ASM_MODE) *Assembler {
 	return &Assembler{
-		mode:             mode,
-		currentValueList: []*types.Value{},
-		currentRegisters: []*types.Register{},
-		labels:           make(map[string]*types.Label),
-		variables:        make(map[string]*types.Variable),
-		globals:          make(map[string]*types.Variable),
-		machineCode:      make(map[uint16]uint8),
-		missingSymbols:   make(map[uint16]*types.Tag),
-		directives:       make(map[uint16]*types.Directive),
-		symbolTracker:    object.NewTracker(),
+		mode:                mode,
+		currentValueList:    []*types.Value{},
+		currentRegisters:    []*types.Register{},
+		labels:              make(map[string]*types.Label),
+		variables:           make(map[string]*types.Variable),
+		unresolvedVariables: make(map[string]*types.Variable),
+		machineCode:         make(map[uint16]uint8),
+		missingSymbols:      make(map[uint16]*types.Tag),
+		directives:          make(map[uint16]*types.Directive),
+		symbolTracker:       object.NewTracker(),
 		Coder: &Coder{
 			linesEndings: make([]uint16, 0, 16),
 			blanksLines:  make([]uint16, 0, 16),
@@ -82,6 +83,7 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 	switch a.mode {
 	case ASM_MODE_ELF:
 		a.RestoreMissingSymbols()
+		a.ResolveReferenceVariables()
 		out := a.assemble()
 		err := a.errorListener.GetError()
 		if err != nil {
@@ -95,7 +97,11 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 		}
 		return elf.Encode()
 	case ASM_MODE_EXE:
-		errs := a.RestoreMissingSymbols()
+		errs := a.ResolveReferenceVariables()
+		if len(errs) > 0 {
+			return nil, error_listener.WrapErrors(errs...)
+		}
+		errs = a.RestoreMissingSymbols()
 		if len(errs) > 0 {
 			return nil, error_listener.WrapErrors(errs...)
 		}
@@ -111,10 +117,6 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 
 func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErrorListener) {
 	a.errorListener = errorListener
-}
-
-func (a *Assembler) AttachGlobals(globals map[string]*types.Variable) {
-	a.globals = globals
 }
 
 func (a *Assembler) assemble() []uint8 {
@@ -150,9 +152,18 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 }
 
 func (a *Assembler) ParseIndexImmediate(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
+	if a.currentValue.GetSize() == 8 {
+		a.GetVariableOrTagMissing(1, 8)
+		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
+		a.AppendMachineCode(opcode)
+		a.AppendMachineCode(a.currentValue.GetLowByte())
+		return
+	}
+	a.GetVariableOrTagMissing(1, 16)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM_16, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
 func (a *Assembler) ParseStackImmediate(line, column int) {
@@ -406,7 +417,7 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 func (a *Assembler) GetOrFailOpCode(inst string, mode uint8, line, column int) uint8 {
 	opcode, ok := instruction.GetOpCode(inst, mode)
 	if !ok {
-		msg := fmt.Sprintf("opcode not found for this instruction and addressing mode. inst: '%s', mode: %02x", a.currentInstruction, mode)
+		msg := fmt.Sprintf("opcode not found for this instruction and addressing mode. inst: '%s', mode: %0d", a.currentInstruction, mode)
 		if a.errorListener == nil {
 			panic(msg)
 		} else {
@@ -493,12 +504,58 @@ func (a *Assembler) ParseRegister(text string) {
 	a.currentRegisters = append(a.currentRegisters, types.ParseRegister(text))
 }
 
-func (a *Assembler) ParseVariable() {
-	v := types.NewVariable(a.currentTag.Text, a.currentValue.Copy())
-	a.variables[a.currentTag.Text] = v
+func (a *Assembler) ParseVariable(name string, val *types.Value) {
+	v := types.NewVariable(name, val)
+	a.variables[name] = v
 
-	a.symbolTracker.SetIndex(a.currentTag.Text, v.Val.GetValue())
-	a.symbolTracker.SetType(a.currentTag.Text, object.SYMBOL_TYPE_VAR)
+	a.symbolTracker.SetIndex(name, v.Val.GetValue())
+	a.symbolTracker.SetType(name, object.SYMBOL_TYPE_VAR)
+}
+
+func (a *Assembler) ParseReference(text string) {
+	refName := text
+	offset := 0
+	sign := 1
+	if strings.Contains(text, "+") {
+		tokens := strings.Split(text, "+")
+		refName = tokens[0]
+		sign = 1
+	}
+	if strings.Contains(text, "-") {
+		tokens := strings.Split(text, "-")
+		refName = tokens[0]
+		sign = -1
+	}
+	// parse the offset if there is
+	if a.currentValue != nil {
+		offset = int(a.currentValue.GetValue())
+		offset *= sign
+	}
+	a.reference = types.NewVariable(refName, types.NewValue(0))
+	a.reference.Offset = offset
+	// fmt.Println("REFERENCE CREATED", a.currentTag.Text, refName, offset)
+}
+
+func (a *Assembler) ParseVariableReference() {
+	v, ok := a.variables[a.reference.Name]
+	if ok {
+		val := types.NewValue(int64(v.Val.GetValue() + uint16(a.reference.Offset)))
+		v := types.NewVariable(a.currentTag.Text, val)
+		v.Unresolved = false
+		v.ReferenceName = a.reference.Name
+		v.Offset = a.reference.Offset
+		a.variables[a.currentTag.Text] = v
+		a.symbolTracker.SetIndex(a.currentTag.Text, v.Val.GetValue())
+		a.symbolTracker.SetType(a.currentTag.Text, object.SYMBOL_TYPE_VAR)
+		return
+	}
+	vr := types.NewVariable(a.currentTag.Text, types.NewValue(0))
+	vr.Unresolved = true
+	vr.ReferenceName = a.reference.Name
+	vr.Offset = a.reference.Offset
+	a.unresolvedVariables[a.currentTag.Text] = vr
+	a.symbolTracker.SetReference(a.currentTag.Text, a.reference.Name, int32(a.reference.Offset))
+	// fmt.Println("REFERENCE VARIABLE SET", a.currentTag.Text, a.reference.Name, a.reference.Offset)
 }
 
 func (a *Assembler) ParseInstruction(text string) {
@@ -585,7 +642,6 @@ func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16, requiredSize uint
 	a.currentTag.Size = int8(requiredSize)
 	a.missingSymbols[a.offset+offsetPlus] = a.currentTag
 	a.currentValue = types.NewValue(0)
-	// fmt.Printf("?? symbol not found. symbol:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 }
 
 func (a *Assembler) RestoreMissingSymbols() []error {
@@ -595,6 +651,40 @@ func (a *Assembler) RestoreMissingSymbols() []error {
 		if err != nil {
 			errs = append(errs, err)
 		}
+	}
+	return errs
+}
+
+func (a *Assembler) ResolveReferenceVariables() []error {
+	errs := make([]error, 0, 2)
+	for _, uv := range a.unresolvedVariables {
+		if !uv.Unresolved {
+			continue
+		}
+		// fmt.Println("UNRESOLVED VARIABLE FOUND", uv.Name)
+		found := false
+		var ref *types.Variable
+		for _, v := range a.variables {
+			if uv.ReferenceName == v.Name {
+				found = true
+				ref = v
+				break
+			}
+		}
+		if !found {
+			err := fmt.Errorf("variable reference not found. variable: %s, reference: %s", uv.Name, uv.ReferenceName)
+			errs = append(errs, err)
+			continue
+			// return fmt.Errorf("variable reference not found. variable: %s, reference: %s", uv.Name, uv.ReferenceName)
+		}
+		value := int(ref.Val.GetValue()) + uv.Offset
+		// fmt.Printf("VARIABLE RESOLVED. variable: %s, value: %04x, offset: %d. final_value: %04x\n", uv.Name, ref.Val.GetValue(), uv.Offset, value)
+		val := types.NewValue(int64(value))
+		a.variables[uv.Name] = types.NewVariable(uv.Name, val)
+
+		a.symbolTracker.SetIndex(uv.Name, val.GetValue())
+		a.symbolTracker.SetType(uv.Name, object.SYMBOL_TYPE_VAR)
+		a.symbolTracker.SetReference(uv.Name, "", 0)
 	}
 	return errs
 }
@@ -630,11 +720,6 @@ func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
 
 func (a *Assembler) FindVariable(name string) (*types.Value, bool) {
 	for _, v := range a.variables {
-		if v.Name == name {
-			return v.Val, true
-		}
-	}
-	for _, v := range a.globals {
 		if v.Name == name {
 			return v.Val, true
 		}

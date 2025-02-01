@@ -1464,11 +1464,20 @@ var (
 		},
 		{
 			Name: "adc ptr imm",
+			// mov ip, 0x12ab
+			Program: []uint8{
+				instruction.INST_MOV_IP_IMM_16, 0xab, 0x12,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0xab},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x12},
+				},
+			},
+		},
+		{
+			Name: "ip imm 16",
 			// mov a, 0xff
-			// mov [0x8000], a
-			// add [0x8000], 5
-			// adc [0x8001], 0
-			// mov b, [0x8000]
 			Program: []uint8{
 				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,

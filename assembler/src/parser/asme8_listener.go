@@ -32,6 +32,9 @@ type AsmE8Listener interface {
 	// EnterInst_stack_imm is called when entering the inst_stack_imm production.
 	EnterInst_stack_imm(c *Inst_stack_immContext)
 
+	// EnterInst_index_register_imm_variable is called when entering the inst_index_register_imm_variable production.
+	EnterInst_index_register_imm_variable(c *Inst_index_register_imm_variableContext)
+
 	// EnterInst_index_imm is called when entering the inst_index_imm production.
 	EnterInst_index_imm(c *Inst_index_immContext)
 
@@ -113,6 +116,12 @@ type AsmE8Listener interface {
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
 
+	// EnterVariable_reference is called when entering the variable_reference production.
+	EnterVariable_reference(c *Variable_referenceContext)
+
+	// EnterReference is called when entering the reference production.
+	EnterReference(c *ReferenceContext)
+
 	// EnterDirectives is called when entering the directives production.
 	EnterDirectives(c *DirectivesContext)
 
@@ -154,6 +163,9 @@ type AsmE8Listener interface {
 
 	// ExitInst_stack_imm is called when exiting the inst_stack_imm production.
 	ExitInst_stack_imm(c *Inst_stack_immContext)
+
+	// ExitInst_index_register_imm_variable is called when exiting the inst_index_register_imm_variable production.
+	ExitInst_index_register_imm_variable(c *Inst_index_register_imm_variableContext)
 
 	// ExitInst_index_imm is called when exiting the inst_index_imm production.
 	ExitInst_index_imm(c *Inst_index_immContext)
@@ -235,6 +247,12 @@ type AsmE8Listener interface {
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)
+
+	// ExitVariable_reference is called when exiting the variable_reference production.
+	ExitVariable_reference(c *Variable_referenceContext)
+
+	// ExitReference is called when exiting the reference production.
+	ExitReference(c *ReferenceContext)
 
 	// ExitDirectives is called when exiting the directives production.
 	ExitDirectives(c *DirectivesContext)

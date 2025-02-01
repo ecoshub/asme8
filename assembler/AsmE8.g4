@@ -7,7 +7,8 @@ instruction: line+ LINE_COMMENT?
 	;
 
 line: 
-	variable
+	variable_reference
+	| variable
 	| ('\t' | '    ' | '  ' ) inst
 	| segment
 	| access
@@ -40,6 +41,7 @@ inst:
 	| inst_single_imm
 	| inst_single_tag
 	| inst_single
+	| inst_index_register_imm_variable
     ;
 
 inst_reg_reg: mnemonic ' ' reg  ', ' reg;
@@ -47,6 +49,8 @@ inst_reg_reg: mnemonic ' ' reg  ', ' reg;
 inst_reg_imm: mnemonic ' ' reg  ', ' imm;
 
 inst_stack_imm: mnemonic ' ' stack  ', ' imm;
+
+inst_index_register_imm_variable: mnemonic ' ' index ', ' tag;
 
 inst_index_imm: mnemonic ' ' index  ', ' imm;
 
@@ -151,6 +155,12 @@ index_offset: '[' index ']'
 	;
 
 variable: tag  '=' imm;
+
+variable_reference: tag  '=' reference;
+
+reference: STR
+	| STR ('+'|'-') imm
+	;
 
 directives: '.byte '  imm_list
 	| '.word '  imm_list

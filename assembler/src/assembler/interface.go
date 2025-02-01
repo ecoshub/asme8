@@ -2,9 +2,20 @@ package assembler
 
 import (
 	"asme8/assembler/src/parser"
+	"asme8/common/instruction"
 
 	"github.com/antlr4-go/antlr/v4"
 )
+
+func (a *Assembler) ExitInst_index_register_imm_variable(c *parser.Inst_index_register_imm_variableContext) {
+	a.GetVariableOrTagMissing(1, 16)
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM_16, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
+}
 
 func (a *Assembler) ExitInst_ptr_imm(c *parser.Inst_ptr_immContext) {
 	text := c.GetText()
@@ -211,13 +222,29 @@ func (a *Assembler) ExitTag(c *parser.TagContext) {
 	a.ParseTag(text, line, column)
 }
 
+func (a *Assembler) ExitReference(c *parser.ReferenceContext) {
+	text := c.GetText()
+	a.ParseReference(text)
+}
+
+func (a *Assembler) ExitVariable_reference(c *parser.Variable_referenceContext) {
+	a.ParseVariableReference()
+}
+
 func (a *Assembler) ExitVariable(c *parser.VariableContext) {
-	a.ParseVariable()
+	a.ParseVariable(a.currentTag.Text, a.currentValue.Copy())
 }
 
 func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
+}
+
+func (a *Assembler) EnterReference(c *parser.ReferenceContext) {}
+
+func (a *Assembler) EnterVariable_reference(c *parser.Variable_referenceContext) {}
+
+func (a *Assembler) EnterInst_index_register_imm_variable(c *parser.Inst_index_register_imm_variableContext) {
 }
 
 func (a *Assembler) EnterInst_ptr_imm(c *parser.Inst_ptr_immContext) {}

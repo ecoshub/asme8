@@ -16,4 +16,8 @@ build-tools-and-source: build build-source
 build-source:
 	@cd source && make && cd ..
 
+clean-source:
+	@rm -r source/bin
+	@rm -r source/elf
+
 .PHONY: build

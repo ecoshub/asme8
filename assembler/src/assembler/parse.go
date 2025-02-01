@@ -13,7 +13,6 @@ type Options struct {
 	Mode        ASM_MODE
 	FilePath    string
 	PrintDetail bool
-	Globals     []string
 	SegmentAddr uint16
 }
 
@@ -25,11 +24,6 @@ func AssembleFile(options *Options) ([]byte, error) {
 	input, err := antlr.NewFileStream(options.FilePath)
 	if err != nil {
 		return nil, fmt.Errorf("file stream error. err: %s", err)
-	}
-
-	globals, err := FormatGlobals(options.Globals)
-	if err != nil {
-		return nil, fmt.Errorf("global read error. err: %s", err)
 	}
 
 	if options.Mode == ASM_MODE_NONE {
@@ -49,7 +43,6 @@ func AssembleFile(options *Options) ([]byte, error) {
 
 	assembler := New(options.Mode)
 	assembler.AttachErrorListener(el)
-	assembler.AttachGlobals(globals)
 	antlr.ParseTreeWalkerDefault.Walk(assembler, tree)
 
 	err = el.GetError()

@@ -54,10 +54,6 @@ func (t *Tracker) SetSegment(segment string) {
 	t.segment = segment
 }
 
-func (t *Tracker) DefineSymbol(symbol string) {
-	t.defined[symbol] = NewSymbol(symbol)
-}
-
 func (t *Tracker) SymbolHit(symbol string, offset uint16, size uint8, optionalOffset uint16) {
 	t.positions[offset] = &Position{symbol: symbol, offset: offset, size: size, optionalOffset: optionalOffset}
 }
@@ -69,6 +65,11 @@ func (t *Tracker) SetMissing(symbol string, offset uint16, size uint8, optionalO
 func (t *Tracker) SetIndex(symbol string, index uint16) {
 	s := t.GetOrDefineSymbol(symbol)
 	s.SetIndex(index)
+}
+
+func (t *Tracker) SetReference(symbol, referenceName string, offset int32) {
+	s := t.GetOrDefineSymbol(symbol)
+	s.SetReference(referenceName, offset)
 }
 
 func (t *Tracker) SetType(symbol string, _type uint8) {

@@ -15,6 +15,7 @@ var (
 	flagDelay            = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 	flagHeadless         = flag.Bool("headless", false, "run computer as 'headless'")
 	flagMemoryConfigPath = flag.String("memory-config", "", "Path to the memory config file")
+	flagSymbolFile       = flag.String("symbol-file", "", "Path to indexed code (symbol) file")
 )
 
 func main() {
@@ -40,10 +41,11 @@ func main() {
 	}
 
 	c, err := comp.New(&comp.Config{
-		MemoryConfig: memoryConfig,
-		Headless:     *flagHeadless,
-		Program:      program,
-		Delay:        *flagDelay,
+		MemoryConfig:   memoryConfig,
+		Headless:       *flagHeadless,
+		Program:        program,
+		Delay:          *flagDelay,
+		SymbolFilePath: *flagSymbolFile,
 	})
 	if err != nil {
 		fmt.Println(err)

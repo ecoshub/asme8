@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -53,10 +54,13 @@ type Comp struct {
 	breakPoints            []uint16
 	inspectionMemoryOffset uint16
 
-	programLoaded bool
-	stopChan      chan struct{}
-	running       bool
-	pause         bool
+	codeLines          map[uint16]string
+	activeCodeLine     int
+	lastActiveCodeLine int
+	programLoaded      bool
+	stopChan           chan struct{}
+	running            bool
+	pause              bool
 }
 
 func New(conf *Config) (*Comp, error) {
@@ -78,6 +82,10 @@ func New(conf *Config) (*Comp, error) {
 		return nil, err
 	}
 	err = c.LoadProgram()
+	if err != nil {
+		return nil, err
+	}
+	err = c.ReadSymbolFile()
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +153,10 @@ func (c *Comp) Run() {
 	}
 
 	go c.run()
-	c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", DefaultStyle6)
+
+	if !c.Config.Headless {
+		c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", DefaultStyle6)
+	}
 
 	// standard main thread blocker
 	stop := make(chan os.Signal, 1)
@@ -241,7 +252,7 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.Stop()
 	for _, dev := range c.devices {
 		if excludeROM {
-			if dev.GetName() == "ROM" {
+			if strings.HasPrefix(dev.GetName(), "ROM") {
 				continue
 			}
 		}

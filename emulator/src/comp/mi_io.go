@@ -5,6 +5,7 @@ import (
 )
 
 func mInstSetRead(c *Comp, _ uint64) {
+	c.LogCodePanel()
 	c.rw = utils.IO_READ
 	triggerBridge(c)
 	c.tickDevices()

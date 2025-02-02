@@ -7,6 +7,8 @@ import (
 	"asme8/emulator/src/rom"
 	"asme8/emulator/src/terminal"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -98,6 +100,54 @@ func (c *Comp) CreateDevices() error {
 
 	c.SetStackStart(ramStart + 0xff)
 
+	return nil
+}
+
+func (c *Comp) ReadSymbolFile() error {
+	if c.Config.SymbolFilePath == "" {
+		return nil
+	}
+
+	file, err := os.ReadFile(c.Config.SymbolFilePath)
+	if err != nil {
+		return err
+	}
+
+	codeLines := make(map[uint16]string, 64)
+	lines := strings.Split(string(file), "\n")
+	for _, l := range lines {
+		// fmt.Printf("line:>%s<\n", l)
+		if len(l) < 6 {
+			continue
+		}
+		hex := l[1:5]
+		str := l[6:]
+		v, err := strconv.ParseInt(hex, 16, 32)
+		if err != nil {
+			return fmt.Errorf("code resolve error. machine code parse error. line: '%s', code: '%s', err: %s", l, hex, err)
+		}
+		// fmt.Printf("<%02x><%s>\n", v, str)
+		s, exists := codeLines[uint16(v)]
+		if exists {
+			codeLines[uint16(v)] = s + " " + strings.TrimSpace(str)
+		} else {
+			codeLines[uint16(v)] = l
+		}
+	}
+
+	for offset, l := range codeLines {
+		index := strings.Index(l, ";")
+		if index == -1 {
+			continue
+		}
+		c := l[:index]
+		c = strings.TrimSpace(c)
+		m := l[index+1:]
+		m = strings.TrimSpace(m)
+		codeLines[offset] = fmt.Sprintf("   %-57s%s", c, m)
+	}
+
+	c.codeLines = codeLines
 	return nil
 }
 

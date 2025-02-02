@@ -16,6 +16,8 @@ const (
 const (
 	FlagPanelWidth   = 31
 	MemoryPanelWidth = 31
+	sysPanelWidth    = 71
+	codePanelWidth   = 71
 )
 
 type Components struct {
@@ -24,6 +26,7 @@ type Components struct {
 	FlagPanel   *panel.Stack
 	MemoryPanel *panel.Stack
 	SysLogPanel *panel.Stack
+	CodePanel   *panel.Base
 }
 
 func NewSetup() (*Components, error) {
@@ -51,7 +54,7 @@ func NewSetup() (*Components, error) {
 	})
 
 	sysLogPanel := panel.NewStackPanel(&config.Config{
-		Width:  s.TerminalWidth,
+		Width:  sysPanelWidth,
 		Height: s.TerminalHeight - SCREEN_HEIGHT - 2,
 		ContentStyle: &style.Style{
 			ForegroundColor: 26,
@@ -74,8 +77,17 @@ func NewSetup() (*Components, error) {
 		},
 	})
 
+	codePanel := panel.NewBasicPanel(&config.Config{
+		Width:  codePanelWidth,
+		Height: s.TerminalHeight - SCREEN_HEIGHT - 2,
+		ContentStyle: &style.Style{
+			ForegroundColor: 26,
+		},
+	})
+
 	s.Add(mainPanel, FlagPanelWidth+1, 0)
 	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
+	s.Add(codePanel, sysPanelWidth, SCREEN_HEIGHT+1)
 	s.Add(memoryPanel, SCREEN_WIDTH+FlagPanelWidth+1, 0)
 	s.Add(flagPanel, 0, 0)
 
@@ -85,5 +97,6 @@ func NewSetup() (*Components, error) {
 		FlagPanel:   flagPanel,
 		MemoryPanel: memoryPanel,
 		SysLogPanel: sysLogPanel,
+		CodePanel:   codePanel,
 	}, nil
 }

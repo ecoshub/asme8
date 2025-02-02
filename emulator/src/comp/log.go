@@ -113,6 +113,59 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
 }
 
+func (c *Comp) LogCodePanel() {
+	if c.terminal == nil || c.terminal.Components.CodePanel == nil {
+		return
+	}
+
+	if len(c.codeLines) == 0 {
+		return
+	}
+
+	h := c.terminal.Components.CodePanel.Config.Height
+	i := -10
+	count := 0
+	c.activeCodeLine = 0
+	index := 0
+	lines := make([]string, h)
+	for count < h {
+		index = int(c.programCounter) + i
+		line, exists := c.codeLines[uint16(index)]
+		if index == int(c.programCounter) {
+			c.activeCodeLine = count
+		}
+		if exists {
+			lines[count] = line
+			count++
+		}
+		i++
+	}
+
+	if c.activeCodeLine == c.lastActiveCodeLine {
+		return
+	}
+
+	c.terminal.Components.CodePanel.WriteMultiStyle(lines, DefaultStyle1)
+
+	line, exits := c.codeLines[c.programCounter]
+	if exits {
+		c.terminal.Components.CodePanel.Write(c.activeCodeLine, line, DefaultStyle2)
+	} else {
+		start := int(c.programCounter) - 1
+		for start > -1 {
+			line, exists := c.codeLines[uint16(start)]
+			if exists {
+				c.terminal.Components.CodePanel.Write(c.activeCodeLine-1, line, DefaultStyle2)
+				break
+			}
+			start--
+		}
+	}
+
+	c.lastActiveCodeLine = c.activeCodeLine
+
+}
+
 func (c *Comp) LogMemory() {
 	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
 		return

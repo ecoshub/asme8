@@ -79,4 +79,5 @@ func (s *Screen) Clear() {
 	s.components.SysLogPanel.Clear()
 	s.components.FlagPanel.Clear()
 	s.components.MemoryPanel.Clear()
+	s.components.CodePanel.Clear()
 }

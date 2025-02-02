@@ -23,11 +23,10 @@
     global __GET_CHAR__
 
 __GET_CHAR__:
-char_wait:
     mov a, [ADDR_READY_CHAR]    ; char ready addr
     cmp a, 1                    ; 1 mean char ready
     jz char_read                ; jump to read label if ready
-    jmp char_wait               ; jump to char wait
+    jmp __GET_CHAR__            ; jump to char wait
 
 char_read:
     mov a, [ADDR_GET_CHAR]     ; read from char addr

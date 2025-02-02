@@ -18,7 +18,7 @@ func (l *Linker) ResolveCode() error {
 			return fmt.Errorf("fatal error. segment defined in offset is not present in object files. (impossible). segment: %s", seg)
 		}
 		code := o.Tracker.GetCode()
-		lines, err := ResolveCode(seg, code, offset)
+		lines, err := ResolveCode(code, offset)
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func (l *Linker) ResolveCode() error {
 	return nil
 }
 
-func ResolveCode(seg, code string, offset uint16) ([]string, error) {
+func ResolveCode(code string, offset uint16) ([]string, error) {
 	lines := make([]string, 0, 32)
 	tokens := strings.Split(code, "\n")
 	lastOffset := offset
@@ -42,9 +42,9 @@ func ResolveCode(seg, code string, offset uint16) ([]string, error) {
 		clean := strings.TrimSpace(t)
 		if len(clean) >= 6 {
 			number := clean[1:5]
-			v, err := strconv.ParseInt(number, 16, 16)
+			v, err := strconv.ParseInt(number, 16, 32)
 			if err != nil {
-				return nil, fmt.Errorf("code resolve errors. machine code parse error. line: %s, code: %s", clean, number)
+				return nil, fmt.Errorf("code resolve errors. machine code parse error. line: %s, code: %s, err: %s", clean, number, err)
 			}
 			newOffset = uint16(v) + offset
 			lastOffset = newOffset

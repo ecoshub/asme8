@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Linker struct {
@@ -79,6 +80,21 @@ func (l *Linker) Out(path string) (int, error) {
 	defer f.Close()
 
 	err = binary.Write(f, binary.BigEndian, l.memory)
+	if err != nil {
+		return 0, fmt.Errorf("file write error. err: %s", err)
+	}
+
+	return len(l.memory), nil
+}
+
+func (l *Linker) OutCode(path string) (int, error) {
+	f, err := os.Create(path)
+	if err != nil {
+		return 0, fmt.Errorf("open file error. err: %s", err)
+	}
+	defer f.Close()
+
+	err = os.WriteFile(path, []byte(strings.Join(l.code, "\n")), 0644)
 	if err != nil {
 		return 0, fmt.Errorf("file write error. err: %s", err)
 	}

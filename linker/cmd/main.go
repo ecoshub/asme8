@@ -5,6 +5,8 @@ import (
 	"asme8/linker/src/core"
 	"flag"
 	"fmt"
+	"path/filepath"
+	"strings"
 )
 
 var (
@@ -12,6 +14,7 @@ var (
 	flagSegmentConfigPath = flag.String("segment-config", "", "Path to the segment config file")
 	flagOutput            = flag.String("output", "a.bin", "output file name")
 	flagPrintSymbols      = flag.Bool("print", false, "print all symbol tables")
+	flagOutCodePath       = flag.String("output-code", "a.sym", "write indexed code to a path")
 )
 
 func main() {
@@ -65,7 +68,19 @@ func main() {
 	}
 
 	if *flagPrintSymbols {
-		l.PrintSymbols()
+		l.PrintSymbols(false)
+	}
+
+	if *flagOutput != "a.bin" {
+		ext := filepath.Ext(*flagOutput)
+		base := filepath.Base(*flagOutput)
+		*flagOutCodePath = strings.TrimSuffix(base, ext) + ".sym"
+	}
+
+	_, err = l.OutCode(*flagOutCodePath)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	fmt.Printf("link success. files: %v, output file: %s\n", objectFilePaths, *flagOutput)

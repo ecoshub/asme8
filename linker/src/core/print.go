@@ -13,7 +13,7 @@ type ResolvedSymbol struct {
 	index   uint16
 }
 
-func (l *Linker) PrintSymbols() {
+func (l *Linker) PrintSymbols(printCode bool) {
 
 	fmt.Println()
 
@@ -64,21 +64,24 @@ func (l *Linker) PrintSymbols() {
 	}
 	fmt.Println(t)
 
-	t = stable.New("")
-	t.AddFieldWithOptions("OFFSET", &stable.Options{
-		Alignment:       stable.AlignmentLeft,
-		HeaderAlignment: stable.AlignmentLeft,
-	})
-	t.AddFieldWithOptions("CODE", &stable.Options{
-		Alignment:       stable.AlignmentLeft,
-		HeaderAlignment: stable.AlignmentLeft,
-		CharLimit:       100,
-	})
-	for _, line := range l.code {
-		t.Row(line[:6], line[6:])
+	if printCode {
+		t = stable.New("")
+		t.AddFieldWithOptions("OFFSET", &stable.Options{
+			Alignment:       stable.AlignmentLeft,
+			HeaderAlignment: stable.AlignmentLeft,
+		})
+		t.AddFieldWithOptions("CODE", &stable.Options{
+			Alignment:       stable.AlignmentLeft,
+			HeaderAlignment: stable.AlignmentLeft,
+			CharLimit:       100,
+		})
+		for _, line := range l.code {
+			t.Row(line[:6], line[6:])
+		}
+
+		fmt.Println(t)
 	}
 
-	fmt.Println(t)
 }
 
 func SortSymbolMap(m map[string]*ResolvedSymbol) []string {

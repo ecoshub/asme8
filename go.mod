@@ -6,6 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.1
+	github.com/ecoshub/stable v1.0.4
 	github.com/ecoshub/termium v1.3.4-0.0.0
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
 )

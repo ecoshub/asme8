@@ -9,20 +9,20 @@ import (
 func (a *Assembler) CreatePrintable() string {
 	buffer := "\n"
 	if len(a.labels) > 0 {
-		buffer += "; labels:\n"
-		buffer += "-----------------\n"
+		buffer += "<0000> ; symbols:\n"
+		buffer += "<0000> -----------------\n"
 		for k, v := range a.labels {
-			buffer += fmt.Sprintf("; %-18s = 0x%04x\n", k, v.Offset)
+			buffer += fmt.Sprintf("<0000> ; %-18s <%04x>\n", k, v.Offset)
 		}
-		buffer += "\n"
+		buffer += "<0000> \n"
 	}
 	if len(a.variables) > 0 {
-		buffer += "; variables:\n"
-		buffer += "-----------------\n"
+		buffer += "<0000> ; symbols (variables):\n"
+		buffer += "<0000> -----------------\n"
 		for k, v := range a.variables {
-			buffer += fmt.Sprintf("%s=0x%02x\n", k, v.Val.GetValue())
+			buffer += fmt.Sprintf("<0000> %s=0x%02x\n", k, v.Val.GetValue())
 		}
-		buffer += "\n"
+		buffer += "<0000> \n"
 	}
 	ops := ""
 	for i, c := range a.out {
@@ -33,91 +33,33 @@ func (a *Assembler) CreatePrintable() string {
 		ok, label := isLabel(i, a.labels)
 		if ok {
 			if !label.DisablePrint {
-				buffer += fmt.Sprintf("%s:\n", label.Text)
+				buffer += fmt.Sprintf("<%04x>  %s:\n", i, label.Text)
 			}
 		}
 		ok, directive := isDirective(i, a.directives)
 		if ok {
 			switch directive.Type {
 			case ".org":
-				buffer += fmt.Sprintf("%-40s; (location: %04x)\n", directive.Raw, directive.Values[0].GetValue())
+				buffer += fmt.Sprintf("<%04x> %-40s ; (location: %04x)\n", i, directive.Raw, directive.Values[0].GetValue())
 			case ".resb":
-				buffer += fmt.Sprintf("%-40s; 00 ... (%d bytes)\n", directive.Raw, directive.Values[0].GetValue())
+				buffer += fmt.Sprintf("<%04x> %-40s ; 00 ... (%d bytes)\n", i, directive.Raw, directive.Values[0].GetValue())
 			case ".byte":
 				arr := ToHexArray_1byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
+				buffer += fmt.Sprintf("<%04x> %-40s ; %v\n", i, directive.Raw, arr)
 			case ".word":
 				arr := ToHexArray_2byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
+				buffer += fmt.Sprintf("<%04x> %-40s ; %v\n", i, directive.Raw, arr)
 			}
 			ops = ""
 		}
 		ok, li := isLineEnd(i, a.Coder.linesEndings)
 		if ok {
-			buffer += fmt.Sprintf("    %-36s; %s\n", a.Coder.instructions[li], ops)
+			buffer += fmt.Sprintf("<%04x>     %-36s ; %s\n", i, a.Coder.instructions[li], ops)
 			ops = ""
 		}
 		ok = isBlank(i, a.Coder.blanksLines)
 		if ok {
-			buffer += "\n"
-		}
-	}
-	return buffer
-}
-
-func (a *Assembler) CreatePrintable2() string {
-	buffer := "\n"
-	buffer += "SYMBOLS:\n"
-	if len(a.labels) > 0 {
-		for k, v := range a.labels {
-			buffer += fmt.Sprintf("%04x %30s\n", v.Offset, k)
-		}
-		buffer += "\n"
-	}
-	if len(a.variables) > 0 {
-		// buffer += "; variables:\n"
-		// buffer += "-----------------\n"
-		for k, v := range a.variables {
-			buffer += fmt.Sprintf("%04x %30s\n", v.Val.GetValue(), k)
-		}
-		buffer += "\n"
-	}
-	ops := ""
-	for i, c := range a.out {
-		if !isSkip(i, a.Coder.skip) {
-			ops += fmt.Sprintf("%02x", c)
-			ops += " "
-		}
-		ok, label := isLabel(i, a.labels)
-		if ok {
-			if !label.DisablePrint {
-				buffer += fmt.Sprintf("%s:\n", label.Text)
-			}
-		}
-		ok, directive := isDirective(i, a.directives)
-		if ok {
-			switch directive.Type {
-			case ".org":
-				buffer += fmt.Sprintf("%-40s; (location: %04x)\n", directive.Raw, directive.Values[0].GetValue())
-			case ".resb":
-				buffer += fmt.Sprintf("%-40s; 00 ... (%d bytes)\n", directive.Raw, directive.Values[0].GetValue())
-			case ".byte":
-				arr := ToHexArray_1byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
-			case ".word":
-				arr := ToHexArray_2byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
-			}
-			ops = ""
-		}
-		ok, li := isLineEnd(i, a.Coder.linesEndings)
-		if ok {
-			buffer += fmt.Sprintf("    %-36s; %s\n", a.Coder.instructions[li], ops)
-			ops = ""
-		}
-		ok = isBlank(i, a.Coder.blanksLines)
-		if ok {
-			buffer += "\n"
+			buffer += fmt.Sprintf("<%04x> \n", i)
 		}
 	}
 	return buffer
@@ -134,28 +76,28 @@ func (a *Assembler) CodeString() string {
 		ok, label := isLabel(i, a.labels)
 		if ok {
 			if !label.DisablePrint {
-				buffer += fmt.Sprintf("%s:\n", label.Text)
+				buffer += fmt.Sprintf("<%04x> %s:\n", i, label.Text)
 			}
 		}
 		ok, directive := isDirective(i, a.directives)
 		if ok {
 			switch directive.Type {
 			case ".org":
-				buffer += fmt.Sprintf("%-40s; (location: %04x)\n", directive.Raw, directive.Values[0].GetValue())
+				buffer += fmt.Sprintf("<%04x> %-40s; (location: %04x)\n", i, directive.Raw, directive.Values[0].GetValue())
 			case ".resb":
-				buffer += fmt.Sprintf("%-40s; 00 ... (%d bytes)\n", directive.Raw, directive.Values[0].GetValue())
+				buffer += fmt.Sprintf("<%04x> %-40s; 00 ... (%d bytes)\n", i, directive.Raw, directive.Values[0].GetValue())
 			case ".byte":
 				arr := ToHexArray_1byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
+				buffer += fmt.Sprintf("<%04x> %-40s; %v\n", i, directive.Raw, arr)
 			case ".word":
 				arr := ToHexArray_2byte(directive.Values, true)
-				buffer += fmt.Sprintf("%-40s; %v\n", directive.Raw, arr)
+				buffer += fmt.Sprintf("<%04x> %-40s; %v\n", i, directive.Raw, arr)
 			}
 			ops = ""
 		}
 		ok, li := isLineEnd(i, a.Coder.linesEndings)
 		if ok {
-			buffer += fmt.Sprintf("    %-36s; %s\n", a.Coder.instructions[li], ops)
+			buffer += fmt.Sprintf("<%04x>    %-36s; %s\n", i, a.Coder.instructions[li], ops)
 			ops = ""
 		}
 		ok = isBlank(i, a.Coder.blanksLines)

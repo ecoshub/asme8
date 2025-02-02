@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"sort"
+
+	"github.com/ecoshub/stable"
 )
 
 type ResolvedSymbol struct {
@@ -13,21 +15,41 @@ type ResolvedSymbol struct {
 
 func (l *Linker) PrintSymbols() {
 
-	fmt.Println("--------------------------------------------------------------------------------------------")
-	fmt.Println("GLOBAL LINKER SYMBOLS:")
-	fmt.Println("--------------------------------------------------------------------------------------------")
+	fmt.Println()
+
+	t := stable.New("GLOBAL LINKER SYMBOLS")
+	t.AddFieldWithOptions("INDEX", &stable.Options{
+		Format:          "%04x",
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
+	t.AddFieldWithOptions("SYMBOL", &stable.Options{
+		Format:          "%s",
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
 	for _, s := range l.linkerSymbols {
-		fmt.Printf("%04x        <%s>\n", s.GetIndex(), s.GetSymbol())
+		t.Row(s.GetIndex(), s.GetSymbol())
 	}
-	fmt.Println("--------------------------------------------------------------------------------------------")
+	fmt.Println(t)
 
-	fmt.Println("")
+	t = stable.New("RESOLVED SYMBOLS")
+	t.AddFieldWithOptions("SEGMENT", &stable.Options{
+		Format:          "%s",
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
+	t.AddFieldWithOptions("INDEX", &stable.Options{
+		Format:          "%04x",
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
+	t.AddFieldWithOptions("SYMBOL", &stable.Options{
+		Format:          "%s",
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
 
-	fmt.Println("--------------------------------------------------------------------------------------------")
-	fmt.Println("RESOLVED SYMBOLS:")
-	fmt.Println("--------------------------------------------------------------------------------------------")
-	fmt.Println("SEGMENT                       INDEX       SYMBOL")
-	fmt.Println("--------------------------------------------------------------------------------------------")
 	for _, seg := range l.segmentConfig.Configs {
 		rss := l.resolvedSymbols[seg.Name]
 		unique := map[string]*ResolvedSymbol{}
@@ -37,10 +59,26 @@ func (l *Linker) PrintSymbols() {
 		sorted := SortSymbolMap(unique)
 		for _, us := range sorted {
 			us := unique[us]
-			fmt.Printf("%-20s      %04x        <%s>\n", us.segment, us.index, us.symbol)
+			t.Row(us.segment, us.index, us.symbol)
 		}
 	}
-	fmt.Println("--------------------------------------------------------------------------------------------")
+	fmt.Println(t)
+
+	t = stable.New("")
+	t.AddFieldWithOptions("OFFSET", &stable.Options{
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+	})
+	t.AddFieldWithOptions("CODE", &stable.Options{
+		Alignment:       stable.AlignmentLeft,
+		HeaderAlignment: stable.AlignmentLeft,
+		CharLimit:       100,
+	})
+	for _, line := range l.code {
+		t.Row(line[:6], line[6:])
+	}
+
+	fmt.Println(t)
 }
 
 func SortSymbolMap(m map[string]*ResolvedSymbol) []string {

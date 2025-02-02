@@ -13,6 +13,7 @@ type Linker struct {
 	segmentConfig           *config.SegmentConfig
 	objects                 []*object.ELF
 	memory                  []byte
+	code                    []string
 	memoryLastSegmentOffset map[string]uint16
 	segmentOffsets          map[string]uint16
 	globals                 map[string][]*object.Symbol
@@ -61,6 +62,12 @@ func (l *Linker) Link() error {
 	if err != nil {
 		return err
 	}
+
+	err = l.ResolveCode()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

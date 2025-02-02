@@ -51,6 +51,7 @@ func main() {
 	}
 
 	l := core.NewLinker(memoryConfig, segmentConfig, objectFiles...)
+
 	err = l.Link()
 	if err != nil {
 		fmt.Println(err)

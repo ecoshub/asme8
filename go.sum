@@ -1,13 +1,7 @@
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
-github.com/ecoshub/termium v1.3.0-0.0.0 h1:hqxS0pLm4ZnyyQwbILf+XTyfgPFzS5OyxU9TQQkyNu0=
-github.com/ecoshub/termium v1.3.0-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
-github.com/ecoshub/termium v1.3.1-0.0.0 h1:14vZWsDgn0kucbJuHjI4sj/XkSKOpkxQCETeKUU/cZM=
-github.com/ecoshub/termium v1.3.1-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
-github.com/ecoshub/termium v1.3.2-0.0.0 h1:5/bGDtV4mKniMOjlbkdWtW/Bj0h0iEVySLy7+AHr+Ac=
-github.com/ecoshub/termium v1.3.2-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
-github.com/ecoshub/termium v1.3.3-0.0.0 h1:7gNjlrRdJ1hy1nZKUYapZZj4zADurwLyC195ui4JQbA=
-github.com/ecoshub/termium v1.3.3-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
+github.com/ecoshub/stable v1.0.4 h1:z7fYiUTzdzfU0DQbP9xcMw4IBFrkr+t4vmsL5dwN6w4=
+github.com/ecoshub/stable v1.0.4/go.mod h1:SYaOviJ4wlgsEyjBqWCa+062jQzE/Sf/3qJVqheQEzk=
 github.com/ecoshub/termium v1.3.4-0.0.0 h1:FJa1AnhxvVO98ejsDis86+xbTnJihc5mTpuWoAD9UZQ=
 github.com/ecoshub/termium v1.3.4-0.0.0/go.mod h1:MebegfsgWX2oQ+LYZu1JpL2sS9Fx+R+6XGL6W/c+elU=
 github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 h1:XBBHcIb256gUJtLmY22n99HaZTz+r2Z51xUPi01m3wg=

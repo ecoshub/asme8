@@ -1,18 +1,21 @@
-ADDR=0x4000
+ADDR_PUT_CHAR=0x7000
+
 start:
-    mov a, 0x10
-    mov [ADDR], a
-    mov a, 0x11
-    mov [ADDR+1], a
-    mov a, 0x12
-    mov [ADDR+2], a
-    mov a, 0x13
-    mov [ADDR+3], a
-    mov ip, ADDR
-    mov a, [ip+b]
-    ; add ip, 1
-    ; mov b, [ip]
-    ; add ip, 1
-    ; mov c, [ip]
-    ; add ip, 1
-    ; mov d, [ip]
+    mov b, 0
+loop:
+    mov a, [message+b]
+    cmp a, 0
+    jz done
+    call print_char
+    inc b
+    jmp loop
+
+print_char:
+    mov [ADDR_PUT_CHAR+b], a
+    ret
+
+done:
+    brk
+
+message:
+.byte 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', 0

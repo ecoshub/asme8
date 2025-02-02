@@ -9,6 +9,9 @@ import (
 	"asme8/emulator/src/terminal"
 	"asme8/emulator/utils"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -21,6 +24,8 @@ var (
 )
 
 type Comp struct {
+	Config *Config
+
 	registers register.Module
 	status    *status.StatusRegister
 	step      uint8
@@ -52,12 +57,11 @@ type Comp struct {
 	stopChan      chan struct{}
 	running       bool
 	pause         bool
-	debug         bool
-	delay         time.Duration
 }
 
-func New() *Comp {
+func New(conf *Config) (*Comp, error) {
 	c := &Comp{
+		Config:        conf,
 		registers:     register.NewModule(6),
 		status:        status.NewStatusRegister(),
 		aluBus:        bus.New(),
@@ -69,7 +73,15 @@ func New() *Comp {
 		singleTicker:  make(chan struct{}, 1),
 		programLoaded: false,
 	}
-	return c
+	err := c.CreateDevices()
+	if err != nil {
+		return nil, err
+	}
+	err = c.LoadProgram()
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func (c *Comp) AttachTerminal(terminal *terminal.Terminal) {
@@ -93,11 +105,11 @@ func (c *Comp) SetPause(enable bool) {
 }
 
 func (c *Comp) SetDebug(enable bool) {
-	c.debug = enable
+	c.Config.Debug = enable
 }
 
 func (c *Comp) SetDelay(delay time.Duration) {
-	c.delay = delay
+	c.Config.Delay = delay
 }
 
 func (c *Comp) PrintRegisters() {
@@ -116,15 +128,36 @@ func (c *Comp) GetStatusRegister() uint8 {
 	return c.status.Flag()
 }
 
-func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, size uint16) {
-	if dev == nil {
+func (c *Comp) Run() {
+
+	if c.Config.Test {
+		c.SetPause(false)
+		c.run()
 		return
 	}
-	dev.Attach(c.addrBus, c.outputBus, rangeStart, size)
-	c.devices = append(c.devices, dev)
+
+	if c.Config.Headless {
+		c.SetPause(false)
+		c.SetDebug(true)
+	} else {
+		c.SetPause(true)
+		c.Help()
+	}
+
+	go c.run()
+	c.LogWithStyle("TIP: type 's' and press 'ENTER' to start the program", DefaultStyle6)
+
+	// standard main thread blocker
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+
+	if !c.Config.Headless {
+		terminal.ResetScreen()
+	}
 }
 
-func (c *Comp) Run() {
+func (c *Comp) run() {
 	if c.running {
 		return
 	}
@@ -147,7 +180,7 @@ func (c *Comp) Run() {
 		return
 	}
 
-	t := time.NewTicker(c.delay)
+	t := time.NewTicker(c.Config.Delay)
 	c.running = true
 	for {
 		select {
@@ -182,7 +215,7 @@ func (c *Comp) tick() bool {
 	defer c.clear()
 	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
 	for _, mi := range microinstructions {
-		keep := c.run(mi)
+		keep := c.execute(mi)
 		if !keep {
 			break
 		}
@@ -195,19 +228,13 @@ func (c *Comp) tick() bool {
 	return true
 }
 
-func (c *Comp) run(mi uint64) bool {
+func (c *Comp) execute(mi uint64) bool {
 	f, ok := microinstructionFunctions[mi]
 	if ok {
 		f(c, mi)
 		return true
 	}
 	return false
-}
-
-func (c *Comp) tickDevices() {
-	for _, dev := range c.devices {
-		dev.Tick(c.rw)
-	}
 }
 
 func (c *Comp) Reset(excludeROM bool, startWithPause bool) {

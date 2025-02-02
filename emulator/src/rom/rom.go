@@ -26,6 +26,10 @@ func New(size uint16) *Rom {
 	}
 }
 
+func (r *Rom) SetName(name string) {
+	r.name = name
+}
+
 func (r *Rom) Load(offset int, data []byte) {
 	copy(r.data[offset:len(data)], data[:])
 }

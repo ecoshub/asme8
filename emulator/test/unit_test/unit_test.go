@@ -1293,8 +1293,7 @@ var (
 			},
 		},
 		{
-			Debug: true,
-			Name:  "push pop ip",
+			Name: "push pop ip",
 			// mov ipl, 0x30
 			// mov iph, 0x20
 			// push ip

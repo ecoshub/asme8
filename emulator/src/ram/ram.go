@@ -26,6 +26,10 @@ func New(size uint16) *Ram {
 	}
 }
 
+func (r *Ram) SetName(name string) {
+	r.name = name
+}
+
 func (r *Ram) Load(offset int, data []byte) {
 	copy(r.data[offset:offset+len(data)], data[:])
 }

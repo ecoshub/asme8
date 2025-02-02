@@ -53,7 +53,7 @@ func (c *Comp) HandleCommands(command string) {
 		c.Restart(true)
 		return
 	case "hz":
-		c.Logf("HZ: %d", time.Second/c.delay)
+		c.Logf("HZ: %d", time.Second/c.Config.Delay)
 		return
 	case "exit":
 		fallthrough
@@ -73,8 +73,10 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		// c.rom.Load(0, program)
-		c.programLoaded = true
+
+		c.Config.Program = program
+		c.LoadProgram()
+
 		c.Restart(true)
 		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
 		c.pushToCommandPalletHistory(command)
@@ -92,8 +94,10 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		// c.rom.Load(0, program)
-		c.programLoaded = true
+
+		c.Config.Program = program
+		c.LoadProgram()
+
 		c.Restart(true)
 		c.Logf("-> Program loaded in to ROM. Start addr is 0x%04x and its %d bytes", 0, len(program))
 		c.pushToCommandPalletHistory(command)
@@ -124,6 +128,23 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
+	exists, cmd, err := SplitStringCommand(command, "mem")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		dev, ok := c.GetDevice(cmd)
+		if ok {
+			start, _ := dev.GetRange()
+			c.inspectionMemoryOffset = start
+			c.LogMemory()
+			c.Logf("Memory panel now points to addr 0x%04x", start)
+			c.pushToCommandPalletHistory(command)
+			return
+		}
+	}
+
 	exists, n, err = SplitNumberCommand(command, "mem")
 	if exists {
 		if err != nil {
@@ -146,7 +167,7 @@ func (c *Comp) HandleCommands(command string) {
 		}
 		for i := 0; i < int(n); i++ {
 			c.tick()
-			time.Sleep(c.delay)
+			time.Sleep(c.Config.Delay)
 		}
 		c.Logf("clock tick %d time", n)
 		c.pushToCommandPalletHistory(command)
@@ -160,7 +181,7 @@ func (c *Comp) HandleCommands(command string) {
 			return
 		}
 		delay := time.Second / time.Duration(param)
-		from := c.delay
+		from := c.Config.Delay
 		c.SetDelay(delay)
 		c.Restart(true)
 		c.Logf("delay changed from %s to %s and computer restarted", from, delay)

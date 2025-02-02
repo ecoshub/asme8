@@ -32,7 +32,7 @@ func (c *Comp) Log(str string) {
 
 func (c *Comp) LogWithStyle(str string, sty *style.Style) {
 	if c.terminal == nil || c.terminal.Components.SysLogPanel == nil {
-		if c.debug {
+		if c.Config.Debug {
 			fmt.Println(str)
 		}
 		return
@@ -42,7 +42,7 @@ func (c *Comp) LogWithStyle(str string, sty *style.Style) {
 
 func (c *Comp) Logf(format string, a ...any) {
 	if c.terminal == nil || c.terminal.Components.SysLogPanel == nil {
-		if c.debug {
+		if c.Config.Debug {
 			if !strings.HasSuffix(format, "\n") {
 				format += "\n"
 			}
@@ -55,7 +55,7 @@ func (c *Comp) Logf(format string, a ...any) {
 
 func (c *Comp) LogfFlag(format string, a ...any) {
 	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
-		if c.debug {
+		if c.Config.Debug {
 			fmt.Printf(format, a...)
 		}
 		return
@@ -65,7 +65,7 @@ func (c *Comp) LogfFlag(format string, a ...any) {
 
 func (c *Comp) LogfFlagIndex(index int, format string, a ...any) {
 	if c.terminal == nil || c.terminal.Components.FlagPanel == nil {
-		if c.debug {
+		if c.Config.Debug {
 			fmt.Printf(format, a...)
 		}
 		return
@@ -75,7 +75,7 @@ func (c *Comp) LogfFlagIndex(index int, format string, a ...any) {
 
 func (c *Comp) LogfFlagIndexWithStyle(index int, sty *style.Style, format string, a ...any) {
 	if c.terminal == nil || c.terminal.Components.FlagPanel == nil {
-		if c.debug {
+		if c.Config.Debug {
 			fmt.Printf(format, a...)
 		}
 		return

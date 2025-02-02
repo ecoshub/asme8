@@ -1,6 +1,7 @@
 package test
 
 import (
+	"asme8/common/config"
 	"asme8/emulator/src/comp"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/src/ram"
@@ -35,13 +36,22 @@ func GetComp() *comp.Comp {
 		return MainTestComputer
 	}
 
-	MainROM = rom.New(0x2000)
-	MainRAM = ram.New(0xd7ee)
-	MainTestComputer = comp.New()
-	MainTestComputer.SetStackStart(0x2000 + 0xff)
-	MainTestComputer.ConnectDevice(MainROM, 0x0000, 0x2000)
-	MainTestComputer.ConnectDevice(MainRAM, 0x2000, 0xd7ee)
-	MainTestComputer.SetDelay(time.Nanosecond)
-	MainTestComputer.SetPause(false)
+	var err error
+	MainTestComputer, err = comp.New(&comp.Config{
+		MemoryConfig: &config.MemoryConfig{
+			Configs: []*config.Memory{
+				{Name: "ROM", Size: config.NewNullable(0x2000), Type: "ro"},
+				{Name: "RAM", Size: config.NewNullable(0xdfff), Type: "rw"},
+			},
+		},
+		Headless: true,
+		Delay:    time.Nanosecond,
+		Test:     true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	MainROM, _ = MainTestComputer.GetRom()
+	MainRAM, _ = MainTestComputer.GetRam()
 	return MainTestComputer
 }

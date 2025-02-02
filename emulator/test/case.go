@@ -44,8 +44,8 @@ func RunCase(t *testing.T, tc *TestCase) {
 	t.Run(tc.Name, func(tt *testing.T) {
 		c := GetComp()
 		c.Reset(false, false)
-		MainROM.Load(0, tc.Program)
-		c.ProgramLoaded()
+		c.Config.Program = tc.Program
+		c.LoadProgram()
 		tt.Logf("program: %s", utils.ToHexArray(tc.Program))
 		c.Run()
 

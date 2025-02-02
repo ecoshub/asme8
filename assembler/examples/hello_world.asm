@@ -1,4 +1,4 @@
-ADDR_PUT_CHAR=0x7000
+ADDR_PUT_CHAR=0xf86d
 
 start:
     mov b, 0

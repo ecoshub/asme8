@@ -13,4 +13,5 @@ type Config struct {
 	Delay          time.Duration
 	Test           bool
 	SymbolFilePath string
+	SymbolFile     string
 }

@@ -54,13 +54,16 @@ type Comp struct {
 	breakPoints            []uint16
 	inspectionMemoryOffset uint16
 
-	codeLines          map[uint16]string
-	activeCodeLine     int
-	lastActiveCodeLine int
-	programLoaded      bool
-	stopChan           chan struct{}
-	running            bool
-	pause              bool
+	codeLines       map[uint16]string
+	codeLinesSorted []uint16
+	activeCodeLine  int
+	programLoaded   bool
+	stopChan        chan struct{}
+	running         bool
+	pause           bool
+	lastBreakpoint  uint16
+	breakpointHit   bool
+	lastCommand     string
 }
 
 func New(conf *Config) (*Comp, error) {
@@ -85,9 +88,18 @@ func New(conf *Config) (*Comp, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = c.ReadSymbolFile()
-	if err != nil {
-		return nil, err
+	if conf.SymbolFilePath != "" {
+		err := c.ReadSymbolFile()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		if len(conf.SymbolFile) != 0 {
+			err := c.ResolveSymbolFile(conf.SymbolFile)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 	return c, nil
 }
@@ -184,10 +196,11 @@ func (c *Comp) run() {
 	})
 
 	c.LogMemory()
+	c.LogCodePanel(true)
 	c.LogState()
 
 	if !c.programLoaded {
-		c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", DefaultWarningStyle)
+		c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", WarningStyle)
 		return
 	}
 
@@ -224,6 +237,7 @@ func (c *Comp) Stop() {
 
 func (c *Comp) tick() bool {
 	defer c.clear()
+
 	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
 	for _, mi := range microinstructions {
 		keep := c.execute(mi)
@@ -231,9 +245,10 @@ func (c *Comp) tick() bool {
 			break
 		}
 	}
+
 	c.LogState()
 	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
-		c.LogWithStyle(" ## BREAK ## ", DefaultWarningStyle)
+		c.LogWithStyle(" ## BREAK ## ", WarningStyle)
 		return false
 	}
 	return true

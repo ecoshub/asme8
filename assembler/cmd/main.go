@@ -2,11 +2,8 @@ package main
 
 import (
 	"asme8/assembler/src/assembler"
-	"encoding/binary"
 	"flag"
 	"fmt"
-	"log"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -17,6 +14,7 @@ var (
 	flagPrint       = flag.Bool("print", false, "print the code and the machine code")
 	flagSegmentAddr = flag.Uint("segment-addr", 0, "segment start addr")
 	flagMode        = flag.String("mode", "exe", "assembly mode exe | elf")
+	flagOutCodePath = flag.String("output-code", "", "write indexed code to a path")
 )
 
 func main() {
@@ -40,26 +38,29 @@ func main() {
 		mode = assembler.ASM_MODE_ELF
 	}
 
-	out, err := assembler.AssembleFile(&assembler.Options{
-		FilePath:    *flagFile,
-		PrintDetail: *flagPrint,
-		SegmentAddr: uint16(*flagSegmentAddr),
-		Mode:        mode,
+	if *flagOutCodePath == "" {
+		ext := filepath.Ext(*flagFile)
+		base := filepath.Base(*flagFile)
+		*flagOutCodePath = strings.TrimSuffix(base, ext) + ".sym"
+	}
+
+	out, code, err := assembler.AssembleFile(&assembler.Options{
+		FilePath:       *flagFile,
+		PrintDetail:    *flagPrint,
+		SegmentAddr:    uint16(*flagSegmentAddr),
+		Mode:           mode,
+		OutputCodePath: *flagOutCodePath,
+		OutputFilePath: *flagOutput,
 	})
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	f, err := os.Create(*flagOutput)
+	_, err = assembler.OutCode(*flagOutCodePath, code)
 	if err != nil {
-		log.Fatal("Couldn't open file", err)
-	}
-	defer f.Close()
-
-	err = binary.Write(f, binary.BigEndian, out)
-	if err != nil {
-		fmt.Println("file write error", err)
+		fmt.Println(err)
 		return
 	}
 

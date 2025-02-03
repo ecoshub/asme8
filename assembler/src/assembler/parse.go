@@ -10,24 +10,26 @@ import (
 )
 
 type Options struct {
-	Mode        ASM_MODE
-	FilePath    string
-	PrintDetail bool
-	SegmentAddr uint16
+	Mode           ASM_MODE
+	FilePath       string
+	OutputCodePath string
+	OutputFilePath string
+	PrintDetail    bool
+	SegmentAddr    uint16
 }
 
-func AssembleFile(options *Options) ([]byte, error) {
+func AssembleFile(options *Options) ([]byte, string, error) {
 	if options == nil {
-		return nil, errors.New("must provide at least file path with option")
+		return nil, "", errors.New("must provide at least file path with option")
 	}
 
 	input, err := antlr.NewFileStream(options.FilePath)
 	if err != nil {
-		return nil, fmt.Errorf("file stream error. err: %s", err)
+		return nil, "", fmt.Errorf("file stream error. err: %s", err)
 	}
 
 	if options.Mode == ASM_MODE_NONE {
-		return nil, errors.New("must provide an assembly mode")
+		return nil, "", errors.New("must provide an assembly mode")
 	}
 
 	el := &error_listener.CustomErrorListener{}
@@ -47,12 +49,14 @@ func AssembleFile(options *Options) ([]byte, error) {
 
 	err = el.GetError()
 	if err != nil {
-		return nil, err
+		fmt.Println(3)
+		return nil, "", err
 	}
 
 	out, err := assembler.Assemble()
 	if err != nil {
-		return nil, err
+		fmt.Println(4)
+		return nil, "", err
 	}
 
 	if options.PrintDetail {
@@ -65,5 +69,11 @@ func AssembleFile(options *Options) ([]byte, error) {
 		}
 	}
 
-	return out, nil
+	err = assembler.WriteBinaryFile(options.OutputFilePath, out)
+	if err != nil {
+		fmt.Println(5)
+		return nil, "", err
+	}
+
+	return out, assembler.CodeString(), nil
 }

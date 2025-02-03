@@ -6,22 +6,24 @@ import (
 	"os"
 )
 
-func ResolveProgram(binFilePath, asmFilePath string) ([]byte, error) {
+func ResolveProgram(binFilePath, asmFilePath string) ([]byte, string, error) {
 	if binFilePath != "" {
 		program, err := ReadProgram(binFilePath)
 		if err != nil {
-			return nil, err
+			fmt.Println(3)
+			return nil, "", err
 		}
-		return program, nil
+		return program, "", nil
 	}
 	if asmFilePath != "" {
-		program, err := AssembleProgram(asmFilePath)
+		program, code, err := AssembleProgram(asmFilePath)
 		if err != nil {
-			return nil, err
+			fmt.Println(2)
+			return nil, "", err
 		}
-		return program, nil
+		return program, code, nil
 	}
-	return []byte{}, nil
+	return []byte{}, "", nil
 }
 
 func ReadProgram(binFilePath string) ([]uint8, error) {
@@ -32,13 +34,14 @@ func ReadProgram(binFilePath string) ([]uint8, error) {
 	return program, nil
 }
 
-func AssembleProgram(asmFilePath string) ([]uint8, error) {
-	program, err := assembler.AssembleFile(&assembler.Options{
+func AssembleProgram(asmFilePath string) ([]uint8, string, error) {
+	program, code, err := assembler.AssembleFile(&assembler.Options{
 		FilePath: asmFilePath,
 		Mode:     assembler.ASM_MODE_EXE,
 	})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return program, nil
+
+	return program, code, nil
 }

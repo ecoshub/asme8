@@ -5,6 +5,8 @@ import (
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/utils"
 	"fmt"
+
+	"github.com/ecoshub/termium/component/style"
 )
 
 var _ connectable.Connectable = &Screen{}
@@ -22,7 +24,7 @@ type Screen struct {
 
 func NewScreen(components *Components, size int) (*Screen, error) {
 	return &Screen{
-		name:       "SCREEN",
+		name:       "VIDEO",
 		buffer:     NewScreenBuffer(size),
 		dataBuffer: make([]uint8, 8),
 		components: components,
@@ -60,7 +62,7 @@ func (s *Screen) WriteRequest() {
 	addr = addr - s.addrStart
 	data := s.dataBus.Read_16()
 	s.buffer.write(addr, rune(data))
-	s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x", addr, data))
+	s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x", addr, data), style.DefaultStyleInfo)
 	s.components.MainPanel.Write(int(addr), rune(data))
 }
 

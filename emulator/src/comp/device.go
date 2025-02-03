@@ -8,6 +8,7 @@ import (
 	"asme8/emulator/src/terminal"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -113,8 +114,13 @@ func (c *Comp) ReadSymbolFile() error {
 		return err
 	}
 
+	return c.ResolveSymbolFile(string(file))
+}
+
+func (c *Comp) ResolveSymbolFile(code string) error {
+
 	codeLines := make(map[uint16]string, 64)
-	lines := strings.Split(string(file), "\n")
+	lines := strings.Split(code, "\n")
 	for _, l := range lines {
 		// fmt.Printf("line:>%s<\n", l)
 		if len(l) < 6 {
@@ -148,7 +154,21 @@ func (c *Comp) ReadSymbolFile() error {
 	}
 
 	c.codeLines = codeLines
+	c.codeLinesSorted = sortCodeLines(codeLines)
 	return nil
+}
+
+func sortCodeLines(m map[uint16]string) []uint16 {
+	keys := make([]uint16, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return m[keys[i]] < m[keys[j]]
+	})
+
+	return keys
 }
 
 func (c *Comp) ConnectDevice(dev connectable.Connectable, rangeStart uint16, size uint16) {

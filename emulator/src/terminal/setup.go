@@ -17,7 +17,7 @@ const (
 	FlagPanelWidth   = 31
 	MemoryPanelWidth = 31
 	sysPanelWidth    = 71
-	codePanelWidth   = 71
+	codePanelWidth   = 70
 )
 
 type Components struct {
@@ -87,7 +87,7 @@ func NewSetup() (*Components, error) {
 
 	s.Add(mainPanel, FlagPanelWidth+1, 0)
 	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
-	s.Add(codePanel, sysPanelWidth, SCREEN_HEIGHT+1)
+	s.Add(codePanel, sysPanelWidth+1, SCREEN_HEIGHT+1)
 	s.Add(memoryPanel, SCREEN_WIDTH+FlagPanelWidth+1, 0)
 	s.Add(flagPanel, 0, 0)
 

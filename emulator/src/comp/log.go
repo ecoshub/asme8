@@ -10,16 +10,18 @@ import (
 )
 
 var (
-	DefaultStyle1       = &style.Style{ForegroundColor: 38}
-	DefaultStyle2       = &style.Style{ForegroundColor: 204}
-	DefaultStyle3       = &style.Style{ForegroundColor: 227}
-	DefaultStyle4       = &style.Style{ForegroundColor: 116}
-	DefaultStyle5       = &style.Style{ForegroundColor: 35}
-	DefaultStyle6       = &style.Style{ForegroundColor: 202}
-	DefaultStyle7       = &style.Style{ForegroundColor: 157}
-	DefaultHelpStyle    = &style.Style{ForegroundColor: 247}
-	DefaultWarningStyle = &style.Style{ForegroundColor: 226}
-	DefaultBreakStyle   = &style.Style{ForegroundColor: 162}
+	DefaultStyle1        = &style.Style{ForegroundColor: 38}
+	DefaultStyle2        = &style.Style{ForegroundColor: 204}
+	DefaultStyle3        = &style.Style{ForegroundColor: 227}
+	DefaultStyle4        = &style.Style{ForegroundColor: 116}
+	DefaultStyle5        = &style.Style{ForegroundColor: 35}
+	DefaultStyle6        = &style.Style{ForegroundColor: 202}
+	DefaultStyle7        = &style.Style{ForegroundColor: 157}
+	HelpStyle            = &style.Style{ForegroundColor: 247}
+	WarningStyle         = &style.Style{ForegroundColor: 226}
+	BreakStyle           = &style.Style{ForegroundColor: 162}
+	CodeStyle            = &style.Style{ForegroundColor: 242}
+	HighlightedCodeStyle = &style.Style{ForegroundColor: 254}
 )
 
 func (c *Comp) Log(str string) {
@@ -113,7 +115,7 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
 }
 
-func (c *Comp) LogCodePanel() {
+func (c *Comp) LogCodePanel(forceRender bool) {
 	if c.terminal == nil || c.terminal.Components.CodePanel == nil {
 		return
 	}
@@ -122,47 +124,62 @@ func (c *Comp) LogCodePanel() {
 		return
 	}
 
+	l := findLine(c.codeLinesSorted, c.programCounter)
+
 	h := c.terminal.Components.CodePanel.Config.Height
-	i := -10
-	count := 0
-	c.activeCodeLine = 0
-	index := 0
 	lines := make([]string, h)
-	for count < h {
-		index = int(c.programCounter) + i
-		line, exists := c.codeLines[uint16(index)]
-		if index == int(c.programCounter) {
-			c.activeCodeLine = count
+	page := l / h
+	count := 0
+	found := false
+	index := 0
+
+	breakPoints := make(map[uint16]int)
+	for i, offset := range c.codeLinesSorted {
+		if i < (page * h) {
+			continue
 		}
-		if exists {
-			lines[count] = line
+		line := c.codeLines[offset]
+		if offset == c.programCounter {
+			index = count
+			found = true
+			lines[count] = ""
 			count++
+			continue
 		}
-		i++
+		if i >= h+(page*h) {
+			break
+		}
+		ok := c.IsBreakPoint(offset)
+		if ok {
+			breakPoints[offset] = count
+			lines[count] = ""
+			count++
+			continue
+		}
+		lines[count] = line
+		count++
 	}
 
-	if c.activeCodeLine == c.lastActiveCodeLine {
-		return
-	}
-
-	c.terminal.Components.CodePanel.WriteMultiStyle(lines, DefaultStyle1)
-
-	line, exits := c.codeLines[c.programCounter]
-	if exits {
-		c.terminal.Components.CodePanel.Write(c.activeCodeLine, line, DefaultStyle2)
-	} else {
-		start := int(c.programCounter) - 1
-		for start > -1 {
-			line, exists := c.codeLines[uint16(start)]
-			if exists {
-				c.terminal.Components.CodePanel.Write(c.activeCodeLine-1, line, DefaultStyle2)
-				break
+	if !forceRender {
+		if found {
+			if index != 0 && index == c.activeCodeLine {
+				return
 			}
-			start--
+		} else {
+			return
 		}
 	}
 
-	c.lastActiveCodeLine = c.activeCodeLine
+	c.terminal.Components.CodePanel.WriteMultiStyle(lines, CodeStyle)
+
+	for offset, count := range breakPoints {
+		line := c.codeLines[offset]
+		c.terminal.Components.CodePanel.Write(count, line, BreakStyle)
+	}
+
+	line := c.codeLines[c.programCounter]
+	c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+	c.activeCodeLine = index
 
 }
 
@@ -210,4 +227,17 @@ func (c *Comp) ListBreakPoints() {
 	for _, bp := range c.breakPoints {
 		c.Logf("● 0x%04x", bp)
 	}
+}
+
+func findLine(arr []uint16, c uint16) int {
+	minIndex := 0
+	for i, offset := range arr {
+		if offset < c {
+			minIndex = i
+		}
+		if c == offset {
+			return i
+		}
+	}
+	return minIndex
 }

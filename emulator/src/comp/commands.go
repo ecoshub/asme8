@@ -13,7 +13,7 @@ func (c *Comp) HandleCommands(command string) {
 	switch command {
 	case "s":
 		if !c.programLoaded {
-			c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", DefaultWarningStyle)
+			c.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", WarningStyle)
 			return
 		}
 		if c.pause {
@@ -68,11 +68,13 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		program, err := utils.AssembleProgram(path)
+		program, code, err := utils.AssembleProgram(path)
 		if err != nil {
 			c.Log(err.Error())
 			return
 		}
+
+		c.ResolveSymbolFile(code)
 
 		c.Config.Program = program
 		c.LoadProgram()
@@ -110,8 +112,13 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		c.AddBreakPoint(int(n))
+		ok := c.AddBreakPoint(int(n))
+		if !ok {
+			c.Logf("# Breakpoint already exists. point: 0x%x", n)
+			return
+		}
 		c.Logf("● Breakpoint added 0x%x", n)
+		c.LogCodePanel(true)
 		c.pushToCommandPalletHistory(command)
 		return
 	}
@@ -122,8 +129,12 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
-		c.RemoveBreakPoint(int(n))
+		ok := c.RemoveBreakPoint(int(n))
+		if !ok {
+			return
+		}
 		c.Logf("○ Breakpoint removed 0x%x", n)
+		c.LogCodePanel(true)
 		c.pushToCommandPalletHistory(command)
 		return
 	}
@@ -189,7 +200,7 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
-	c.LogWithStyle(fmt.Sprintf("# unknown command '%s'", command), DefaultWarningStyle)
+	c.LogWithStyle(fmt.Sprintf("# unknown command '%s'", command), WarningStyle)
 }
 
 func SplitNumberCommand(command string, prefix string) (bool, int64, error) {
@@ -225,26 +236,29 @@ func SplitStringCommand(command string, prefix string) (bool, string, error) {
 }
 
 func (c *Comp) pushToCommandPalletHistory(command string) {
+	if command == c.lastCommand {
+		return
+	}
 	c.terminal.Components.Screen.CommandPalette.AddToHistory(command)
 }
 
 func (c *Comp) Help() {
-	c.LogWithStyle("help:", DefaultHelpStyle)
-	c.LogWithStyle("- s .....................: start/stop clock", DefaultHelpStyle)
-	c.LogWithStyle("- t | tick | tick <n> ...: advance clock 1 or n time", DefaultHelpStyle)
-	c.LogWithStyle("- b <n> .................: add breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("- rb <n> ................: remove breakpoint to address n", DefaultHelpStyle)
-	c.LogWithStyle("- lsb ...................: list breakpoints", DefaultHelpStyle)
-	c.LogWithStyle("- mem | mem <n> .........: get or set memory starting with address n", DefaultHelpStyle)
-	c.LogWithStyle("- clear .................: clear the log panel", DefaultHelpStyle)
-	c.LogWithStyle("- r | restart ...........: restart the emulator", DefaultHelpStyle)
-	c.LogWithStyle("- exit | quit ...........: exit emulator", DefaultHelpStyle)
-	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", DefaultHelpStyle)
-	c.LogWithStyle("- load-asm | load-bin ...: load program using '.asm' file or '.bin' file", DefaultHelpStyle)
-	c.LogWithStyle("- help ..................: prints this dialog box", DefaultHelpStyle)
-	c.LogWithStyle("notes:", DefaultHelpStyle)
-	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", DefaultHelpStyle)
-	c.LogWithStyle("-  use ctrl+D to direct keyboard input into emulator", DefaultHelpStyle)
-	c.LogWithStyle("-  load command always load program starting with addr 0x000", DefaultHelpStyle)
-	c.LogWithStyle("", DefaultHelpStyle)
+	c.LogWithStyle("help:", HelpStyle)
+	c.LogWithStyle("- s .....................: start/stop clock", HelpStyle)
+	c.LogWithStyle("- t | tick | tick <n> ...: advance clock 1 or n time", HelpStyle)
+	c.LogWithStyle("- b <n> .................: add breakpoint to address n", HelpStyle)
+	c.LogWithStyle("- rb <n> ................: remove breakpoint to address n", HelpStyle)
+	c.LogWithStyle("- lsb ...................: list breakpoints", HelpStyle)
+	c.LogWithStyle("- mem | mem <n> .........: get or set memory starting with address n", HelpStyle)
+	c.LogWithStyle("- clear .................: clear the log panel", HelpStyle)
+	c.LogWithStyle("- r | restart ...........: restart the emulator", HelpStyle)
+	c.LogWithStyle("- exit | quit ...........: exit emulator", HelpStyle)
+	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", HelpStyle)
+	c.LogWithStyle("- load-asm | load-bin ...: load program using '.asm' file or '.bin' file", HelpStyle)
+	c.LogWithStyle("- help ..................: prints this dialog box", HelpStyle)
+	c.LogWithStyle("notes:", HelpStyle)
+	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", HelpStyle)
+	c.LogWithStyle("-  use ctrl+D to direct keyboard input into emulator", HelpStyle)
+	c.LogWithStyle("-  load command always load program starting with addr 0x000", HelpStyle)
+	c.LogWithStyle("", HelpStyle)
 }

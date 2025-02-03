@@ -33,10 +33,10 @@ func main() {
 	}
 
 	var program []uint8
-
-	program, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
+	var code string
+	program, code, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(1, err)
 		return
 	}
 
@@ -46,6 +46,7 @@ func main() {
 		Program:        program,
 		Delay:          *flagDelay,
 		SymbolFilePath: *flagSymbolFile,
+		SymbolFile:     code,
 	})
 	if err != nil {
 		fmt.Println(err)

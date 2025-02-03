@@ -118,6 +118,7 @@ func (c *Comp) HandleCommands(command string) {
 			return
 		}
 		c.Logf("● Breakpoint added 0x%x", n)
+		c.terminal.Components.CodeRulerPanel.Clear()
 		c.LogCodePanel(true)
 		c.pushToCommandPalletHistory(command)
 		return
@@ -134,6 +135,7 @@ func (c *Comp) HandleCommands(command string) {
 			return
 		}
 		c.Logf("○ Breakpoint removed 0x%x", n)
+		c.terminal.Components.CodeRulerPanel.Clear()
 		c.LogCodePanel(true)
 		c.pushToCommandPalletHistory(command)
 		return

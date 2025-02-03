@@ -17,16 +17,17 @@ const (
 	FlagPanelWidth   = 31
 	MemoryPanelWidth = 31
 	sysPanelWidth    = 71
-	codePanelWidth   = 70
+	codePanelWidth   = 69
 )
 
 type Components struct {
-	Screen      *screen.Screen
-	MainPanel   *panel.Raw
-	FlagPanel   *panel.Stack
-	MemoryPanel *panel.Stack
-	SysLogPanel *panel.Stack
-	CodePanel   *panel.Base
+	Screen         *screen.Screen
+	MainPanel      *panel.Raw
+	FlagPanel      *panel.Stack
+	MemoryPanel    *panel.Stack
+	SysLogPanel    *panel.Stack
+	CodePanel      *panel.Base
+	CodeRulerPanel *panel.Raw
 }
 
 func NewSetup() (*Components, error) {
@@ -85,18 +86,28 @@ func NewSetup() (*Components, error) {
 		},
 	})
 
+	codeRulerPanel := panel.NewRawPanel(&config.Config{
+		Width:  1,
+		Height: s.TerminalHeight - SCREEN_HEIGHT - 2,
+		ContentStyle: &style.Style{
+			ForegroundColor: 26,
+		},
+	})
+
 	s.Add(mainPanel, FlagPanelWidth+1, 0)
 	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
-	s.Add(codePanel, sysPanelWidth+1, SCREEN_HEIGHT+1)
+	s.Add(codeRulerPanel, sysPanelWidth+1, SCREEN_HEIGHT+1)
+	s.Add(codePanel, sysPanelWidth+3, SCREEN_HEIGHT+1)
 	s.Add(memoryPanel, SCREEN_WIDTH+FlagPanelWidth+1, 0)
 	s.Add(flagPanel, 0, 0)
 
 	return &Components{
-		Screen:      s,
-		MainPanel:   mainPanel,
-		FlagPanel:   flagPanel,
-		MemoryPanel: memoryPanel,
-		SysLogPanel: sysLogPanel,
-		CodePanel:   codePanel,
+		Screen:         s,
+		MainPanel:      mainPanel,
+		FlagPanel:      flagPanel,
+		MemoryPanel:    memoryPanel,
+		SysLogPanel:    sysLogPanel,
+		CodePanel:      codePanel,
+		CodeRulerPanel: codeRulerPanel,
 	}, nil
 }

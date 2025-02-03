@@ -55,6 +55,7 @@ type Comp struct {
 	inspectionMemoryOffset uint16
 
 	codeLines       map[uint16]string
+	lastPage        int
 	codeLinesSorted []uint16
 	activeCodeLine  int
 	programLoaded   bool
@@ -67,6 +68,9 @@ type Comp struct {
 }
 
 func New(conf *Config) (*Comp, error) {
+	if conf.Delay == 0 {
+		conf.Delay = time.Millisecond * 50
+	}
 	c := &Comp{
 		Config:        conf,
 		registers:     register.NewModule(6),
@@ -248,7 +252,7 @@ func (c *Comp) tick() bool {
 
 	c.LogState()
 	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
-		c.LogWithStyle(" ## BREAK ## ", WarningStyle)
+		c.LogWithStyle(" ## BREAK ## ", DefaultStyle6)
 		return false
 	}
 	return true

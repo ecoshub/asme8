@@ -20,8 +20,8 @@ var (
 	HelpStyle            = &style.Style{ForegroundColor: 247}
 	WarningStyle         = &style.Style{ForegroundColor: 226}
 	BreakStyle           = &style.Style{ForegroundColor: 162}
-	CodeStyle            = &style.Style{ForegroundColor: 242}
-	HighlightedCodeStyle = &style.Style{ForegroundColor: 254}
+	CodeStyle            = &style.Style{ForegroundColor: 230}
+	HighlightedCodeStyle = &style.Style{ForegroundColor: 226}
 )
 
 func (c *Comp) Log(str string) {
@@ -96,23 +96,27 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
 	c.LogfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")
 	c.LogfFlagIndexWithStyle(2, DefaultStyle6, "%s", c.status)
-	c.LogfFlagIndexWithStyle(3, DefaultStyle7, "A  B  C  D  IH IL")
-	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "%s", c.registers)
-	c.LogfFlagIndexWithStyle(5, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_HUMAN_READABLE[c.instructionRegister])
-	c.LogfFlagIndexWithStyle(6, DefaultStyle1, "STEP  : %d/%d", visualStep, stepLen)
-	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "PC    : %04x", c.programCounter)
-	c.LogfFlagIndexWithStyle(8, DefaultStyle1, "SP    : %04x", c.stackPointer)
-	c.LogfFlagIndexWithStyle(9, DefaultStyle1, "MAR   : %02x", c.memoryAddressRegister)
-	c.LogfFlagIndexWithStyle(10, DefaultStyle1, "MDR   : %02x", c.memoryDataRegister)
-	c.LogfFlagIndexWithStyle(11, DefaultStyle1, "OR    : %02x", c.operandRegister)
-	c.LogfFlagIndexWithStyle(12, DefaultStyle2, "# Buses:")
-	c.LogfFlagIndexWithStyle(13, DefaultStyle2, "ADDR   : %04x", c.addrBus.Read_16())
-	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "INPUT  : %02x", c.inputBus.Read_16())
-	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "OUTPUT : %02x", c.outputBus.Read_16())
-	c.LogfFlagIndexWithStyle(14, DefaultStyle2, "ALU    : %02x", c.aluBus.Read_16())
-	c.LogfFlagIndexWithStyle(17, DefaultStyle2, "RW     : %01x", c.rw)
-	c.LogfFlagIndexWithStyle(18, DefaultStyle3, "# Bridge:")
-	c.LogfFlagIndexWithStyle(19, DefaultStyle3, "ENB : %v", c.bridgeEnable)
+	c.LogfFlagIndexWithStyle(3, DefaultStyle6, "")
+	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  IH IL")
+	c.LogfFlagIndexWithStyle(5, DefaultStyle7, "%s", c.registers)
+	c.LogfFlagIndexWithStyle(6, DefaultStyle7, "")
+	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_HUMAN_READABLE[c.instructionRegister])
+	c.LogfFlagIndexWithStyle(8, DefaultStyle1, "STEP  : %d/%d", visualStep, stepLen)
+	c.LogfFlagIndexWithStyle(9, DefaultStyle1, "PC    : %04x", c.programCounter)
+	c.LogfFlagIndexWithStyle(10, DefaultStyle1, "SP    : %04x", c.stackPointer)
+	c.LogfFlagIndexWithStyle(11, DefaultStyle1, "MAR   : %02x", c.memoryAddressRegister)
+	c.LogfFlagIndexWithStyle(12, DefaultStyle1, "MDR   : %02x", c.memoryDataRegister)
+	c.LogfFlagIndexWithStyle(13, DefaultStyle1, "OR    : %02x", c.operandRegister)
+	c.LogfFlagIndexWithStyle(14, DefaultStyle1, "")
+	c.LogfFlagIndexWithStyle(15, DefaultStyle2, "# Buses:")
+	c.LogfFlagIndexWithStyle(16, DefaultStyle2, "ADDR   : %04x", c.addrBus.Read_16())
+	c.LogfFlagIndexWithStyle(17, DefaultStyle2, "INPUT  : %02x", c.inputBus.Read_16())
+	c.LogfFlagIndexWithStyle(18, DefaultStyle2, "OUTPUT : %02x", c.outputBus.Read_16())
+	c.LogfFlagIndexWithStyle(19, DefaultStyle2, "ALU    : %02x", c.aluBus.Read_16())
+	c.LogfFlagIndexWithStyle(20, DefaultStyle2, "RW     : %01x", c.rw)
+	c.LogfFlagIndexWithStyle(21, DefaultStyle3, "")
+	c.LogfFlagIndexWithStyle(22, DefaultStyle3, "# Bridge:")
+	c.LogfFlagIndexWithStyle(23, DefaultStyle3, "ENB : %v", c.bridgeEnable)
 }
 
 func (c *Comp) LogCodePanel(forceRender bool) {
@@ -133,6 +137,11 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 	found := false
 	index := 0
 
+	if page != c.lastPage {
+		c.terminal.Components.CodeRulerPanel.Clear()
+		c.lastPage = page
+	}
+
 	breakPoints := make(map[uint16]int)
 	for i, offset := range c.codeLinesSorted {
 		if i < (page * h) {
@@ -142,7 +151,7 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 		if offset == c.programCounter {
 			index = count
 			found = true
-			lines[count] = ""
+			lines[count] = line
 			count++
 			continue
 		}
@@ -152,7 +161,8 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 		ok := c.IsBreakPoint(offset)
 		if ok {
 			breakPoints[offset] = count
-			lines[count] = ""
+			lines[count] = line
+			c.terminal.Components.CodeRulerPanel.Write(count, '●', BreakStyle)
 			count++
 			continue
 		}
@@ -172,13 +182,13 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 
 	c.terminal.Components.CodePanel.WriteMultiStyle(lines, CodeStyle)
 
-	for offset, count := range breakPoints {
-		line := c.codeLines[offset]
-		c.terminal.Components.CodePanel.Write(count, line, BreakStyle)
-	}
-
 	line := c.codeLines[c.programCounter]
-	c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+	ok := c.IsBreakPoint(c.programCounter)
+	if ok {
+		c.terminal.Components.CodePanel.Write(index, line, BreakStyle)
+	} else {
+		c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+	}
 	c.activeCodeLine = index
 
 }

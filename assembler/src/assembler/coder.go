@@ -40,14 +40,13 @@ func (a *Assembler) WriteBinaryFile(path string, out []byte) error {
 
 	f, err := os.Create(path)
 	if err != nil {
-		fmt.Println(6, path)
+		fmt.Println(path)
 		return err
 	}
 	defer f.Close()
 
 	err = binary.Write(f, binary.BigEndian, out)
 	if err != nil {
-		fmt.Println(7)
 		return err
 	}
 	return nil

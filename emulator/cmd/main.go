@@ -36,7 +36,7 @@ func main() {
 	var code string
 	program, code, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
-		fmt.Println(1, err)
+		fmt.Println(err)
 		return
 	}
 

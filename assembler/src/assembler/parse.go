@@ -49,13 +49,11 @@ func AssembleFile(options *Options) ([]byte, string, error) {
 
 	err = el.GetError()
 	if err != nil {
-		fmt.Println(3)
 		return nil, "", err
 	}
 
 	out, err := assembler.Assemble()
 	if err != nil {
-		fmt.Println(4)
 		return nil, "", err
 	}
 
@@ -71,7 +69,6 @@ func AssembleFile(options *Options) ([]byte, string, error) {
 
 	err = assembler.WriteBinaryFile(options.OutputFilePath, out)
 	if err != nil {
-		fmt.Println(5)
 		return nil, "", err
 	}
 

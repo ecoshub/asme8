@@ -10,7 +10,6 @@ func ResolveProgram(binFilePath, asmFilePath string) ([]byte, string, error) {
 	if binFilePath != "" {
 		program, err := ReadProgram(binFilePath)
 		if err != nil {
-			fmt.Println(3)
 			return nil, "", err
 		}
 		return program, "", nil
@@ -18,7 +17,6 @@ func ResolveProgram(binFilePath, asmFilePath string) ([]byte, string, error) {
 	if asmFilePath != "" {
 		program, code, err := AssembleProgram(asmFilePath)
 		if err != nil {
-			fmt.Println(2)
 			return nil, "", err
 		}
 		return program, code, nil

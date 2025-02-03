@@ -565,7 +565,6 @@ func (a *Assembler) ParseInstruction(text string) {
 func (a *Assembler) ParsePtrImm(text string, line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_PTR_IMM, line, column)
 	a.AppendMachineCode(opcode)
-	fmt.Println(a.currentValueList[0].GetLowByte(), a.currentValueList[0].GetHighByte())
 	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())

@@ -150,7 +150,7 @@ func (c *Comp) ResolveSymbolFile(code string) error {
 		c = strings.TrimSpace(c)
 		m := l[index+1:]
 		m = strings.TrimSpace(m)
-		codeLines[offset] = fmt.Sprintf("   %-57s%s", c, m)
+		codeLines[offset] = fmt.Sprintf("%-55s%s", c, m)
 	}
 
 	c.codeLines = codeLines

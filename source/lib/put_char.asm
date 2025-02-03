@@ -33,11 +33,8 @@ __PUT_CHAR__:
     adc iph, b 
     mov [ip], a
 ; increment cursor index
-    mov ipl, [ADDR_CURSOR_INDEX_L]
-    mov iph, [ADDR_CURSOR_INDEX_H]
-    add ip, 1
-    mov [ADDR_CURSOR_INDEX_L], ipl
-    mov [ADDR_CURSOR_INDEX_H], iph
+    add [ADDR_CURSOR_INDEX_L], 1
+    adc [ADDR_CURSOR_INDEX_H], 0
     ret
 
 __DEL_CHAR__:

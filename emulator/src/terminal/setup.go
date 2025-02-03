@@ -96,8 +96,8 @@ func NewSetup() (*Components, error) {
 
 	s.Add(mainPanel, FlagPanelWidth+1, 0)
 	s.Add(sysLogPanel, 0, SCREEN_HEIGHT+1)
-	s.Add(codeRulerPanel, sysPanelWidth+1, SCREEN_HEIGHT+1)
-	s.Add(codePanel, sysPanelWidth+3, SCREEN_HEIGHT+1)
+	s.Add(codeRulerPanel, sysPanelWidth+3, SCREEN_HEIGHT+1)
+	s.Add(codePanel, sysPanelWidth+5, SCREEN_HEIGHT+1)
 	s.Add(memoryPanel, SCREEN_WIDTH+FlagPanelWidth+1, 0)
 	s.Add(flagPanel, 0, 0)
 

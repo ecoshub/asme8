@@ -565,6 +565,7 @@ func (a *Assembler) ParseInstruction(text string) {
 func (a *Assembler) ParsePtrImm(text string, line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_PTR_IMM, line, column)
 	a.AppendMachineCode(opcode)
+	fmt.Println(a.currentValueList[0].GetLowByte(), a.currentValueList[0].GetHighByte())
 	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
@@ -578,9 +579,10 @@ func (a *Assembler) ParseValue(text string, line, column int) {
 		a.missingSymbols[a.offset] = &types.Tag{Text: text, Line: line, Column: column, Size: 0}
 	} else {
 		if a.currentValue != nil {
-			a.currentValueList = append(a.currentValueList, a.currentValue)
+			a.currentValueList = append(a.currentValueList, val)
+		} else {
+			a.currentValue = val
 		}
-		a.currentValue = val
 	}
 }
 
@@ -626,6 +628,7 @@ func (a *Assembler) ResetCurrentValues() {
 	a.currentTag = &types.Tag{}
 	a.currentInstruction = ""
 	a.hasVirtualOffset = false
+	a.currentValueList = make([]*types.Value, 0, 2)
 }
 
 func (a *Assembler) GetVariableOrTagMissing(offsetPlus uint16, requiredSize uint8) {

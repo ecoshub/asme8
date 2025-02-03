@@ -20,57 +20,60 @@ const (
 	INST_MOV_REG_IP_OFFSET_REG Type = 0x0e
 	INST_MOV_IP_REG_OFFSET_REG Type = 0x0f
 	INST_MOV_IP_IMM_16         Type = 0x10
-	INST_ADD_REG_REG           Type = 0x11
-	INST_ADD_REG_IMM           Type = 0x12
-	INST_ADC_REG_REG           Type = 0x13
-	INST_ADC_REG_IMM           Type = 0x14
-	INST_SUB_REG_REG           Type = 0x15
-	INST_SUB_REG_IMM           Type = 0x16
-	INST_SBB_REG_REG           Type = 0x17
-	INST_SBB_REG_IMM           Type = 0x18
-	INST_INC_REG               Type = 0x19
-	INST_DEC_REG               Type = 0x1a
-	INST_ADD_REG_MEM           Type = 0x1b
-	INST_ADD_PTR_IMM           Type = 0x1c
-	INST_ADC_PTR_IMM           Type = 0x1d
-	INST_ADD_MEM_REG           Type = 0x1e
-	INST_ADD_SP_IMM            Type = 0x1f
-	INST_SUB_SP_IMM            Type = 0x20
-	INST_ADD_IP_IMM            Type = 0x21
-	INST_SUB_IP_IMM            Type = 0x22
-	INST_MOV_REG_REG           Type = 0x23
-	INST_MOV_REG_IMM           Type = 0x24
-	INST_MOV_MEM_REG           Type = 0x25
-	INST_MOV_REG_MEM           Type = 0x26
-	INST_MOV_MEM_REG_OFFSET    Type = 0x27
-	INST_MOV_REG_MEM_OFFSET    Type = 0x28
-	INST_MOV_REG_SP            Type = 0x29
-	INST_MOV_SP_REG            Type = 0x2a
-	INST_MOV_REG_SP_OFFSET     Type = 0x2b
-	INST_MOV_SP_REG_OFFSET     Type = 0x2c
-	INST_MOV_REG_SP_OFFSET_REG Type = 0x2d
-	INST_MOV_SP_REG_OFFSET_REG Type = 0x2e
-	INST_XOR_REG_REG           Type = 0x2f
-	INST_XOR_REG_IMM           Type = 0x30
-	INST_AND_REG_REG           Type = 0x31
-	INST_AND_REG_IMM           Type = 0x32
-	INST_OR_REG_REG            Type = 0x33
-	INST_OR_REG_IMM            Type = 0x34
-	INST_NOT_REG               Type = 0x35
-	INST_SHL_REG               Type = 0x36
-	INST_SHR_REG               Type = 0x37
-	INST_ROL_REG               Type = 0x38
-	INST_ROR_REG               Type = 0x39
-	INST_CLC_IMPL              Type = 0x3a
-	INST_PUSH_IP               Type = 0x3b
-	INST_POP_IP                Type = 0x3c
-	INST_PUSH_SP               Type = 0x3d
-	INST_POP_SP                Type = 0x3e
-	INST_PUSH_REG              Type = 0x3f
-	INST_PUSH_IMM              Type = 0x40
-	INST_POP_REG               Type = 0x41
-	INST_CALL_IMPL             Type = 0x42
-	INST_RET_IMPL              Type = 0x43
+	INST_MOV_MEM_IMM           Type = 0x11
+	INST_ADD_REG_REG           Type = 0x12
+	INST_ADD_REG_IMM           Type = 0x13
+	INST_ADC_REG_REG           Type = 0x14
+	INST_ADC_REG_MEM           Type = 0x15
+	INST_ADC_MEM_REG           Type = 0x16
+	INST_ADC_REG_IMM           Type = 0x17
+	INST_SUB_REG_REG           Type = 0x18
+	INST_SUB_REG_IMM           Type = 0x19
+	INST_SBB_REG_REG           Type = 0x1a
+	INST_SBB_REG_IMM           Type = 0x1b
+	INST_INC_REG               Type = 0x1c
+	INST_DEC_REG               Type = 0x1d
+	INST_ADD_REG_MEM           Type = 0x1e
+	INST_ADD_MEM_IMM           Type = 0x1f
+	INST_ADC_MEM_IMM           Type = 0x20
+	INST_ADD_MEM_REG           Type = 0x21
+	INST_ADD_SP_IMM            Type = 0x22
+	INST_SUB_SP_IMM            Type = 0x23
+	INST_ADD_IP_IMM            Type = 0x24
+	INST_SUB_IP_IMM            Type = 0x25
+	INST_MOV_REG_REG           Type = 0x26
+	INST_MOV_REG_IMM           Type = 0x27
+	INST_MOV_MEM_REG           Type = 0x28
+	INST_MOV_REG_MEM           Type = 0x29
+	INST_MOV_MEM_REG_OFFSET    Type = 0x2a
+	INST_MOV_REG_MEM_OFFSET    Type = 0x2b
+	INST_MOV_REG_SP            Type = 0x2c
+	INST_MOV_SP_REG            Type = 0x2d
+	INST_MOV_REG_SP_OFFSET     Type = 0x2e
+	INST_MOV_SP_REG_OFFSET     Type = 0x2f
+	INST_MOV_REG_SP_OFFSET_REG Type = 0x30
+	INST_MOV_SP_REG_OFFSET_REG Type = 0x31
+	INST_XOR_REG_REG           Type = 0x32
+	INST_XOR_REG_IMM           Type = 0x33
+	INST_AND_REG_REG           Type = 0x34
+	INST_AND_REG_IMM           Type = 0x35
+	INST_OR_REG_REG            Type = 0x36
+	INST_OR_REG_IMM            Type = 0x37
+	INST_NOT_REG               Type = 0x38
+	INST_SHL_REG               Type = 0x39
+	INST_SHR_REG               Type = 0x3a
+	INST_ROL_REG               Type = 0x3b
+	INST_ROR_REG               Type = 0x3c
+	INST_CLC_IMPL              Type = 0x3d
+	INST_PUSH_IP               Type = 0x3e
+	INST_POP_IP                Type = 0x3f
+	INST_PUSH_SP               Type = 0x40
+	INST_POP_SP                Type = 0x41
+	INST_PUSH_REG              Type = 0x42
+	INST_PUSH_IMM              Type = 0x43
+	INST_POP_REG               Type = 0x44
+	INST_CALL_IMPL             Type = 0x45
+	INST_RET_IMPL              Type = 0x46
 )
 
 const (
@@ -127,53 +130,55 @@ var (
 		0x11: "ADD_REG_REG",
 		0x12: "ADD_REG_IMM",
 		0x13: "ADC_REG_REG",
-		0x14: "ADC_REG_IMM",
-		0x15: "SUB_REG_REG",
-		0x16: "SUB_REG_IMM",
-		0x17: "SBB_REG_REG",
-		0x18: "SBB_REG_IMM",
-		0x19: "INC_REG",
-		0x1a: "DEC_REG",
-		0x1b: "ADD_REG_MEM",
-		0x1c: "ADD_PTR_IMM",
-		0x1d: "ADC_PTR_IMM",
-		0x1e: "ADD_MEM_REG",
-		0x1f: "ADD_SP_IMM",
-		0x20: "SUB_SP_IMM",
-		0x21: "ADD_IP_IMM",
-		0x22: "SUB_IP_IMM",
-		0x23: "MOV_REG_REG",
-		0x24: "MOV_REG_IMM",
-		0x25: "MOV_MEM_REG",
-		0x26: "MOV_REG_MEM",
-		0x27: "MOV_MEM_REG_OFFSET",
-		0x28: "MOV_REG_MEM_OFFSET",
-		0x29: "MOV_REG_SP",
-		0x2a: "MOV_SP_REG",
-		0x2b: "MOV_REG_SP_OFFSET",
-		0x2c: "MOV_SP_REG_OFFSET",
-		0x2d: "MOV_REG_SP_OFFSET_REG",
-		0x2e: "MOV_SP_REG_OFFSET_REG",
-		0x2f: "XOR_REG_REG",
-		0x30: "XOR_REG_IMM",
-		0x31: "AND_REG_REG",
-		0x32: "AND_REG_IMM",
-		0x33: "OR_REG_REG",
-		0x34: "OR_REG_IMM",
-		0x35: "NOT_REG",
-		0x36: "SHL_REG",
-		0x37: "SHR_REG",
-		0x38: "ROL_REG",
-		0x39: "ROR_REG",
-		0x3a: "CLC_IMPL",
-		0x3b: "PUSH_IP",
-		0x3c: "POP_IP",
-		0x3d: "PUSH_SP",
-		0x3e: "POP_SP",
-		0x3f: "PUSH_REG",
-		0x40: "PUSH_IMM",
-		0x41: "POP_REG",
-		0x42: "CALL_IMPL",
-		0x43: "RET_IMPL",
+		0x14: "ADC_REG_MEM",
+		0x15: "ADC_MEM_REG",
+		0x16: "ADC_REG_IMM",
+		0x17: "SUB_REG_REG",
+		0x18: "SUB_REG_IMM",
+		0x19: "SBB_REG_REG",
+		0x1a: "SBB_REG_IMM",
+		0x1b: "INC_REG",
+		0x1c: "DEC_REG",
+		0x1d: "ADD_REG_MEM",
+		0x1e: "ADD_MEM_IMM",
+		0x1f: "ADC_MEM_IMM",
+		0x20: "ADD_MEM_REG",
+		0x21: "ADD_SP_IMM",
+		0x22: "SUB_SP_IMM",
+		0x23: "ADD_IP_IMM",
+		0x24: "SUB_IP_IMM",
+		0x25: "MOV_REG_REG",
+		0x26: "MOV_REG_IMM",
+		0x27: "MOV_MEM_REG",
+		0x28: "MOV_REG_MEM",
+		0x29: "MOV_MEM_REG_OFFSET",
+		0x2a: "MOV_REG_MEM_OFFSET",
+		0x2b: "MOV_REG_SP",
+		0x2c: "MOV_SP_REG",
+		0x2d: "MOV_REG_SP_OFFSET",
+		0x2e: "MOV_SP_REG_OFFSET",
+		0x2f: "MOV_REG_SP_OFFSET_REG",
+		0x30: "MOV_SP_REG_OFFSET_REG",
+		0x31: "XOR_REG_REG",
+		0x32: "XOR_REG_IMM",
+		0x33: "AND_REG_REG",
+		0x34: "AND_REG_IMM",
+		0x35: "OR_REG_REG",
+		0x36: "OR_REG_IMM",
+		0x37: "NOT_REG",
+		0x38: "SHL_REG",
+		0x39: "SHR_REG",
+		0x3a: "ROL_REG",
+		0x3b: "ROR_REG",
+		0x3c: "CLC_IMPL",
+		0x3d: "PUSH_IP",
+		0x3e: "POP_IP",
+		0x3f: "PUSH_SP",
+		0x40: "POP_SP",
+		0x41: "PUSH_REG",
+		0x42: "PUSH_IMM",
+		0x43: "POP_REG",
+		0x44: "CALL_IMPL",
+		0x45: "RET_IMPL",
 	}
 )

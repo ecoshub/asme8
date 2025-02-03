@@ -10,6 +10,7 @@ import (
 type ResolvedSymbol struct {
 	segment string
 	symbol  string
+	_type   uint8
 	index   uint16
 }
 
@@ -39,6 +40,11 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		Alignment:       stable.AlignmentLeft,
 		HeaderAlignment: stable.AlignmentLeft,
 	})
+	t.AddFieldWithOptions("TYPE", &stable.Options{
+		Format:          "%02b",
+		Alignment:       stable.AlignmentCenter,
+		HeaderAlignment: stable.AlignmentCenter,
+	})
 	t.AddFieldWithOptions("INDEX", &stable.Options{
 		Format:          "%04x",
 		Alignment:       stable.AlignmentLeft,
@@ -59,7 +65,7 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		sorted := SortSymbolMap(unique)
 		for _, us := range sorted {
 			us := unique[us]
-			t.Row(us.segment, us.index, us.symbol)
+			t.Row(us.segment, us._type, us.index, us.symbol)
 		}
 	}
 	fmt.Println(t)

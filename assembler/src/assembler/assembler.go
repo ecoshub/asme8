@@ -563,7 +563,7 @@ func (a *Assembler) ParseInstruction(text string) {
 }
 
 func (a *Assembler) ParsePtrImm(text string, line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_PTR_IMM, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_IMM, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetLowByte())

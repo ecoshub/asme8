@@ -9,7 +9,7 @@
 ; Input........: Register A (ASCII value of the character)
 ; Output.......: Writes the character to `ADDR_PUT_CHAR`
 ; Dependencies.: ADDR_PUT_CHAR
-; Modified.....: None
+; Modified.....: Register A, Register IP
 ; ----------------------------------------------------------
 
 .segment "SEG_PUT_CHAR"
@@ -27,10 +27,8 @@ SCREEN_BUFFER_START=__VIDEO_START__
 
 __PUT_CHAR__:
     mov ip, SCREEN_BUFFER_START
-    mov b, [ADDR_CURSOR_INDEX_L]
-    add ipl, b 
-    mov b, [ADDR_CURSOR_INDEX_H]
-    adc iph, b 
+    add ipl, [ADDR_CURSOR_INDEX_L]
+    adc iph, [ADDR_CURSOR_INDEX_H]
     mov [ip], a
 ; increment cursor index
     add [ADDR_CURSOR_INDEX_L], 1
@@ -60,7 +58,6 @@ ipl_zero:
     jmp keep
 
 __PUT_CURSOR_HOME__:
-    xor a, a
-    mov [ADDR_CURSOR_INDEX_L], a
-    mov [ADDR_CURSOR_INDEX_H], a
+    mov [ADDR_CURSOR_INDEX_L], 0
+    mov [ADDR_CURSOR_INDEX_H], 0
     ret

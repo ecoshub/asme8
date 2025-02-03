@@ -1,5 +1,5 @@
 ; ----------------------------------------------------------
-; Routine Name.: STR_TO_HEX
+; Routine Name.: SEG_CONV
 ; Author.......: eco
 ; Date.........: 28.01.2025
 ; Description..: Converts an ASCII character in register A to its
@@ -15,12 +15,11 @@
 ; ----------------------------------------------------------
 
 
-.segment "SEG_STR_TO_HEX"
+.segment "SEG_CONV"
 
-    global STR_TO_HEX
+    global __C_TO_I__
 
-STR_TO_HEX:
-start:
+__C_TO_I__:
     ; check if its in rage '0' and '9'
     cmp a, 0x30             ; '0' = 0x30
     js not_valid

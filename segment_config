@@ -4,5 +4,5 @@ SEGMENTS {
     SEG_PUT_CHAR: load=ROM_1, type=rw;
     SEG_ECHO: load=ROM_1, type=rw;
     SEG_WOZ: load=ROM_1, type=rw;
-    SEG_STR_TO_HEX: load=ROM_1, type=rw;
+    SEG_CONV: load=ROM_1, type=rw;
 }

@@ -5,8 +5,6 @@ import (
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/utils"
 	"fmt"
-
-	"github.com/ecoshub/termium/component/style"
 )
 
 var _ connectable.Connectable = &Screen{}
@@ -62,7 +60,7 @@ func (s *Screen) WriteRequest() {
 	addr = addr - s.addrStart
 	data := s.dataBus.Read_16()
 	s.buffer.write(addr, rune(data))
-	s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x [%s]", addr, data, string(data)), style.DefaultStyleInfo)
+	s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x [%s]", addr, data, string(data)))
 	s.components.MainPanel.Write(int(addr), rune(data))
 }
 

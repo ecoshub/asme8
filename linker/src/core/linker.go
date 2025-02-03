@@ -284,12 +284,13 @@ func (l *Linker) linkSymbols() error {
 			segmentOffset := l.segmentOffsets[segment]
 			offset = segmentOffset + p.GetOffset()
 			globalSegmentOffset := uint16(0)
+			_type := uint8(0)
 			if p.IsMissing() {
 				globalSegment, globalSymbol, ok := findGlobal(sym, l.globals)
 				if !ok {
 					return fmt.Errorf("symbol not found. segment: %s, symbol: '%s'", segment, sym)
 				}
-				_type := globalSymbol.GetType()
+				_type = globalSymbol.GetType()
 				switch _type {
 				case object.SYMBOL_TYPE_VAR:
 					index = globalSymbol.GetIndex()
@@ -304,7 +305,7 @@ func (l *Linker) linkSymbols() error {
 				if !ok {
 					return fmt.Errorf("fatal error object file claims have the symbol but not found in defined symbols. segment: %s, symbol: %s", segment, sym)
 				}
-				_type := symbol.GetType()
+				_type = symbol.GetType()
 				switch _type {
 				case object.SYMBOL_TYPE_VAR:
 					index = symbol.GetIndex()
@@ -323,7 +324,7 @@ func (l *Linker) linkSymbols() error {
 			}
 			copy(l.memory[offset:offset+size], data)
 			// fmt.Printf("RESTORING LABEL [missing: %v]>> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", p.IsMissing(), segment, offset, globalSegmentOffset, 0, 0)
-			rs := &ResolvedSymbol{segment: segment, symbol: sym, index: index}
+			rs := &ResolvedSymbol{segment: segment, _type: _type, symbol: sym, index: index}
 			// l.resolvedSymbols[segment] = rs
 			pushResolvedSymbol(segment, rs, l.resolvedSymbols)
 			// fmt.Printf("writing to segment %s, symbol: %s, from: %04x, to: %04x, data: %04x\n", segment, sym, offset, offset+size, data)

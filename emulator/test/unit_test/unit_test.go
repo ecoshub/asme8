@@ -919,16 +919,74 @@ var (
 			},
 		},
 		{
+			// mov ipl, 0xf0
+			// add [0x9000], ipl
 			// mov a, 0x30
 			// add [0x9000], a
 			Name: "add reg mem",
 			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPL, 0xf0,
+				instruction.INST_ADD_REG_MEM, instruction.REGISTER_OPCODE_IPL, 0x00, 0x90,
 				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_ADD_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
-					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x30},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x20},
+				},
+			},
+		},
+		{
+			// mov a, 0xff
+			// mov [0x9000], a
+			// mov a, 0x01
+			// add [0x9000], a
+			// mov a, 0x00
+			// adc [0x9001], a
+			Name: "adc reg mem",
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_ADD_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x01,
+				instruction.INST_ADD_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x00,
+				instruction.INST_ADC_REG_MEM, instruction.REGISTER_OPCODE_A, 0x01, 0x90,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x00},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9001, Data: 0x01},
+				},
+			},
+		},
+		{
+			// mov a, 0xff
+			// mov [0x9000], a
+			// mov a, 0x01
+			// mov [0x9001], a
+			// mov ipl, 0x01
+			// mov iph, 0x01
+			// add ipl, [0x9000]
+			// adc iph, [0x9001]
+			Name: "adc mem reg",
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x01,
+				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x01, 0x90,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPL, 0x01,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_IPH, 0x01,
+				instruction.INST_ADD_MEM_REG, instruction.REGISTER_OPCODE_IPL, 0x00, 0x90,
+				instruction.INST_ADC_MEM_REG, instruction.REGISTER_OPCODE_IPH, 0x01, 0x90,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0xff},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9001, Data: 0x01},
+				},
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x00},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x03},
 				},
 			},
 		},
@@ -1470,7 +1528,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0x4,
 				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
-				instruction.INST_ADD_PTR_IMM, 0x5, 0x00, 0x80,
+				instruction.INST_ADD_MEM_IMM, 0x5, 0x00, 0x80,
 				instruction.INST_MOV_MEM_REG, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
 			},
 			Expect: &test.Expect{
@@ -1502,8 +1560,8 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
-				instruction.INST_ADD_PTR_IMM, 0x5, 0x00, 0x80,
-				instruction.INST_ADC_PTR_IMM, 0x0, 0x01, 0x80,
+				instruction.INST_ADD_MEM_IMM, 0x5, 0x00, 0x80,
+				instruction.INST_ADC_MEM_IMM, 0x0, 0x01, 0x80,
 				instruction.INST_MOV_MEM_REG, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
 			},
 			Expect: &test.Expect{
@@ -1514,6 +1572,27 @@ var (
 				Registers: []*test.ExpectRegister{
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0xff},
 					{Index: instruction.REGISTER_OPCODE_B, Data: 0x4},
+				},
+			},
+		},
+		{
+			Name: "mov mem imm",
+			// mov [0x9000], 0x10
+			// mov [0x9001], 0x20
+			// mov [0x9002], 0xff
+			// mov [0x9003], 0x00
+			Program: []uint8{
+				instruction.INST_MOV_MEM_IMM, 0x10, 0x00, 0x90,
+				instruction.INST_MOV_MEM_IMM, 0x20, 0x01, 0x90,
+				instruction.INST_MOV_MEM_IMM, 0xff, 0x02, 0x90,
+				instruction.INST_MOV_MEM_IMM, 0x00, 0x03, 0x90,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9001, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9002, Data: 0xff},
+					{Type: test.DEV_TYPE_RAM, Addr: 0x9003, Data: 0x00},
 				},
 			},
 		},

@@ -14,7 +14,6 @@ var (
 	flagPrint       = flag.Bool("print", false, "print the code and the machine code")
 	flagSegmentAddr = flag.Uint("segment-addr", 0, "segment start addr")
 	flagMode        = flag.String("mode", "exe", "assembly mode exe | elf")
-	flagOutCodePath = flag.String("output-code", "", "write indexed code to a path")
 )
 
 func main() {
@@ -38,18 +37,11 @@ func main() {
 		mode = assembler.ASM_MODE_ELF
 	}
 
-	if *flagOutCodePath == "" {
-		ext := filepath.Ext(*flagFile)
-		base := filepath.Base(*flagFile)
-		*flagOutCodePath = strings.TrimSuffix(base, ext) + ".sym"
-	}
-
 	out, code, err := assembler.AssembleFile(&assembler.Options{
 		FilePath:       *flagFile,
 		PrintDetail:    *flagPrint,
 		SegmentAddr:    uint16(*flagSegmentAddr),
 		Mode:           mode,
-		OutputCodePath: *flagOutCodePath,
 		OutputFilePath: *flagOutput,
 	})
 
@@ -58,7 +50,11 @@ func main() {
 		return
 	}
 
-	_, err = assembler.OutCode(*flagOutCodePath, code)
+	ext := filepath.Ext(*flagOutput)
+	base := filepath.Base(*flagOutput)
+	outCodePath := strings.TrimSuffix(base, ext) + ".sym"
+
+	_, err = assembler.OutCode(outCodePath, code)
 	if err != nil {
 		fmt.Println(err)
 		return

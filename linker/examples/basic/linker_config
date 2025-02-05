@@ -1,0 +1,11 @@
+MEMORY {
+    ROM: size=0x2000, type=ro;
+    RAM: size=0xd87f, type=rw;
+    VIDEO: size=0x780, type=rw;
+}
+
+SEGMENTS {
+    main: load=ROM, type=ro;
+    put_char: load=ROM, type=ro;
+    upper: load=ROM, type=ro;
+}

@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="ETKt579bIk2jOSbxSD9Q" name="Page-1">
-        <mxGraphModel dx="2978" dy="12" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1858" dy="-992" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -31,7 +31,7 @@
                 </mxCell>
                 <mxCell id="266" value="output bus (8)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="265" vertex="1" connectable="0">
                     <mxGeometry x="-0.6033" relative="1" as="geometry">
-                        <mxPoint y="31" as="offset"/>
+                        <mxPoint x="1" y="-29" as="offset"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="269" value="ALU" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -147,7 +147,7 @@
                 </mxCell>
                 <mxCell id="391" value="input bus (8)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="293" vertex="1" connectable="0">
                     <mxGeometry x="0.8367" y="-1" relative="1" as="geometry">
-                        <mxPoint x="-10" y="-69" as="offset"/>
+                        <mxPoint x="-36" y="-133" as="offset"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="298" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;startArrow=none;startFill=0;endArrow=classicThin;endFill=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" parent="1" source="300" edge="1">
@@ -390,17 +390,11 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="397" value="&lt;div style=&quot;color: rgb(93, 93, 95); background-color: rgb(235, 238, 245); font-family: Monaco, Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace; font-size: 16px; line-height: 32px;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="730" y="2086" width="20" height="50" as="geometry"/>
-                </mxCell>
                 <mxCell id="398" value="" style="endArrow=none;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="180" y="3220" as="sourcePoint"/>
                         <mxPoint x="180" y="3170" as="targetPoint"/>
                     </mxGeometry>
-                </mxCell>
-                <mxCell id="399" value="&lt;div&gt;&amp;nbsp; &amp;nbsp; Register -&amp;gt; Register&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; RAM -&amp;gt; Register&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; PC -&amp;gt; RAM_ADDR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; MAR -&amp;gt; RAM_ADDR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; SP -&amp;gt; RAM_ADDR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; Register -&amp;gt; RAM&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; Register -&amp;gt; ALU_OP_1&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; Register -&amp;gt; ALU_OP_2&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; RAM -&amp;gt; MAR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; RAM -&amp;gt; ALU_OP_ANY&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; ALU -&amp;gt; Register&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; ALU -&amp;gt; MAR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; ALU -&amp;gt; RAM&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; PC -&amp;gt; RAM&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; MAR -&amp;gt; PC&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; RAM -&amp;gt; MDR&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; MDR -&amp;gt; RAM&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; PC -&amp;gt; RAM&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;IP -&amp;gt; ...&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; ... -&amp;gt; IP&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="730" y="1975.5" width="160" height="330" as="geometry"/>
                 </mxCell>
                 <mxCell id="404" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;startArrow=none;startFill=0;endArrow=classicThin;endFill=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
@@ -432,6 +426,9 @@
                             <mxPoint x="550" y="2220.22"/>
                         </Array>
                     </mxGeometry>
+                </mxCell>
+                <mxCell id="412" value="Example Address Register" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="-8.840000000000003" y="3049" width="159" height="26" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

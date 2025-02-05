@@ -22,13 +22,13 @@ func main() {
 	flag.Parse()
 
 	if *flagConfigPath == "" {
-		fmt.Println("Memory config path required")
+		fmt.Println("config path required for memory mapping")
 		return
 	}
 
 	conf, err := config.ParseConfig(*flagConfigPath)
 	if err != nil {
-		fmt.Printf("Memory config parse failed. err: %s", err.Error())
+		fmt.Printf("config parse failed. err: %s", err.Error())
 		return
 	}
 

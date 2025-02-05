@@ -51,22 +51,6 @@ Goals of the project include:
 - Creating an emulator to test programs before hardware implementation.
 - Eventually building the hardware to run the system natively.
 
-## Roadmap (Current State & Future Plans)
-
-### **Current State**
-
-- ISA design is complete and tested.
-- Assembler, linker, and emulator are fully functional.
-- Various example programs run correctly in the emulator.
-
-### **Future Plans**
-
-- Improve instruction scheduling and execution optimizations.
-- Implement pipelining and potential superscalar execution.
-- Begin hardware implementation using TTL components or FPGA.
-- Expand tooling with debugging and profiling features.
-- Open-source the project on GitHub for community contributions.
-
 <br>
 <br>
 
@@ -101,21 +85,13 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 - Decodes instructions and generates control signals.
 - Handles branching, function calls, and execution sequencing.
 
-## Memory Architecture and Addressing Modes
+## Memory Map
 
-- **8-bit Data Bus:** For general data communication
-- **16-bit Address Bus:** Supports up to 64KB of addressable memory.
-- **Addressing Modes:**
-  - **Implied**: No explicit operand (e.g., brk, ret, clc).
-  - **Register**: Operands are registers (e.g., mov b, a, xor b, a).
-  - **Immediate**: Constant value embedded in the instruction (e.g., mov a, 4, add sp, 4).
-  - **Direct (Absolute)**: Memory address specified directly (e.g., mov a, [8000], mov [0x7000], 0x10).
-  - **Register Indirect**: Address is the value of a register (e.g., mov a, [sp], mov [ip], a).
-  - **Indexed Absolute**: Absolute address + register offset (e.g., mov a, [8000+b], mov [8000+b], a).
-  - **Stack-Relative with Displacement**: SP + fixed offset (e.g., mov a, [sp+4], mov [sp+4], a).
-  - **IP-Relative with Displacement**: IP + fixed offset (e.g., mov a, [ip+4], mov [ip+4], a).
-  - **Base-plus-Index**: Base register (SP/IP) + index register (e.g., mov a, [sp+b], mov [ip+b], a).
-  - **Combined Modes**: Mix of direct/immediate and other modes (e.g., adc [0x8000], 2 uses direct addressing for the memory location and immediate for the value 2).
+- **ROM:** 2KB reserved for various programs such as IO and utilities.
+- **RAM:** up to 60KB
+- **Video Buffer:** ~ 2KB screen char buffer (80x24 chars)
+- **Keyboard Buffer:** 2 bytes for input char and char ready flag
+- **Interrupt Vectors:** 16 bytes of interrupt vectors.
 
 ## I/O and Peripherals
 
@@ -133,12 +109,8 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 - **Debugger:** Step-through execution with breakpoints.
 - **Status Panel:** Displays register states.
 - **Code Panel:** Iterates through executed instructions.
+- **Sys Log Panel:** Responsible for displaying system messages and command line outputs
 
-## Planned Hardware Implementation
-
-- **Logic Components:** Built using discrete logic chips and ROMs for combinational logic.
-- **RS232 Connection:** Used for communication with a host computer in the first phase.
-- **Dedicated Video Interface:** Planned as a future upgrade.
 
 <br>
 <br>
@@ -156,25 +128,25 @@ Each instruction consists of an opcode and optional operands, depending on the i
 
 ### **Basic Instruction Types**
 
-- **Arithmetic Instructions:** Perform basic mathematical operations like ADD, SUB, MUL, DIV.
-- **Logical Instructions:** Perform bitwise operations like AND, OR, XOR, NOT.
-- **Data Movement Instructions:** Load and store operations such as MOV, LD, ST.
-- **Branching Instructions:** Conditional and unconditional jumps (JMP, JZ, JNZ, CALL, RET).
+- **Arithmetic Instructions:** Perform basic mathematical operations like add, sub, mul, div.
+- **Logical Instructions:** Perform bitwise operations like and, or, xor, not.
+- **Data Movement Instructions:** Load and store operations such as mov, ld, st.
+- **Branching Instructions:** Conditional and unconditional jumps (jmp, jz, jnz, call, ret).
 - **Stack Instructions:** PUSH, POP, for stack-based operations.
 - **I/O Instructions:** Interact with peripherals such as video and keyboard.
 
 ## Addressing Modes Supported
 
-- **Implied**: No explicit operand (e.g., brk, ret, clc).
-- **Register**: Operands are registers (e.g., mov b, a, xor b, a).
-- **Immediate**: Constant value embedded in the instruction (e.g., mov a, 4, add sp, 4).
-- **Direct (Absolute)**: Memory address specified directly (e.g., mov a, [8000], mov [0x7000], 0x10).
-- **Register Indirect**: Address is the value of a register (e.g., mov a, [sp], mov [ip], a).
-- **Indexed Absolute**: Absolute address + register offset (e.g., mov a, [8000+b], mov [8000+b], a).
-- **Stack-Relative with Displacement**: SP + fixed offset (e.g., mov a, [sp+4], mov [sp+4], a).
-- **IP-Relative with Displacement**: IP + fixed offset (e.g., mov a, [ip+4], mov [ip+4], a).
-- **Base-plus-Index**: Base register (SP/IP) + index register (e.g., mov a, [sp+b], mov [ip+b], a).
-- **Combined Modes**: Mix of direct/immediate and other modes (e.g., adc [0x8000], 2 uses direct addressing for the memory location and immediate for the value 2).
+- Implied
+- Register
+- Immediate
+- Direct (Absolute)
+- Register Indirect
+- Indexed Absolute
+- Stack-Relative with Displacement
+- IP-Relative with Displacement
+- Base-plus-Index
+- Combined Modes
 
 
 ### **Example Code and Addressing Modes**  
@@ -255,6 +227,8 @@ brk                   ; Halt execution (break)
 clc                   ; Clear carry flag
 rol a                 ; Rotate A left through carry
 ```
+
+**NOTE:** All instructions are in `common/instruction/instruction.go` file
 
 <br>
 <br>
@@ -341,7 +315,7 @@ bin/emu_asm8 --config default_config --load-bin hello.bin
 bin/asme8 --print --mode elf --file linker/examples/basic/upper.asm
 ```
 
-**output:**
+#### Example output
 
 ```
 FILE SEGMENT:
@@ -354,7 +328,7 @@ OFFSET      ACCESS     TYPE     SYMBOL
 0016        001        2        <done>
 
 POSITIONS:
-OFFSET     SIZE     EXTRA   missing    SYMBOL
+OFFSET     SIZE     EXTRA   MISSING    SYMBOL
 0004       16       0000    false      <done>
 000a       16       0000    false      <to_upper>
 000d       16       0000    false      <to_upper>
@@ -383,76 +357,9 @@ assemble success. 756 bytes assembled. output file: 'upper.o'
 bin/asme8 --print --mode elf --file linker/examples/basic/put_char.asm
 ```
 
-**output:**
-
-```
-FILE SEGMENT:
-put_char
-
-SYMBOL TABLE:
-OFFSET      ACCESS     TYPE     SYMBOL
-0000        010        0        <__VIDEO_START__>
-0000        100        2        <put_char>
-0000        001        0        <ADDR_PUT_CHAR>
-
-POSITIONS:
-OFFSET     SIZE     EXTRA   missing    SYMBOL
-0002       16       0000    true       <ADDR_PUT_CHAR>
-
-<0000> put_char:
-<0000>    mov [ADDR_PUT_CHAR+b], a            ; 2b 01 00 00
-<0004>    ret                                 ; 46
-
-assemble success. 327 bytes assembled. output file: 'put_char.o'
-```
-
 ```bash
 # create object file (elf) for "main.asm" using assembler.
 bin/asme8 --print --mode elf --file linker/examples/basic/main.asm
-```
-
-**output:**
-
-```
-FILE SEGMENT:
-main
-
-SYMBOL TABLE:
-OFFSET      ACCESS     TYPE     SYMBOL
-0000        010        0        <put_char>
-0000        001        2        <start>
-0000        010        0        <upper>
-0005        001        2        <loop>
-0018        001        2        <done>
-0019        001        2        <message>
-
-POSITIONS:
-OFFSET     SIZE     EXTRA   missing    SYMBOL
-0001       16       0000    false      <message>
-000b       16       0000    false      <done>
-000e       16       0000    true       <upper>
-0011       16       0000    true       <put_char>
-0016       16       0000    false      <loop>
-
-<0000> start:
-<0000>    mov ip, message                     ; 10 19 00
-<0003>    xor b, b                            ; 32 11
-<0005> loop:
-<0005>    mov a, [ip+b]                       ; 0f 10
-<0007>    cmp a, 0                            ; 09 00 00
-<000a>    jz done                             ; 05 18 00
-<000d>    call upper                          ; 45 00 00
-<0010>    call put_char                       ; 45 00 00
-<0013>    inc b                               ; 1c 01
-<0015>    jmp loop                            ; 02 05 00
-
-<0018> done:
-<0018>    brk                                 ; 00
-
-<0019> message:
-<0019> .byte 'h', 'e', 'l', 'l', 'o', 0        ; 68 65 6c 6c 6f 00
-
-assemble success. 991 bytes assembled. output file: 'main.o'
 ```
 
 ### **Linking object files** 
@@ -467,13 +374,15 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 +-----------------------------+
 |    GLOBAL LINKER SYMBOLS    |
 |-----------------------------|
-|  INDEX   |  SYMBOL          |
-|----------+------------------|
-|  0000    |  __ROM_START__   |
-|  2000    |  __ROM_END__     |
-|  2000    |  __RAM_START__   |
-|  ffff    |  __RAM_END__     |
-+----------+------------------+
+|  INDEX  |  SYMBOL           |
+|---------+-------------------|
+|  0000   |  __ROM_START__    |
+|  2000   |  __ROM_END__      |
+|  2000   |  __RAM_START__    |
+|  f87f   |  __RAM_END__      |
+|  f87f   |  __VIDEO_START__  |
+|  ffff   |  __VIDEO_END__    |
++---------+-------------------+
 
 +-------------------------------------------------+
 |                 RESOLVED SYMBOLS                |
@@ -485,7 +394,7 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 |  main      |   10   |  0019   |  message        |
 |  main      |   10   |  001f   |  put_char       |
 |  main      |   10   |  0024   |  upper          |
-|  put_char  |   01   |  f86d   |  ADDR_PUT_CHAR  |
+|  put_char  |   01   |  f87f   |  ADDR_PUT_CHAR  |
 |  upper     |   10   |  0036   |  to_upper       |
 |  upper     |   10   |  003a   |  done           |
 +------------+--------+---------+-----------------+
@@ -546,8 +455,9 @@ The E8 computer is designed with expandability in mind, allowing for future soft
 - **System Calls**:  Provide a set of system calls for common operations (e.g., memory allocation, I/O access).  
 
 ### 2. Hardware Enhancements
+- **Port Support**:  Add Ports for external communication.  
 - **Video Output**:  Add a dedicated VGA or composite video interface for graphical output, enabling a more interactive user experience.  
-- **Keyboard Input**:  Implement direct PS/2 or USB keyboard support for real-time input handling.  
+- **Keyboard Input**:  Implement direct PS/2 or custom keyboard support for real-time input handling.  
 
 ### 3. Software Ecosystem
 
@@ -555,9 +465,9 @@ The E8 computer is designed with expandability in mind, allowing for future soft
   Develop a library of common functions (e.g., string manipulation, math operations) to simplify programming.  
 
 - **File System**:  
-  Create a simple file system to manage files on external storage (e.g., SD card).  
+  Create a simple file system to manage files on external storage
 
 - **Terminal and Shell**:  
   Implement a basic terminal interface and shell for user interaction.  
-  - **Terminal**: Display text output and handle keyboard input. Support basic ANSI escape codes for cursor control and text formatting.  
+  - **Terminal**: Display text output and handle keyboard input.
   - **Shell**:  Provide a command-line interface (CLI) for executing programs and managing files.  

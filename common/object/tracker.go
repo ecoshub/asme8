@@ -128,7 +128,7 @@ func (t *Tracker) Print() {
 
 	sortedHits := SortHitMap(t.positions)
 	fmt.Println("POSITIONS:")
-	fmt.Println("OFFSET     SIZE     EXTRA   missing    SYMBOL ")
+	fmt.Println("OFFSET     SIZE     EXTRA   MISSING    SYMBOL ")
 	for _, key := range sortedHits {
 		e := t.positions[key]
 		fmt.Printf("%04x       %2d       %04x    %-5v      <%s>\n", e.offset, e.size, e.optionalOffset, e.missing, e.symbol)

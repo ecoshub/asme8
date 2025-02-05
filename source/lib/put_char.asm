@@ -14,6 +14,8 @@
 
 .segment "SEG_PUT_CHAR"
 
+    extern SCREEN_ATTR_BUFFER
+    extern SCREEN_WIDTH
     extern ADDR_CURSOR_INDEX_L          ; address of cursor index low byte
     extern ADDR_CURSOR_INDEX_H          ; address of cursor index high byte
     extern ADDR_ROW_COUNTER             ; reserved
@@ -22,8 +24,11 @@
     global __PUT_CHAR__
     global __DEL_CHAR__
     global __PUT_CURSOR_HOME__
+    global __GO_TO_ROW__
 
 SCREEN_BUFFER_START=__VIDEO_START__
+ROW_COUNT=SCREEN_ATTR_BUFFER
+ROW_COUNTER=SCREEN_ATTR_BUFFER
 
 __PUT_CHAR__:
     mov ip, SCREEN_BUFFER_START
@@ -60,4 +65,24 @@ ipl_zero:
 __PUT_CURSOR_HOME__:
     mov [ADDR_CURSOR_INDEX_L], 0
     mov [ADDR_CURSOR_INDEX_H], 0
+    ret
+
+__GO_TO_ROW__:
+    mov [ADDR_CURSOR_INDEX_L], 0
+    mov [ADDR_CURSOR_INDEX_H], 0
+    mov ipl, [ADDR_CURSOR_INDEX_L]
+    mov iph, [ADDR_CURSOR_INDEX_H]
+go_row_loop:
+    cmp a, 0
+    jz go_row_done
+    add ipl, SCREEN_WIDTH
+    adc iph, 0
+    dec a
+    jmp go_row_loop
+go_row_done:
+    mov [ADDR_CURSOR_INDEX_L], ipl
+    mov [ADDR_CURSOR_INDEX_H], iph
+    ret
+
+__RETURN__:
     ret

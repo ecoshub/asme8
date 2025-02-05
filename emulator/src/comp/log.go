@@ -91,7 +91,10 @@ func (c *Comp) LogState() {
 		return
 	}
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])
-	visualStep := ((int(c.step) + stepLen - 1) % stepLen) + 1
+	visualStep := stepLen
+	if stepLen != 0 {
+		visualStep = ((int(c.step) + stepLen - 1) % stepLen) + 1
+	}
 	// NOTE: can not convertible for multi write do not try it
 	c.LogfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
 	c.LogfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")

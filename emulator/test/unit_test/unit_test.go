@@ -399,6 +399,24 @@ var (
 			},
 		},
 		{
+			Name: "adc reg imm",
+			// mov a, 0xff
+			// mov b, 0x10
+			// add a, b
+			// adc c, 0x10
+			Program: []uint8{
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_IMM, instruction.REGISTER_OPCODE_B, 0x10,
+				instruction.INST_ADD_REG_REG, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
+				instruction.INST_ADC_REG_IMM, instruction.REGISTER_OPCODE_C, 0x10,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_C, Data: 0x11},
+				},
+			},
+		},
+		{
 			Name: "add reg imm",
 			// mov a, 0x20
 			// add a, 0x10

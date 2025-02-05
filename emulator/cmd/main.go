@@ -34,7 +34,8 @@ func main() {
 
 	var program []uint8
 	var code string
-	program, code, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
+	var path string
+	program, code, path, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -45,6 +46,7 @@ func main() {
 		Headless:       *flagHeadless,
 		Program:        program,
 		Delay:          *flagDelay,
+		FilePath:       path,
 		SymbolFilePath: *flagSymbolFile,
 		SymbolFile:     code,
 	})

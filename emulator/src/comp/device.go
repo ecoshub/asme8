@@ -8,6 +8,7 @@ import (
 	"asme8/emulator/src/terminal"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -106,7 +107,15 @@ func (c *Comp) CreateDevices() error {
 
 func (c *Comp) ReadSymbolFile() error {
 	if c.Config.SymbolFilePath == "" {
-		return nil
+		base := filepath.Base(c.Config.FilePath)
+		rest := strings.TrimSuffix(c.Config.FilePath, base)
+		tokens := strings.Split(base, ".")
+		if len(tokens) != 2 {
+			return nil
+		}
+		base = tokens[0]
+		possiblePath := filepath.Join(rest, base+".sym")
+		c.Config.SymbolFilePath = possiblePath
 	}
 
 	file, err := os.ReadFile(c.Config.SymbolFilePath)
@@ -114,15 +123,14 @@ func (c *Comp) ReadSymbolFile() error {
 		return err
 	}
 
-	return c.ResolveSymbolFile(string(file))
+	return c.ResolveSymbolFromFile(string(file))
 }
 
-func (c *Comp) ResolveSymbolFile(code string) error {
+func (c *Comp) ResolveSymbolFromFile(code string) error {
 
 	codeLines := make(map[uint16]string, 64)
 	lines := strings.Split(code, "\n")
 	for _, l := range lines {
-		// fmt.Printf("line:>%s<\n", l)
 		if len(l) < 6 {
 			continue
 		}
@@ -132,7 +140,6 @@ func (c *Comp) ResolveSymbolFile(code string) error {
 		if err != nil {
 			return fmt.Errorf("code resolve error. machine code parse error. line: '%s', code: '%s', err: %s", l, hex, err)
 		}
-		// fmt.Printf("<%02x><%s>\n", v, str)
 		s, exists := codeLines[uint16(v)]
 		if exists {
 			codeLines[uint16(v)] = s + " " + strings.TrimSpace(str)

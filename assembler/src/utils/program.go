@@ -6,22 +6,22 @@ import (
 	"os"
 )
 
-func ResolveProgram(binFilePath, asmFilePath string) ([]byte, string, error) {
+func ResolveProgram(binFilePath, asmFilePath string) ([]byte, string, string, error) {
 	if binFilePath != "" {
 		program, err := ReadProgram(binFilePath)
 		if err != nil {
-			return nil, "", err
+			return nil, "", "", err
 		}
-		return program, "", nil
+		return program, "", binFilePath, nil
 	}
 	if asmFilePath != "" {
 		program, code, err := AssembleProgram(asmFilePath)
 		if err != nil {
-			return nil, "", err
+			return nil, "", "", err
 		}
-		return program, code, nil
+		return program, code, asmFilePath, nil
 	}
-	return []byte{}, "", nil
+	return []byte{}, "", "", nil
 }
 
 func ReadProgram(binFilePath string) ([]uint8, error) {

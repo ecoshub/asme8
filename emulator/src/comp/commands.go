@@ -74,7 +74,7 @@ func (c *Comp) HandleCommands(command string) {
 			return
 		}
 
-		c.ResolveSymbolFile(code)
+		c.ResolveSymbolFromFile(code)
 
 		c.Config.Program = program
 		c.LoadProgram()

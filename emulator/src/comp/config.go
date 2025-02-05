@@ -12,6 +12,7 @@ type Config struct {
 	Program        []byte
 	Delay          time.Duration
 	Test           bool
+	FilePath       string
 	SymbolFilePath string
 	SymbolFile     string
 }

@@ -92,17 +92,15 @@ func New(conf *Config) (*Comp, error) {
 	if err != nil {
 		return nil, err
 	}
-	if conf.SymbolFilePath != "" {
+	if len(conf.SymbolFile) == 0 {
 		err := c.ReadSymbolFile()
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		if len(conf.SymbolFile) != 0 {
-			err := c.ResolveSymbolFile(conf.SymbolFile)
-			if err != nil {
-				return nil, err
-			}
+		err := c.ResolveSymbolFromFile(conf.SymbolFile)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return c, nil

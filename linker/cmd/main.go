@@ -10,11 +10,10 @@ import (
 )
 
 var (
-	flagMemoryConfigPath  = flag.String("memory-config", "", "Path to the memory config file")
-	flagSegmentConfigPath = flag.String("segment-config", "", "Path to the segment config file")
-	flagOutput            = flag.String("output", "a.bin", "output file name")
-	flagPrintSymbols      = flag.Bool("print", false, "print all symbol tables")
-	flagOutCodePath       = flag.String("output-code", "a.sym", "write indexed code to a path")
+	flagConfigPath   = flag.String("config", "", "Path to the memory config file")
+	flagOutput       = flag.String("output", "a.bin", "output file name")
+	flagPrintSymbols = flag.Bool("print", false, "print all symbol tables")
+	flagOutCodePath  = flag.String("output-code", "a.sym", "write indexed code to a path")
 )
 
 func main() {
@@ -24,26 +23,14 @@ func main() {
 	objectFilePaths := flag.Args()
 
 	// Check if config path is provided
-
-	if *flagMemoryConfigPath == "" {
-		fmt.Println("Memory config path required")
+	if *flagConfigPath == "" {
+		fmt.Println("Linker config path required")
 		return
 	}
 
-	if *flagSegmentConfigPath == "" {
-		fmt.Println("Segment config path required")
-		return
-	}
-
-	memoryConfig, err := config.ParseMemoryConfig(*flagMemoryConfigPath)
+	conf, err := config.ParseConfig(*flagConfigPath)
 	if err != nil {
 		fmt.Printf("Memory config parse failed. err: %s", err.Error())
-		return
-	}
-
-	segmentConfig, err := config.ParseSegmentConfig(*flagSegmentConfigPath)
-	if err != nil {
-		fmt.Printf("Segment config parse failed. err: %s", err.Error())
 		return
 	}
 
@@ -53,7 +40,7 @@ func main() {
 		return
 	}
 
-	l := core.NewLinker(memoryConfig, segmentConfig, objectFiles...)
+	l := core.NewLinker(conf, objectFiles...)
 
 	err = l.Link()
 	if err != nil {

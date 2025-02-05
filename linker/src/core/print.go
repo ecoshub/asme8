@@ -56,7 +56,7 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		HeaderAlignment: stable.AlignmentLeft,
 	})
 
-	for _, seg := range l.segmentConfig.Configs {
+	for _, seg := range l.config.SegmentConfig.Configs {
 		rss := l.resolvedSymbols[seg.Name]
 		unique := map[string]*ResolvedSymbol{}
 		for _, rs := range rss {

@@ -1,3 +1,11 @@
+MEMORY {
+    ROM_1: size=0x2000, type=ro;
+    RAM: size=0xd86d, type=rw;
+    VIDEO: size=0x780, type=rw;
+    KEYBOARD: size=0x2, type=rw;
+    ROM_2: start=0xffef, size=0x10, type=rw;
+}
+
 SEGMENTS {
     SEG_KERNEL: load=ROM_1, type=ro;
     SEG_GET_CHAR: load=ROM_1, type=rw;
@@ -5,4 +13,5 @@ SEGMENTS {
     SEG_ECHO: load=ROM_1, type=rw;
     SEG_WOZ: load=ROM_1, type=rw;
     SEG_CONV: load=ROM_1, type=rw;
+    INTERRUPT: load=ROM_2, type=ro;
 }

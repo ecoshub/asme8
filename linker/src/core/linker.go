@@ -10,8 +10,7 @@ import (
 )
 
 type Linker struct {
-	memoryConfig            *config.MemoryConfig
-	segmentConfig           *config.SegmentConfig
+	config                  *config.Config
 	objects                 []*object.ELF
 	memory                  []byte
 	code                    []string
@@ -24,10 +23,9 @@ type Linker struct {
 	resolvedSymbols         map[string][]*ResolvedSymbol
 }
 
-func NewLinker(memoryConfig *config.MemoryConfig, segmentConfig *config.SegmentConfig, objects ...*object.ELF) *Linker {
+func NewLinker(conf *config.Config, objects ...*object.ELF) *Linker {
 	return &Linker{
-		memoryConfig:            memoryConfig,
-		segmentConfig:           segmentConfig,
+		config:                  conf,
 		objects:                 objects,
 		memory:                  make([]byte, 0xffff),
 		memoryLastSegmentOffset: make(map[string]uint16),
@@ -42,7 +40,7 @@ func NewLinker(memoryConfig *config.MemoryConfig, segmentConfig *config.SegmentC
 
 func (l *Linker) Link() error {
 
-	err := ResolveMemoryLayout(l.memoryConfig.Configs)
+	err := ResolveMemoryLayout(l.config.MemoryConfig.Configs)
 	if err != nil {
 		return err
 	}
@@ -105,7 +103,7 @@ func (l *Linker) OutCode(path string) (int, error) {
 func (l *Linker) putLinkerGlobals() {
 	// fmt.Println("LINKER GLOBALS:")
 	// fmt.Println("    VALUE        SYMBOL")
-	for _, m := range l.memoryConfig.Configs {
+	for _, m := range l.config.MemoryConfig.Configs {
 		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
@@ -137,8 +135,8 @@ func ResolveMemoryLayout(ml []*config.Memory) error {
 }
 
 func (l *Linker) putSegments() error {
-	for _, s := range l.segmentConfig.Configs {
-		m, ok := l.memoryConfig.GetMemoryConfig(s.Load)
+	for _, s := range l.config.SegmentConfig.Configs {
+		m, ok := l.config.MemoryConfig.GetMemoryConfig(s.Load)
 		if !ok {
 			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
 		}
@@ -151,8 +149,8 @@ func (l *Linker) putSegments() error {
 		}
 		l.putExplicitSegment(o, m, s)
 	}
-	for _, s := range l.segmentConfig.Configs {
-		m, _ := l.memoryConfig.GetMemoryConfig(s.Load)
+	for _, s := range l.config.SegmentConfig.Configs {
+		m, _ := l.config.MemoryConfig.GetMemoryConfig(s.Load)
 		o, _ := findObjectFile(s.Name, l.objects)
 		if s.Start == nil {
 			continue
@@ -241,7 +239,7 @@ func (l *Linker) resolveReference() error {
 	// fmt.Println("REFERENCE RESOLVING")
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.segmentConfig.GetSegmentConfig(segment)
+		_, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}
@@ -269,7 +267,7 @@ func (l *Linker) resolveReference() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.segmentConfig.GetSegmentConfig(segment)
+		_, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}

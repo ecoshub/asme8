@@ -63,6 +63,7 @@ Goals of the project include:
 - Includes a virtual terminal (80x24) for text-based display output.
 - Supports keyboard input mapped to a specific memory address.
 - It has builtin command line that can use to manipulate panels around it. (write 'help' to see more)
+- It can run "headless" using `--headless` flag. in headless mode it can only print the execution. no video or keyboard access allowed
 
 <br>
 

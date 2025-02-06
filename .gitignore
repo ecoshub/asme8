@@ -5,8 +5,8 @@ TODO.md
 assembler/TODO.md
 assembler/test.asm
 assembler/.antlr
-source/bin
-source/elf
+source/bin/*
+source/elf/*
 a.o
 *.o
 *.sym

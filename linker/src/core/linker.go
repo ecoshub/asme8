@@ -208,14 +208,14 @@ func (l *Linker) resolveSymbols() error {
 		}
 		for _, s := range symbols {
 			if s.IsShare(object.SYMBOL_SHARE_STATUS_GLOBAL) {
+				existsSymbol, existsSegment, exists := checkSameGlobal(s.GetSymbol(), l.globals)
+				if exists {
+					return fmt.Errorf("symbol is already defined in another segment. symbol: %s, segment: %s, active segment: %s", existsSymbol.GetSymbol(), existsSegment, segment)
+				}
 				pushSymbol(segment, s, l.globals)
-				// l.globals[segment] = s
-				// fmt.Println("GLOBAL", segment, s.GetSymbol(), s.GetIndex(), s.GetType())
 			}
 			if s.IsShare(object.SYMBOL_SHARE_STATUS_EXTERN) {
 				pushSymbol(segment, s, l.externs)
-				// l.externs[segment] = s
-				// fmt.Println("EXTERN", segment, s.GetSymbol(), s.GetIndex())
 			}
 		}
 	}
@@ -345,6 +345,17 @@ func pushSymbol(segment string, s *object.Symbol, m map[string][]*object.Symbol)
 		m[segment] = make([]*object.Symbol, 0, 4)
 	}
 	m[segment] = append(m[segment], s)
+}
+
+func checkSameGlobal(symbol string, globals map[string][]*object.Symbol) (*object.Symbol, string, bool) {
+	for segment, arr := range globals {
+		for _, s := range arr {
+			if s.GetSymbol() == symbol {
+				return s, segment, true
+			}
+		}
+	}
+	return nil, "", false
 }
 
 func findGlobal(symbol string, globals map[string][]*object.Symbol) (string, *object.Symbol, bool) {

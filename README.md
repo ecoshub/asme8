@@ -4,40 +4,17 @@ This project is a fully custom-designed 8-bit computer, including its own instru
 
 ## Table of contents
 
-- [1. Overview of the Project](#1-overview-of-the-project)  
+- [1. Project Overview](#1-project-overview)  
 - [2. Architecture Overview](#2-architecture-overview)  
 - [3. Instruction Set Architecture (ISA)](#3-instruction-set-architecture-isa)  
 - [4. Getting Started Guide](#4-getting-started-guide)  
 - [5. Hardware Specs (Planned)](#5-hardware-specs-planned)  
 - [6. Future Enhancements (Planned)](#6-future-enhancements-planned)  
 
-# 1. Overview of the Project
-
-### **Assembler**
-
-- Uses ANTLR4 for resolving grammar (lexer and parser)
-- Supports various addressing modes (immediate, implied, direct, indirect, etc.).
-- Outputs binary files compatible with the emulator and future hardware implementation.
-- Outputs object files for linking purpose
-
-### **Linker**
-
-- Resolves symbolic references between different assembly modules.
-- Combines multiple object files into a single executable.
-- Organizes memory layout and resolves external labels.
-
-### **Emulator**
-
-- Simulates the CPU, memory, and peripherals.
-- Provides a memory inspector, debugger, and register status panel.
-- Includes a virtual terminal (80x24) for text-based display output.
-- Supports keyboard input mapped to a specific memory address.
-
+<br>
 <br>
 
-![home](ss.png)
-
-<br>
+# 1. Project Overview
 
 ## Motivation and Goals
 
@@ -45,11 +22,51 @@ The primary motivation behind this project is to create a complete, from-scratch
 
 Goals of the project include:
 
-- Designing and implementing a custom 8-bit CPU.
-- Defining a unique but practical ISA that balances complexity and efficiency.
-- Developing an assembler and linker to convert assembly code into machine code.
-- Creating an emulator to test programs before hardware implementation.
-- Eventually building the hardware to run the system natively.
+- [x] Designing and implementing a custom 8-bit CPU.
+- [x] Defining a unique but practical ISA that balances complexity and efficiency.
+- [x] Developing an assembler and linker to convert assembly code into machine code.
+- [x] Creating an emulator to test programs before hardware implementation.
+- [ ] Building the hardware to run the system natively.
+
+## Folder Structure
+- **assembler:** contains the assembler source code and some example assemble files.
+- **common:** common contains common files that assembler, linker and emulator use like instruction definition, machine codes and linker configuration
+- **emulator:** contains emulator source code
+- **linker:**
+  - contains linker source code and some examples for understanding linker function
+- **source:**
+  - source is containing the source code for e8 computer.
+  - It will eventual be the source codes for all utilities for e8 computer.
+  - It has IO functions and wozman like shell program.
+  - Has its own `Makefile`. run `make` to assemble and link all source files and create `link.bin`
+  - All source section is in WIP.
+
+## Toolchain:
+
+#### **Assembler:**
+
+- Uses ANTLR4 for resolving grammar (lexer and parser)
+- Supports various addressing modes (immediate, implied, direct, indirect, etc.).
+- Outputs binary files compatible with the emulator and future hardware implementation.
+- Outputs object files for linking purpose
+
+#### **Linker:**
+
+- Resolves symbolic references between different assembly modules.
+- Combines multiple object files into a single executable.
+- Organizes memory layout and resolves external labels.
+
+#### **Emulator:**
+
+- Simulates the CPU, memory, and peripherals.
+- Provides a memory inspector, debugger, and register status panel.
+- Includes a virtual terminal (80x24) for text-based display output.
+- Supports keyboard input mapped to a specific memory address.
+- It has builtin command line that can use to manipulate panels around it. (write 'help' to see more)
+
+<br>
+
+![home](ss.png)
 
 <br>
 <br>
@@ -76,14 +93,14 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 
 ### **Arithmetic Logic Unit (ALU)**
 
-- Supports basic arithmetic operations (addition, subtraction, etc.).
-- Logical operations (AND, OR, XOR, NOT).
-- Shift and rotate operations.
+- Supports basic arithmetic operations (*add*, *sub*, etc.).
+- Logical operations (*and*, *or*, *xor*, *not*, etc.).
+- Shift and rotate operations (*shl*, *shr*, etc.).
 
 ### **Control Unit**
 
 - Decodes instructions and generates control signals.
-- Handles branching, function calls, and execution sequencing.
+- Handles branching and function calls.
 
 ## Memory Map
 
@@ -132,7 +149,7 @@ Each instruction consists of an opcode and optional operands, depending on the i
 - **Logical Instructions:** Perform bitwise operations like and, or, xor, not.
 - **Data Movement Instructions:** Load and store operations such as mov, ld, st.
 - **Branching Instructions:** Conditional and unconditional jumps (jmp, jz, jnz, call, ret).
-- **Stack Instructions:** PUSH, POP, for stack-based operations.
+- **Stack Instructions:** push, pop, for stack-based operations.
 - **I/O Instructions:** Interact with peripherals such as video and keyboard.
 
 ## Addressing Modes Supported
@@ -252,7 +269,15 @@ make build-emulator   # Emulator: bin/emu_asm8
 
 ---
 
-## **2. Assemble Example Program**  
+
+## **2. Running an .asm file directly**  
+```bash
+bin/emu_asm8 --config default_config --load-asm assembler/examples/hello_world.asm
+```
+
+---
+
+## **3. Assemble Example Program**  
 Compile `assembler/examples/hello_world.asm` into an object file:  
 ```bash
 bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output hello.bin
@@ -296,17 +321,15 @@ assemble success. 41 bytes assembled. output file: 'hello.bin'
 
 ---
 
-## **3. Run the Program in the Emulator**  
+## **4. Run the Program in the Emulator**  
 ```bash
 # use default memory config 'default_config'
 bin/emu_asm8 --config default_config --load-bin hello.bin
 ```
 
-**NOTE:** You can also directly execute `.asm` files using `--load-asm`flag
-
 ---
 
-## **4. Linker Usage**  
+## **5. Linker Usage**  
 
 ### **Creating object files:** 
 

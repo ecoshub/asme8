@@ -285,6 +285,12 @@ func (s *BaseAsmE8Listener) EnterImm(ctx *ImmContext) {}
 // ExitImm is called when production imm is exited.
 func (s *BaseAsmE8Listener) ExitImm(ctx *ImmContext) {}
 
+// EnterAscii is called when production ascii is entered.
+func (s *BaseAsmE8Listener) EnterAscii(ctx *AsciiContext) {}
+
+// ExitAscii is called when production ascii is exited.
+func (s *BaseAsmE8Listener) ExitAscii(ctx *AsciiContext) {}
+
 // EnterTag is called when production tag is entered.
 func (s *BaseAsmE8Listener) EnterTag(ctx *TagContext) {}
 

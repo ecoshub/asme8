@@ -19,4 +19,4 @@ done:
     brk
 
 message:
-.byte 'h', 'e', 'l', 'l', 'o', 0
+.asciiz "hello"

@@ -137,6 +137,9 @@ type AsmE8Listener interface {
 	// EnterImm is called when entering the imm production.
 	EnterImm(c *ImmContext)
 
+	// EnterAscii is called when entering the ascii production.
+	EnterAscii(c *AsciiContext)
+
 	// EnterTag is called when entering the tag production.
 	EnterTag(c *TagContext)
 
@@ -268,6 +271,9 @@ type AsmE8Listener interface {
 
 	// ExitImm is called when exiting the imm production.
 	ExitImm(c *ImmContext)
+
+	// ExitAscii is called when exiting the ascii production.
+	ExitAscii(c *AsciiContext)
 
 	// ExitTag is called when exiting the tag production.
 	ExitTag(c *TagContext)

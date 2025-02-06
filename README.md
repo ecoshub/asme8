@@ -315,7 +315,7 @@ bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output 
 <001a>     brk                                  ; 00
 <001a>
 <001b>  message:
-<001b> .byte 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', 0 ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
+<001b> .asciiz "Hello, World!"                  ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
 
 assemble success. 41 bytes assembled. output file: 'hello.bin'
 ```

@@ -7,6 +7,11 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
+func (a *Assembler) ExitAscii(c *parser.AsciiContext) {
+	text := c.GetText()
+	a.ParseAscii(text)
+}
+
 func (a *Assembler) ExitInst_index_register_imm_variable(c *parser.Inst_index_register_imm_variableContext) {
 	a.GetVariableOrTagMissing(1, 16)
 	line := c.GetStart().GetLine()
@@ -239,6 +244,8 @@ func (a *Assembler) ExitInst(c *parser.InstContext) {
 	text := c.GetText()
 	a.CodeParseExitInst(text)
 }
+
+func (a *Assembler) EnterAscii(c *parser.AsciiContext) {}
 
 func (a *Assembler) EnterReference(c *parser.ReferenceContext) {}
 

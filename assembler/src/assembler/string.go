@@ -43,6 +43,10 @@ func (a *Assembler) CreatePrintable() string {
 				buffer += fmt.Sprintf("<%04x> %-40s ; (location: %04x)\n", i, directive.Raw, directive.Values[0].GetValue())
 			case ".resb":
 				buffer += fmt.Sprintf("<%04x> %-40s ; 00 ... (%d bytes)\n", i, directive.Raw, directive.Values[0].GetValue())
+			case ".ascii":
+				fallthrough
+			case ".asciiz":
+				fallthrough
 			case ".byte":
 				arr := ToHexArray_1byte(directive.Values, true)
 				buffer += fmt.Sprintf("<%04x> %-40s ; %v\n", i, directive.Raw, arr)
@@ -89,6 +93,10 @@ func (a *Assembler) CodeString() string {
 				buffer += fmt.Sprintf("<%04x> %-40s; (location: %04x)\n", lastIndex, directive.Raw, directive.Values[0].GetValue())
 			case ".resb":
 				buffer += fmt.Sprintf("<%04x> %-40s; 00 ... (%d bytes)\n", lastIndex, directive.Raw, directive.Values[0].GetValue())
+			case ".ascii":
+				fallthrough
+			case ".asciiz":
+				fallthrough
 			case ".byte":
 				arr := ToHexArray_1byte(directive.Values, true)
 				buffer += fmt.Sprintf("<%04x> %-40s; %v\n", lastIndex, directive.Raw, arr)

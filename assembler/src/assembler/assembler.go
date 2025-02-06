@@ -455,6 +455,16 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 	a.currentValue = types.NewValue(0)
 }
 
+func (a *Assembler) ParseAscii(text string) {
+	text = text[1 : len(text)-1]
+	list := make([]*types.Value, 0, len(text))
+	for i := range text {
+		v := types.NewValue(int64(text[i]))
+		list = append(list, v)
+	}
+	a.currentValueList = list
+}
+
 func (a *Assembler) ParseDirective(text string, line, column int) {
 	if strings.HasPrefix(text, ".org") {
 		if len(a.currentValueList) == 0 {
@@ -491,6 +501,21 @@ func (a *Assembler) ParseDirective(text string, line, column int) {
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 			a.AppendMachineCode(v.GetHighByte())
+		}
+		return
+	}
+	if strings.HasPrefix(text, ".asciiz") {
+		a.currentValueList = append(a.currentValueList, types.NewValue(0))
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".asciiz", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		for _, v := range a.currentValueList {
+			a.AppendMachineCode(v.GetLowByte())
+		}
+		return
+	}
+	if strings.HasPrefix(text, ".ascii") {
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".ascii", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		for _, v := range a.currentValueList {
+			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}

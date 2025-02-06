@@ -162,7 +162,9 @@ reference: STR
 	| STR ('+'|'-') imm
 	;
 
-directives: '.byte '  imm_list
+directives: '.asciiz ' ascii
+	| '.ascii ' ascii
+	| '.byte '  imm_list
 	| '.word '  imm_list
 	| '.resb '  imm_list
 	| '.org '  imm_list
@@ -183,6 +185,8 @@ imm: INT
 	| CHAR
 	;
 
+ascii: ANY;
+
 tag: STR;
 
 LINE_COMMENT: (WHITE_SPACE* ';' ~[\r\n]*) -> skip;
@@ -196,5 +200,6 @@ CHAR: '\' \''
 	| '\',\'' 
 	| '\'' ~[\r\n'] '\'' 
 	;
+ANY: '"' ~[\r\n"]* '"';
 HEX: '0x' ([a-fA-F0-9])+;
 STR: [a-zA-Z_][a-zA-Z0-9_]*;

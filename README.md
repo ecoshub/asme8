@@ -265,7 +265,7 @@ make build
 # Alternatively, build individually:
 make build-assembler  # Assembler: bin/asme8
 make build-linker     # Linker: bin/ld
-make build-emulator   # Emulator: bin/emu_asm8
+make build-emulator   # Emulator: bin/emu_asme8
 ```
 
 ---
@@ -273,7 +273,7 @@ make build-emulator   # Emulator: bin/emu_asm8
 
 ## **2. Running an .asm file directly**  
 ```bash
-bin/emu_asm8 --config default_config --load-asm assembler/examples/hello_world.asm
+bin/emu_asme8 --config default_config --load-asm assembler/examples/hello_world.asm
 ```
 
 ---
@@ -325,7 +325,7 @@ assemble success. 41 bytes assembled. output file: 'hello.bin'
 ## **4. Run the Program in the Emulator**  
 ```bash
 # use default memory config 'default_config'
-bin/emu_asm8 --config default_config --load-bin hello.bin
+bin/emu_asme8 --config default_config --load-bin hello.bin
 ```
 
 ---
@@ -429,11 +429,11 @@ link success. files: [upper.o put_char.o main.o], output file: linked.bin
 ### **Running the program** 
 
 ```bash
-bin/emu_asm8 --config linker/examples/basic/linker_config --load-bin linked.bin
+bin/emu_asme8 --config linker/examples/basic/linker_config --load-bin linked.bin
 
 # 'load-bin' is looking for a 'linked.sym' file in same directory in automatically resolves it
 # if you can separate symbol file you can link it using '--symbol-file' flag
-bin/emu_asm8 --config linker/examples/basic/linker_config --load-bin linked.bin --symbol-file linked.sym
+bin/emu_asme8 --config linker/examples/basic/linker_config --load-bin linked.bin --symbol-file linked.sym
 ```
 
 ![linker demo](linker_demo.png)

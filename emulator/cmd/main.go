@@ -14,7 +14,7 @@ var (
 	flagFileAsm    = flag.String("load-asm", "", "assemble and load asm file to rom")
 	flagDelay      = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 	flagHeadless   = flag.Bool("headless", false, "run computer as 'headless'")
-	flagConfigPath = flag.String("config", "", "Path to the memory config file")
+	flagConfigPath = flag.String("config", "default_config", "Path to the memory config file")
 	flagSymbolFile = flag.String("symbol-file", "", "Path to indexed code (symbol) file")
 )
 

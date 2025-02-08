@@ -9,7 +9,7 @@ build-linker:
 	go build -o bin/ld linker/cmd/main.go
 
 build-emulator:
-	go build -o bin/emu_asm8 emulator/cmd/main.go
+	go build -o bin/emu_asme8 emulator/cmd/main.go
 
 build-tools-and-source: build build-source
 

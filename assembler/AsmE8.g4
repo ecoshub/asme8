@@ -170,7 +170,7 @@ directives: '.asciiz ' ascii
 	| '.org '  imm_list
 	;
 
-segment: '.segment ' '"' STR '"' ;
+segment: '.segment ' ANY_STR ;
 
 access: '    ' 'global ' tag
 	| '    ' 'extern ' tag
@@ -185,7 +185,7 @@ imm: INT
 	| CHAR
 	;
 
-ascii: ANY;
+ascii: ANY_STR;
 
 tag: STR;
 
@@ -200,6 +200,6 @@ CHAR: '\' \''
 	| '\',\'' 
 	| '\'' ~[\r\n'] '\'' 
 	;
-ANY: '"' ~[\r\n"]* '"';
+ANY_STR: '"' ~[\r\n"]* '"';
 HEX: '0x' ([a-fA-F0-9])+;
 STR: [a-zA-Z_][a-zA-Z0-9_]*;

@@ -18,15 +18,33 @@ func (c *Comp) HandleCommands(command string) {
 		}
 		if c.pause {
 			c.Log("Starts running...")
+			c.forcePageEnable = false
 		} else {
 			c.Log("Stop")
 		}
 		c.pause = !c.pause
 		c.pushToCommandPalletHistory(command)
 		return
+	case "cyc":
+		fallthrough
+	case "cycle":
+		c.Logf("total cycle: %d", c.cycleCount)
+		c.pushToCommandPalletHistory(command)
+		return
+	case "ccyc":
+		fallthrough
+	case "clear cycle":
+		c.cycleCount = 0
+		c.Logf("total cycle: %d", c.cycleCount)
+		c.pushToCommandPalletHistory(command)
+		return
 	case "t":
 		fallthrough
 	case "tick":
+		if !c.running {
+			c.Logf("! program is in break state. try restart using 'r'")
+			return
+		}
 		c.singleTicker <- struct{}{}
 		c.pushToCommandPalletHistory(command)
 		return
@@ -34,13 +52,27 @@ func (c *Comp) HandleCommands(command string) {
 		c.LogMemory()
 		c.pushToCommandPalletHistory(command)
 		return
+	case "page":
+		c.forcePageEnable = !c.forcePageEnable
+		if c.forcePageEnable {
+			c.Logf("page point enable")
+		} else {
+			c.Logf("page point disable")
+		}
+		c.LogCodePanel(true)
+		return
 	case "h":
 		fallthrough
 	case "help":
 		c.Help()
 		return
-	case "lsb":
+	case "lbp":
 		c.ListBreakPoints()
+		return
+	case "cbp":
+		c.ClearBreakPoints()
+		c.terminal.Components.CodeRulerPanel.Clear()
+		c.LogCodePanel(true)
 		return
 	case "c":
 		fallthrough
@@ -187,6 +219,20 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
+	exists, n, err = SplitNumberCommand(command, "page")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		c.forcePageEnable = true
+		c.forcePage = int(n)
+		c.Logf("page is pointing to 0x%04x", n)
+		c.LogCodePanel(true)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
+
 	exists, param, err := SplitNumberCommand(command, "hz")
 	if exists {
 		if err != nil {
@@ -250,17 +296,19 @@ func (c *Comp) Help() {
 	c.LogWithStyle("- t | tick | tick <n> ...: advance clock 1 or n time", HelpStyle)
 	c.LogWithStyle("- b <n> .................: add breakpoint to address n", HelpStyle)
 	c.LogWithStyle("- rb <n> ................: remove breakpoint to address n", HelpStyle)
-	c.LogWithStyle("- lsb ...................: list breakpoints", HelpStyle)
+	c.LogWithStyle("- lbp ...................: list breakpoints", HelpStyle)
+	c.LogWithStyle("- cbp ...................: clear all breakpoints", HelpStyle)
 	c.LogWithStyle("- mem | mem <n> .........: get or set memory starting with address n", HelpStyle)
-	c.LogWithStyle("- clear .................: clear the log panel", HelpStyle)
 	c.LogWithStyle("- r | restart ...........: restart the emulator", HelpStyle)
-	c.LogWithStyle("- exit | quit ...........: exit emulator", HelpStyle)
 	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", HelpStyle)
 	c.LogWithStyle("- load-asm | load-bin ...: load program using '.asm' file or '.bin' file", HelpStyle)
+	c.LogWithStyle("- cycle | cyc ...........: print total cycle run", HelpStyle)
+	c.LogWithStyle("- clear cycle | ccyc ....: reset total cycle", HelpStyle)
+	c.LogWithStyle("- page | page <n> .......: toggle page mode, set page offset", HelpStyle)
+	c.LogWithStyle("- exit | quit ...........: exit emulator", HelpStyle)
+	c.LogWithStyle("- clear .................: clear the log panel", HelpStyle)
 	c.LogWithStyle("- help ..................: prints this dialog box", HelpStyle)
-	c.LogWithStyle("notes:", HelpStyle)
-	c.LogWithStyle("-  n values can be number of hex with e '0x' prefix", HelpStyle)
-	c.LogWithStyle("-  use ctrl+D to direct keyboard input into emulator", HelpStyle)
-	c.LogWithStyle("-  load command always load program starting with addr 0x000", HelpStyle)
+	c.LogWithStyle("* note:  n values can be number of hex with e '0x' prefix", HelpStyle)
+	c.LogWithStyle("* note:  use ctrl+D to direct keyboard input into emulator", HelpStyle)
 	c.LogWithStyle("", HelpStyle)
 }

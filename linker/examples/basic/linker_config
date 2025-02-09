@@ -1,7 +1,7 @@
 MEMORY {
     ROM: size=0x2000, type=ro;
-    RAM: size=0xd87f, type=rw;
-    VIDEO: size=0x780, type=rw;
+    RAM: size=0xdffc, type=rw;
+    SERIAL: size=0x3, type=rw;
 }
 
 SEGMENTS {

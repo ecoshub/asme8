@@ -1,4 +1,4 @@
-PUT_CHAR_ADDR=0xf86d
+PUT_CHAR_ADDR=0xffec
 
 start:
     mov a, 'A'

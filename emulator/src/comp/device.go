@@ -69,26 +69,18 @@ func (c *Comp) CreateDevices() error {
 				deviceRam = r
 			}
 		}
-		if strings.HasPrefix(mc.Name, "VIDEO") {
+		if strings.HasPrefix(mc.Name, "SERIAL") {
 			if c.Config.Headless {
 				continue
 			}
-			term, err = terminal.New(int(mc.Size.Value))
+			term, err = terminal.New(int(mc.Size.Value), true)
 			if err != nil {
 				return err
 			}
-			c.ConnectDevice(term.Screen, mc.Start.Value, mc.Size.Value)
+			c.ConnectDevice(term.Screen, mc.Start.Value, 1)
+			c.ConnectDevice(term.Keyboard, mc.Start.Value+1, 2)
 			// screen components such as panels attaching to computer
 			c.AttachTerminal(term)
-		}
-		if strings.HasPrefix(mc.Name, "KEYBOARD") {
-			if c.Config.Headless {
-				continue
-			}
-			if term == nil {
-				return fmt.Errorf("can not define KEYBOARD without define VIDEO first")
-			}
-			c.ConnectDevice(term.Keyboard, mc.Start.Value, mc.Size.Value)
 		}
 	}
 
@@ -106,6 +98,7 @@ func (c *Comp) CreateDevices() error {
 }
 
 func (c *Comp) ReadSymbolFile() error {
+	possiblePathInUse := false
 	if c.Config.SymbolFilePath == "" {
 		base := filepath.Base(c.Config.FilePath)
 		rest := strings.TrimSuffix(c.Config.FilePath, base)
@@ -116,11 +109,14 @@ func (c *Comp) ReadSymbolFile() error {
 		base = tokens[0]
 		possiblePath := filepath.Join(rest, base+".sym")
 		c.Config.SymbolFilePath = possiblePath
+		possiblePathInUse = true
 	}
 
 	file, err := os.ReadFile(c.Config.SymbolFilePath)
 	if err != nil {
-		return err
+		if !possiblePathInUse {
+			return err
+		}
 	}
 
 	return c.ResolveSymbolFromFile(string(file))

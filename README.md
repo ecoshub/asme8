@@ -287,15 +287,15 @@ bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output 
 ```
 <0000> ; symbols:
 <0000> -----------------
-<0000> ; start              <0000>
-<0000> ; loop               <0003>
 <0000> ; print_char         <0015>
 <0000> ; done               <001a>
 <0000> ; message            <001b>
+<0000> ; start              <0000>
+<0000> ; loop               <0003>
 <0000>
 <0000> ; symbols (variables):
 <0000> -----------------
-<0000> ADDR_PUT_CHAR=0xf86d
+<0000> ADDR_PUT_CHAR=0xffec
 <0000>
 <0000>  start:
 <0002>     mov b, 0                             ; 27 01 00
@@ -308,7 +308,7 @@ bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output 
 <0014>     jmp loop                             ; 02 03 00
 <0014>
 <0015>  print_char:
-<0018>     mov [ADDR_PUT_CHAR+b], a             ; 2b 01 6d f8
+<0018>     mov [ADDR_PUT_CHAR], a               ; 29 00 ec ff
 <0019>     ret                                  ; 46
 <0019>
 <001a>  done:
@@ -395,18 +395,18 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 **output:**
 
 ```
-+-----------------------------+
-|    GLOBAL LINKER SYMBOLS    |
-|-----------------------------|
-|  INDEX  |  SYMBOL           |
-|---------+-------------------|
-|  0000   |  __ROM_START__    |
-|  2000   |  __ROM_END__      |
-|  2000   |  __RAM_START__    |
-|  f87f   |  __RAM_END__      |
-|  f87f   |  __VIDEO_START__  |
-|  ffff   |  __VIDEO_END__    |
-+---------+-------------------+
++------------------------------+
+|     GLOBAL LINKER SYMBOLS    |
+|------------------------------|
+|  INDEX  |  SYMBOL            |
+|---------+--------------------|
+|  0000   |  __ROM_START__     |
+|  2000   |  __ROM_END__       |
+|  2000   |  __RAM_START__     |
+|  fffc   |  __RAM_END__       |
+|  fffc   |  __SERIAL_START__  |
+|  ffff   |  __SERIAL_END__    |
++---------+--------------------+
 
 +-------------------------------------------------+
 |                 RESOLVED SYMBOLS                |
@@ -418,7 +418,7 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 |  main      |   10   |  0019   |  message        |
 |  main      |   10   |  001f   |  put_char       |
 |  main      |   10   |  0024   |  upper          |
-|  put_char  |   01   |  f87f   |  ADDR_PUT_CHAR  |
+|  put_char  |   01   |  fffc   |  ADDR_PUT_CHAR  |
 |  upper     |   10   |  0036   |  to_upper       |
 |  upper     |   10   |  003a   |  done           |
 +------------+--------+---------+-----------------+

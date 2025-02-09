@@ -57,6 +57,8 @@ type Comp struct {
 	codeLines       map[uint16]string
 	lastPage        int
 	codeLinesSorted []uint16
+	forcePageEnable bool
+	forcePage       int
 	activeCodeLine  int
 	programLoaded   bool
 	stopChan        chan struct{}
@@ -65,6 +67,7 @@ type Comp struct {
 	lastBreakpoint  uint16
 	breakpointHit   bool
 	lastCommand     string
+	cycleCount      int
 }
 
 func New(conf *Config) (*Comp, error) {
@@ -219,6 +222,9 @@ func (c *Comp) run() {
 				return
 			}
 		case <-c.singleTicker:
+			if !c.running {
+				return
+			}
 			keep := c.tick()
 			if !keep {
 				return
@@ -239,6 +245,7 @@ func (c *Comp) Stop() {
 
 func (c *Comp) tick() bool {
 	defer c.clear()
+	defer func() { c.cycleCount++ }()
 
 	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
 	for _, mi := range microinstructions {
@@ -251,6 +258,7 @@ func (c *Comp) tick() bool {
 	c.LogState()
 	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
 		c.LogWithStyle(" ## BREAK ## ", DefaultStyle6)
+		c.running = false
 		return false
 	}
 	return true
@@ -288,6 +296,7 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.stopChan = make(chan struct{}, 1)
 	c.running = false
 	c.pause = startWithPause
+	c.cycleCount = 0
 	c.clear()
 }
 

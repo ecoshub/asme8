@@ -53,22 +53,8 @@ func (c *Comp) checkBreakPoint() {
 	c.Log("Stop")
 	c.LogWithStyle(fmt.Sprintf("● Breakpoint triggered. addr: 0x%04x", c.programCounter), BreakStyle)
 
-	// for _, bp := range c.breakPoints {
-	// 	if bp == c.programCounter {
-	// 		if c.breakpointHit {
-	// 			if c.lastBreakpoint == bp {
-	// 				return
-	// 			}
-	// 		}
-	// 		c.pause = true
-	// 		c.lastBreakpoint = bp
-	// 		c.breakpointHit = true
-	// 		c.Log("Stop")
-	// 		c.LogWithStyle(fmt.Sprintf("● Breakpoint triggered. addr: 0x%04x", bp), DefaultBreakStyle)
-	// 		return
-	// 	}
-	// }
-	// c.breakpointHit = false
+	c.forcePageEnable = false
+	c.LogCodePanel(true)
 }
 
 func (c *Comp) IsBreakPoint(offset uint16) bool {

@@ -197,16 +197,20 @@ func doOperation(c *Comp, op uint8, a uint8, b uint8, useCarry bool) uint8 {
 		setFlags(c.status, uint16(result))
 		return uint8(result)
 	case OPERATION_SHL:
+		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("before shl. a: %08b,  carry: %08b", a, carry))
 		result := opSHL(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
+		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("after  shl. a: %08b,  carry_set: %v", result, c.status.IsSet(status.STATUS_FLAG_CARRY)))
 		return uint8(result)
 	case OPERATION_SHR:
 		result := opSHR(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
 		return uint8(result)
 	case OPERATION_ROL:
+		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("before rol. a: %08b,  carry: %08b", a, carry))
 		result := opROL(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
+		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("after  rol. a: %08b,  carry_set: %v", result, c.status.IsSet(status.STATUS_FLAG_CARRY)))
 		return uint8(result)
 	case OPERATION_ROR:
 		result := opROR(c.status, a, b, carry)
@@ -260,7 +264,7 @@ func opNOT(_ *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
 }
 
 func opSHL(s *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
-	willCarry := (a & 0b1000000) > 0
+	willCarry := (a & 0b10000000) > 0
 	result := a << 1
 	if willCarry {
 		s.SetCarryFlag()
@@ -271,7 +275,7 @@ func opSHL(s *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
 }
 
 func opSHR(s *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
-	willCarry := (a & 0b0000001) > 0
+	willCarry := (a & 0b00000001) > 0
 	result := a >> 1
 	if willCarry {
 		s.SetCarryFlag()
@@ -282,9 +286,11 @@ func opSHR(s *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
 }
 
 func opROL(s *status.StatusRegister, a uint8, _ uint8, carry uint8) uint16 {
-	willCarry := (a & 0b1000000) > 0
+	willCarry := (a & 0b10000000) > 0
 	result := a << 1
-	result = result | carry
+	if carry > 0 {
+		result = result | 1
+	}
 	if willCarry {
 		s.SetCarryFlag()
 	} else {
@@ -294,9 +300,11 @@ func opROL(s *status.StatusRegister, a uint8, _ uint8, carry uint8) uint16 {
 }
 
 func opROR(s *status.StatusRegister, a uint8, _ uint8, carry uint8) uint16 {
-	willCarry := (a & 0b0000001) > 0
+	willCarry := (a & 0b00000001) > 0
 	result := a >> 1
-	result = result | (carry << 7)
+	if carry > 0 {
+		result = result | 0b10000000
+	}
 	if willCarry {
 		s.SetCarryFlag()
 	} else {

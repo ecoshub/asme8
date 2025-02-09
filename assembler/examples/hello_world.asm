@@ -1,4 +1,4 @@
-ADDR_PUT_CHAR=0xf86d
+ADDR_PUT_CHAR=0xffec
 
 start:
     mov b, 0
@@ -11,7 +11,7 @@ loop:
     jmp loop
 
 print_char:
-    mov [ADDR_PUT_CHAR+b], a
+    mov [ADDR_PUT_CHAR], a
     ret
 
 done:

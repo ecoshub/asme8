@@ -12,7 +12,7 @@ type Terminal struct {
 	running    bool
 }
 
-func New(sizeBufferSize int) (*Terminal, error) {
+func New(sizeBufferSize int, isSerial bool) (*Terminal, error) {
 	components, err := NewSetup()
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func New(sizeBufferSize int) (*Terminal, error) {
 			components.SysLogPanel.Push("<< Keyboard input directed to command pallet ( use CTRL + D to switch)", style.DefaultStyleInfo)
 		}
 	})
-	s, err := NewScreen(components, sizeBufferSize)
+	s, err := NewScreen(components, sizeBufferSize, isSerial)
 	if err != nil {
 		return nil, err
 	}

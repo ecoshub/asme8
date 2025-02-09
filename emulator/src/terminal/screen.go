@@ -4,7 +4,6 @@ import (
 	"asme8/emulator/src/bus"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/utils"
-	"fmt"
 )
 
 var _ connectable.Connectable = &Screen{}
@@ -18,14 +17,16 @@ type Screen struct {
 	buffer     *ScreenBuffer
 	dataBuffer []uint8
 	components *Components
+	isSerial   bool
 }
 
-func NewScreen(components *Components, size int) (*Screen, error) {
+func NewScreen(components *Components, size int, isSerial bool) (*Screen, error) {
 	return &Screen{
-		name:       "VIDEO",
+		name:       "SERIAL",
 		buffer:     NewScreenBuffer(size),
 		dataBuffer: make([]uint8, 8),
 		components: components,
+		isSerial:   isSerial,
 	}, nil
 }
 
@@ -59,8 +60,13 @@ func (s *Screen) WriteRequest() {
 	}
 	addr = addr - s.addrStart
 	data := s.dataBus.Read_16()
+	if s.isSerial {
+		// s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x", addr, data))
+		s.components.MainPanel.Put(rune(data))
+		return
+	}
 	s.buffer.write(addr, rune(data))
-	s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x [%s]", addr, data, string(rune(data))))
+	// s.components.SysLogPanel.Push(fmt.Sprintf("push to screen. addr: %04x, data: %02x [%s]", addr, data, string(rune(data))))
 	s.components.MainPanel.Write(int(addr), rune(data))
 }
 

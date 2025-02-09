@@ -21,7 +21,8 @@ var (
 	WarningStyle         = &style.Style{ForegroundColor: 226}
 	BreakStyle           = &style.Style{ForegroundColor: 162}
 	CodeStyle            = &style.Style{ForegroundColor: 230}
-	HighlightedCodeStyle = &style.Style{ForegroundColor: 226}
+	HighlightedCodeStyle = &style.Style{ForegroundColor: 154}
+	GrayCode             = &style.Style{ForegroundColor: 253}
 )
 
 func (c *Comp) Log(str string) {
@@ -90,6 +91,7 @@ func (c *Comp) LogState() {
 		c.Logf("# pc: %04x, step: %d, inst_r: %02x, op_r: %02x, mdr: %02x, mar: %04x, addr: %04x, input_bus: %02x, alu_bus: %02x, output_bus: %02x, rw: %x, status: %08b, regs: %s\n", c.programCounter, c.step, c.instructionRegister, c.operandRegister, c.memoryDataRegister, c.memoryAddressRegister, c.addrBus.Read_16(), c.inputBus.Read_16(), c.aluBus.Read_16(), c.outputBus.Read_16(), c.rw, c.status.Flag(), c.registers)
 		return
 	}
+
 	stepLen := len(CONTROL_SIGNALS[c.instructionRegister])
 	visualStep := stepLen
 	if stepLen != 0 {
@@ -131,9 +133,15 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 		return
 	}
 
-	l := findLine(c.codeLinesSorted, c.programCounter)
+	var point uint16
+	if c.forcePageEnable {
+		point = uint16(c.forcePage)
+	} else {
+		point = c.programCounter
+	}
 
 	h := c.terminal.Components.CodePanel.Config.Height
+	l := findLine(c.codeLinesSorted, point)
 	lines := make([]string, h)
 	page := l / h
 	count := 0
@@ -149,6 +157,9 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 	for i, offset := range c.codeLinesSorted {
 		if i < (page * h) {
 			continue
+		}
+		if count >= h {
+			break
 		}
 		line := c.codeLines[offset]
 		if offset == c.programCounter {
@@ -182,15 +193,21 @@ func (c *Comp) LogCodePanel(forceRender bool) {
 			return
 		}
 	}
+	sty := CodeStyle
+	if c.forcePageEnable {
+		sty = GrayCode
+	}
 
-	c.terminal.Components.CodePanel.WriteMultiStyle(lines, CodeStyle)
+	c.terminal.Components.CodePanel.WriteMultiStyle(lines, sty)
 
 	line := c.codeLines[c.programCounter]
 	ok := c.IsBreakPoint(c.programCounter)
 	if ok {
 		c.terminal.Components.CodePanel.Write(index, line, BreakStyle)
 	} else {
-		c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+		if !c.forcePageEnable {
+			c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+		}
 	}
 	c.activeCodeLine = index
 
@@ -240,6 +257,11 @@ func (c *Comp) ListBreakPoints() {
 	for _, bp := range c.breakPoints {
 		c.Logf("● 0x%04x", bp)
 	}
+}
+
+func (c *Comp) ClearBreakPoints() {
+	c.breakPoints = make([]uint16, 0, 4)
+	c.Logf("break points cleared")
 }
 
 func findLine(arr []uint16, c uint16) int {

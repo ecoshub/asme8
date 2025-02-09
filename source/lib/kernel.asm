@@ -11,32 +11,19 @@
 
 .segment "SEG_KERNEL"
 
-    global SCREEN_WIDTH
-    global SCREEN_HEIGHT
+    global ADDR_PUT_CHAR                ; char put address for serial terminals creen
     global ADDR_GET_CHAR                ; char read address from keyboard interface
     global ADDR_READY_CHAR              ; char ready address from keyboard interface
-    global ADDR_CURSOR_INDEX_L          ; address of cursor index low byte
-    global ADDR_CURSOR_INDEX_H          ; address of cursor index high byte
-    global ADDR_ROW_COUNTER
-    global ADDR_ROW_COUNT
-    global CONVERTER_BUFFER
+    global CONVERTER_BUFFER             ; converter utils buffer
     extern __RAM_START__
-    extern __KEYBOARD_START__
+    extern __SERIAL_START__
     extern WOZMAN
 
+ADDR_PUT_CHAR=__SERIAL_START__
+ADDR_READY_CHAR=__SERIAL_START__+1
+ADDR_GET_CHAR=__SERIAL_START__+2
 
-SCREEN_WIDTH=80
-SCREEN_HEIGHT=24
-
-ADDR_CURSOR_INDEX_L=__RAM_START__+0x100     ; size 1 byte
-ADDR_CURSOR_INDEX_H=__RAM_START__+0x101     ; size 1 byte
-ADDR_ROW_COUNTER=__RAM_START__+0x102        ; size 1 byte
-ADDR_ROW_COUNT=__RAM_START__+0x103          ; size 1 byte
-CONVERTER_BUFFER=__RAM_START__+0x104        ; size 8 byte
-WOZMAN_BUFFER=__RAM_START__+0x10c           ; size 16 byte
-SCREEN_ATTR_BUFFER=__RAM_START__+0x11c      ; size 4 byte
-
-ADDR_READY_CHAR=__KEYBOARD_START__
-ADDR_GET_CHAR=__KEYBOARD_START__+1
+CONVERTER_BUFFER=__RAM_START__+0x100    ; converter utils buffer (16 bytes)
+WOZMAN_BUFFER=__RAM_START__+0x110    ; wozman ram area (256 bytes)
 
     jmp WOZMAN       ; start with wozman

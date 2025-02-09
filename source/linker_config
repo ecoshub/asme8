@@ -1,8 +1,7 @@
 MEMORY {
     ROM_1: size=0x2000, type=ro;
-    RAM: size=0xd86d, type=rw;
-    VIDEO: size=0x780, type=rw;
-    KEYBOARD: size=0x2, type=rw;
+    RAM: size=0xdfec, type=rw;
+    SERIAL: size=0x3, type=rw;
     ROM_2: start=0xffef, size=0x10, type=rw;
 }
 

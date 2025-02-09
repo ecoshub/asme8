@@ -179,6 +179,13 @@ func (c *Comp) HandleCommands(command string) {
 			c.Log(err.Error())
 			return
 		}
+		if cmd == "STACK" {
+			c.inspectionMemoryOffset = StackStart
+			c.LogMemory()
+			c.Logf("Memory panel now points to addr 0x%04x", StackStart)
+			c.pushToCommandPalletHistory(command)
+			return
+		}
 		dev, ok := c.GetDevice(cmd)
 		if ok {
 			start, _ := dev.GetRange()

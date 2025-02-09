@@ -79,7 +79,7 @@ func New(mode ASM_MODE) *Assembler {
 	}
 }
 
-func (a *Assembler) Assemble() ([]uint8, error) {
+func (a *Assembler) Assemble() ([]uint8, int, error) {
 	switch a.mode {
 	case ASM_MODE_ELF:
 		a.RestoreMissingSymbols()
@@ -87,7 +87,7 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 		out := a.assemble()
 		err := a.errorListener.GetError()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		a.symbolTracker.AttachBin(out)
 		a.symbolTracker.AttachCode(a.CodeString())
@@ -95,24 +95,28 @@ func (a *Assembler) Assemble() ([]uint8, error) {
 			Header:  object.NewStdHeader(VERSION),
 			Tracker: a.symbolTracker,
 		}
-		return elf.Encode()
+		enc, err := elf.Encode()
+		if err != nil {
+			return nil, 0, err
+		}
+		return enc, len(out), nil
 	case ASM_MODE_EXE:
 		errs := a.ResolveReferenceVariables()
 		if len(errs) > 0 {
-			return nil, error_listener.WrapErrors(errs...)
+			return nil, 0, error_listener.WrapErrors(errs...)
 		}
 		errs = a.RestoreMissingSymbols()
 		if len(errs) > 0 {
-			return nil, error_listener.WrapErrors(errs...)
+			return nil, 0, error_listener.WrapErrors(errs...)
 		}
 		out := a.assemble()
 		err := a.errorListener.GetError()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		return out, nil
+		return out, len(out), nil
 	}
-	return nil, errors.New("unknown assembly mode")
+	return nil, 0, errors.New("unknown assembly mode")
 }
 
 func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErrorListener) {

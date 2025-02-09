@@ -37,7 +37,7 @@ func main() {
 		mode = assembler.ASM_MODE_ELF
 	}
 
-	out, code, err := assembler.AssembleFile(&assembler.Options{
+	out, code, length, err := assembler.AssembleFile(&assembler.Options{
 		FilePath:       *flagFile,
 		PrintDetail:    *flagPrint,
 		SegmentAddr:    uint16(*flagSegmentAddr),
@@ -60,6 +60,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("assemble success. %d bytes assembled. output file: '%s'\n", len(out), *flagOutput)
+	fmt.Printf("assemble success. %d bytes assembled. total file size: %d bytes. output file: '%s'\n", length, len(out), *flagOutput)
 
 }

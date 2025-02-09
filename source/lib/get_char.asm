@@ -1,19 +1,20 @@
 ; ----------------------------------------------------------
-; Routine Name.: __GET_CHAR__
+; Segment Name.: SEG_GET_CHAR
+; Includes.....: '__GET_CHAR__'
 ; Author.......: eco
 ; Date.........: 28.01.2025
-; Description..: Waits for a character input to become ready, 
-;                then reads the character and stores it in 
-;                register A. 
-;                - Continuously checks the `ADDR_READY_CHAR` 
-;                  address until a character is available (value = 1).
-;                - Once ready, reads the character from 
-;                  `ADDR_CHAR_READ` and stores it in register A.
-; 
-; Input........: None
-; Output.......: Register A (ASCII value of the character)
-; Dependencies.: ADDR_READY_CHAR, ADDR_CHAR_READ
-; Modified.....: Register A
+; Description..: Implements the functionality to check if a character
+;                is available for reading and then retrieves it.
+; ----------------------------------------------------------
+; Subroutines:
+; ----------------------------------------------------------
+;    Name........: __GET_CHAR__
+;    Description.: "stdin" for e8 computer. Checks if a character is ready to be read from the input buffer.
+;                  If ready, it reads the character and returns. If not ready, it
+;                  waits until a character becomes available.
+;    Input.......: None (reads from memory addresses `ADDR_READY_CHAR` and `ADDR_GET_CHAR`)
+;    Output......: Register A (contains the character read from `ADDR_GET_CHAR`)
+;    Modified....: Register A
 ; ----------------------------------------------------------
 
 .segment "SEG_GET_CHAR"

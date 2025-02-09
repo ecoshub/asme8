@@ -1,15 +1,23 @@
 ; ----------------------------------------------------------
-; Routine Name.: __PUT_CHAR__
+; Segment Name.: Character Output
 ; Author.......: eco
 ; Date.........: 28.01.2025
-; Description..: Outputs the character stored in register A 
-;                to the screen buffer by writing it to the 
-;                `ADDR_PUT_CHAR` address.
-; 
-; Input........: Register A (ASCII value of the character)
-; Output.......: Writes the character to `ADDR_PUT_CHAR`
-; Dependencies.: ADDR_PUT_CHAR
-; Modified.....: Register A
+; Description..: Provides functionality to output a character to a specified
+;                address. Includes a special subroutine to return a carriage return (0x0D).
+; ----------------------------------------------------------
+; Subroutines:
+; ----------------------------------------------------------
+;    Name........: __PUT_CHAR__
+;    Description.: "stdout" for e8 computer. Writes the character in register A to the memory address `ADDR_PUT_CHAR`.
+;    Input.......: Register A (Character to write)
+;    Output......: None (Character is written to memory at `ADDR_PUT_CHAR`)
+;    Modified....: None
+; ----------------------------------------------------------
+;    Name........: __RETURN__
+;    Description.: Outputs a carriage return (0x0D) to the memory address `ADDR_PUT_CHAR`.
+;    Input.......: None
+;    Output......: 0x0D (Carriage return written to `ADDR_PUT_CHAR`)
+;    Modified....: None
 ; ----------------------------------------------------------
 
 .segment "SEG_PUT_CHAR"

@@ -3,10 +3,7 @@
 ; Author.......: eco
 ; Date.........: 28.01.2025
 ; Description..: Defines essential memory addresses and initializes 
-; Input........: None
-; Output.......: Program control transferred to `WOZMAN`.
 ; Dependencies.: WOZMAN
-; Modified.....: None
 ; ----------------------------------------------------------
 
 .segment "SEG_KERNEL"
@@ -24,6 +21,6 @@ ADDR_READY_CHAR=__SERIAL_START__+1
 ADDR_GET_CHAR=__SERIAL_START__+2
 
 CONVERTER_BUFFER=__RAM_START__+0x100    ; converter utils buffer (16 bytes)
-WOZMAN_BUFFER=__RAM_START__+0x110    ; wozman ram area (256 bytes)
+WOZMAN_BUFFER=__RAM_START__+0x110       ; wozman ram area (256 bytes)
 
-    jmp WOZMAN       ; start with wozman
+    jmp WOZMAN                          ; start with wozman

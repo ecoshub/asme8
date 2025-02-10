@@ -8,10 +8,11 @@ import (
 )
 
 type ResolvedSymbol struct {
-	segment string
-	symbol  string
-	_type   uint8
-	index   uint16
+	segment        string
+	symbol         string
+	_type          uint8
+	index          uint16
+	optionalOffset uint16
 }
 
 func (l *Linker) PrintSymbols(printCode bool) {
@@ -60,6 +61,9 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		rss := l.resolvedSymbols[seg.Name]
 		unique := map[string]*ResolvedSymbol{}
 		for _, rs := range rss {
+			if rs.optionalOffset != 0 {
+				continue
+			}
 			unique[rs.symbol] = rs
 		}
 		sorted := SortSymbolMap(unique)
@@ -97,7 +101,7 @@ func SortSymbolMap(m map[string]*ResolvedSymbol) []string {
 	}
 
 	sort.Slice(keys, func(i, j int) bool {
-		return m[keys[i]].index < m[keys[j]].index
+		return m[keys[i]].symbol < m[keys[j]].symbol
 	})
 
 	return keys

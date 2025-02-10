@@ -321,11 +321,10 @@ func (l *Linker) linkSymbols() error {
 				size = 2
 			}
 			copy(l.memory[offset:offset+size], data)
-			// fmt.Printf("RESTORING LABEL [missing: %v]>> object file segment: %s, missing_symbol_offset: %04x, global_symbol_segment: %s, global_symbol_type: %d, index(value): %04x\n", p.IsMissing(), segment, offset, globalSegmentOffset, 0, 0)
-			rs := &ResolvedSymbol{segment: segment, _type: _type, symbol: sym, index: index}
-			// l.resolvedSymbols[segment] = rs
-			pushResolvedSymbol(segment, rs, l.resolvedSymbols)
-			// fmt.Printf("writing to segment %s, symbol: %s, from: %04x, to: %04x, data: %04x\n", segment, sym, offset, offset+size, data)
+			if p.IsMissing() {
+				rs := &ResolvedSymbol{segment: segment, _type: _type, symbol: sym, index: index, optionalOffset: p.GetOptionalOffset()}
+				pushResolvedSymbol(segment, rs, l.resolvedSymbols)
+			}
 		}
 	}
 	return nil

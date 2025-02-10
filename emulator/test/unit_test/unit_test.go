@@ -813,7 +813,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b10011000},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_CARRY | status.STATUS_FLAG_SIGN,
+					Data: 0 | status.STATUS_FLAG_CARRY,
 				},
 			},
 		},
@@ -915,7 +915,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b10011000},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_CARRY | status.STATUS_FLAG_SIGN,
+					Data: 0 | status.STATUS_FLAG_CARRY,
 				},
 			},
 		},

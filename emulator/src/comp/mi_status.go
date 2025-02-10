@@ -43,7 +43,7 @@ func setFlags(s *status.StatusRegister, result uint16) {
 		s.ClearZeroFlag()
 	}
 
-	if (result&0x80)>>7 == 1 {
+	if int16(result) < 0 {
 		s.SetSignFlag()
 	} else {
 		s.ClearSignFlag()

@@ -197,9 +197,10 @@ func doOperation(c *Comp, op uint8, a uint8, b uint8, useCarry bool) uint8 {
 		setFlags(c.status, uint16(result))
 		return uint8(result)
 	case OPERATION_SHL:
-		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("before shl. a: %08b,  carry: %08b", a, carry))
+		// fmt.Printf("before shl. a: %08b,  b: %08b, carry: %08b\n", a, b, carry)
 		result := opSHL(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
+		// fmt.Printf("after  shl. a: %08b,  b: %08b, carry_set: %v\n", result, b, c.status.IsSet(status.STATUS_FLAG_CARRY))
 		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("after  shl. a: %08b,  carry_set: %v", result, c.status.IsSet(status.STATUS_FLAG_CARRY)))
 		return uint8(result)
 	case OPERATION_SHR:
@@ -259,7 +260,7 @@ func opOR(s *status.StatusRegister, a uint8, b uint8, carry uint8) uint16 {
 }
 
 func opNOT(_ *status.StatusRegister, a uint8, _ uint8, _ uint8) uint16 {
-	result := uint16(^a)
+	result := uint16(a ^ 0xff)
 	return result
 }
 

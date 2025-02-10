@@ -1,25 +1,21 @@
-; capabilities
-
-; read from address
-;   1 (enter)
-;   4a (enter)
-;   700 (enter)
-;   48ef (enter)
-; read range
-;   1.5
-;   4a.ff (enter)
-;   700.2000 (enter)
-;   70f3.e0a9 (enter)
-
-; write to address
-;   1:84 (enter)
-;   4a:3f (enter)
-;   700:9d (enter)
-;   48ef:1e (enter)
-
-; run (last read address)
-; r (enter)
-
+; ----------------------------------------------------------
+; Segment Name.: SEG_WOZ
+; Author.......: eco
+; Date.........: 10.02.2025
+; Description..: Implements the WOZ monitor, a simple command 
+;                parser for reading, writing, and executing 
+;                memory operations using hex input.
+; ----------------------------------------------------------
+; Subroutines:
+; ----------------------------------------------------------
+;    Name........: WOZMAN
+;    Description.: Entry point for the WOZ monitor, handling 
+;                  user input and executing commands.
+;    Input.......: User input (via __GET_CHAR__), stored in 
+;                  WOZMAN_BUFFER.
+;    Output......: Executes memory read, write, or run commands.
+;    Modified....: Registers A, B, C, D, IP
+; ----------------------------------------------------------
 
 .segment "SEG_WOZ"
 
@@ -36,13 +32,13 @@
 
 KEY_CODE_ENTER=0x0d
 KEY_CODE_DOT='.'
+KEY_CODE_COLUMN=':'
 KEY_CODE_R='r'
 
 MODE_READ=0x00
 MODE_READ_RANGE=0x01
 MODE_WRITE=0x02
-MODE_WRITE_RANGE=0x03
-MODE_RUN=0x04
+MODE_RUN=0x03
 
 MODE=WOZMAN_BUFFER
 SEPARATOR_INDEX=WOZMAN_BUFFER+1
@@ -51,6 +47,12 @@ RANGE_END=WOZMAN_BUFFER+4
 CHAR_BUFFER=WOZMAN_BUFFER+6
 
 WOZMAN:
+    xor a, a                            ; clear all range values
+    mov [RANGE_START], a
+    mov [RANGE_START+1], a
+    mov [RANGE_END], a
+    mov [RANGE_END+1], a
+
     mov a, MODE_READ                    ; set mode to MODE_READ
     mov [MODE], a
 
@@ -65,13 +67,21 @@ main_loop:
     cmp a, KEY_CODE_ENTER               ; cmp it with key enter
     jz execute                          ; if it is enter jump execute
     call __PUT_CHAR__                   ; print the char (echo)
-    cmp a, KEY_CODE_DOT
-    jz set_mode_read_range
-    cmp a, KEY_CODE_R
-    jz set_mode_run
+    cmp a, KEY_CODE_DOT                 ; check if char is '.'
+    jz set_mode_read_range              ; set the mode MODE_READ_RANGE
+    cmp a, KEY_CODE_COLUMN              ; check if char is ':'
+    jz set_mode_write                   ; set the mode MODE_WRITE
+    cmp a, KEY_CODE_R                   ; check if char is 'r'
+    jz set_mode_run                     ; set the mode MODE_RUN
     mov [CHAR_BUFFER+d], a              ; add char in to buffer
     inc d                               ; increment index
     jmp main_loop                       ; start read next char
+
+set_mode_write:
+    mov a, MODE_WRITE                   ; set mode to MODE_WRITE
+    mov [MODE], a
+    mov [SEPARATOR_INDEX], d            ; save separator index
+    jmp main_loop                       ; return to main_loop
 
 set_mode_run:
     mov a, MODE_RUN                     ; set mode to MODE_RUN
@@ -92,9 +102,62 @@ execute:
     jz execute_read_range
     cmp a, MODE_RUN
     jz execute_run
-    jmp main_loop                       ; start read next char
+    cmp a, MODE_WRITE
+    jz execute_write
+    jmp operation_failed
+
+execute_write:
+    push d                              ; save the buffer index to stack
+    mov a, [SEPARATOR_INDEX]            ; read separator index
+    mov ip, CHAR_BUFFER                 ; pass char buffer
+    call __STR_CONV_HEX__               ; execute str_to_hex subroutine 
+    cmp a, CHAR_NOT_VALID               ; if it returns with CHAR_NOT_VALID
+    jz operation_failed                 ; jump to operation failed
+
+    mov a, [CONVERTER_BUFFER]           ; read low byte from converter buffer
+    mov [RANGE_START], a                ; store it in to range_start low byte
+    mov a, [CONVERTER_BUFFER+1]         ; read high byte from converter buffer
+    mov [RANGE_START+1], a              ; store it in to range_start high byte
+
+    mov ip, CHAR_BUFFER                 ; pass char buffer
+    mov a, [SEPARATOR_INDEX]            ; read separator index
+    add ipl, a                          ; add index to ip, ip+=a
+    adc iph, 0
+
+; check if remaining buffer is bigger than 3
+    pop d                               ; restore d (buffer size)
+    sub d, a                            ; move index as a
+    xor c, c                            ; clear c, its gonna be write array index
+
+write_loop:
+    cmp d, 3                            ; check if there is at least 3 char left
+    js break_execute_write              ; if its not means we are end of the buffer
+    add ipl, 1                          ; skip the space char
+    adc iph, 0
+    mov a, 2                            ; read always 2 byte for a hex value
+    push d                              ; save d
+    push c                              ; save c
+    call __STR_CONV_HEX__               ; execute conversion subroutine
+    pop c                               ; restore c
+    pop d                               ; restore d
+    mov a, [CONVERTER_BUFFER]           ; read converted value from converter buffer
+    push ip                             ; save ip
+    mov ipl, [RANGE_START]              ; set ip=range_start(16 bit)
+    mov iph, [RANGE_START+1]
+    mov [ip+c], a                       ; set a to memory address plus offset
+    pop ip                              ; restore ip
+    add ipl, 2                          ; increment char buffer start as 2 byte
+    adc iph, 0
+    sub d, 3                            ; sub 3 from total buffer size
+    inc c                               ; increment write array index
+    jmp write_loop
+
+break_execute_write:
+    call __RETURN__                     ; print '\n' and start over
+    jmp WOZMAN
 
 execute_run:
+    call __RETURN__                     ; print '\n' and jump to given address
     jmp ip
 
 execute_read_range:
@@ -117,7 +180,6 @@ execute_read_range:
     pop d                               ; restore buffer size
     sub d, a                            ; sub a from total buffer size to get remaining index
     mov a, d
-    inc a                               ; add index difference to get remaining size
     call __STR_CONV_HEX__               ; execute str_to_hex subroutine 
 
     mov a, [CONVERTER_BUFFER]           ; read low byte from converter buffer
@@ -140,7 +202,7 @@ print_range_loop:
     js print_range_break                ; if current value is bigger than range_end break
     mov a, [RANGE_END]                  ; read low byte of range_end
     cmp a, ipl                          ; compare it to current value
-    js print_range_break                ; if current value is bigger than range_end break
+    js print_range_break
     push b                              ; save b in to stack
     call _print_byte                    ; call print byte routine
     pop b                               ; restore b
@@ -154,11 +216,6 @@ print_range_loop:
     jmp print_range_loop                ; read next
 
 print_range_break:
-    mov a, 0                            ; clear all range values
-    mov [RANGE_START], a
-    mov [RANGE_START+1], a
-    mov [RANGE_END], a
-    mov [RANGE_END+1], a
     call __RETURN__                     ; print a carriage return 
     ret
 

@@ -76,7 +76,7 @@ func New(conf *Config) (*Comp, error) {
 	}
 	c := &Comp{
 		Config:        conf,
-		registers:     register.NewModule(6),
+		registers:     register.NewModule(16),
 		status:        status.NewStatusRegister(),
 		aluBus:        bus.New(),
 		outputBus:     bus.New(),

@@ -3,78 +3,70 @@ package instruction
 type Type = uint8
 
 const (
-	INST_BRK_IMPL              Type = 0x00
-	INST_NOP_IMPL              Type = 0x01
-	INST_JMP_IMM               Type = 0x02
-	INST_JS_IMM                Type = 0x03
-	INST_JNS_IMM               Type = 0x04
-	INST_JZ_IMM                Type = 0x05
-	INST_JNZ_IMM               Type = 0x06
-	INST_JC_IMM                Type = 0x07
-	INST_JMP_IP                Type = 0x08
-	INST_CMP_REG_REG           Type = 0x09
-	INST_CMP_REG_IMM           Type = 0x0a
-	INST_MOV_REG_IP            Type = 0x0b
-	INST_MOV_IP_REG            Type = 0x0c
-	INST_MOV_REG_IP_OFFSET     Type = 0x0d
-	INST_MOV_IP_REG_OFFSET     Type = 0x0e
-	INST_MOV_REG_IP_OFFSET_REG Type = 0x0f
-	INST_MOV_IP_REG_OFFSET_REG Type = 0x10
-	INST_MOV_IP_IMM_16         Type = 0x11
-	INST_MOV_MEM_IMM           Type = 0x12
-	INST_ADD_REG_REG           Type = 0x13
-	INST_ADD_REG_IMM           Type = 0x14
-	INST_ADC_REG_REG           Type = 0x15
-	INST_ADC_REG_MEM           Type = 0x16
-	INST_ADC_MEM_REG           Type = 0x17
-	INST_ADC_REG_IMM           Type = 0x18
-	INST_SUB_REG_REG           Type = 0x19
-	INST_SUB_REG_IMM           Type = 0x1a
-	INST_SBB_REG_REG           Type = 0x1b
-	INST_SBB_REG_IMM           Type = 0x1c
-	INST_INC_REG               Type = 0x1d
-	INST_DEC_REG               Type = 0x1e
-	INST_ADD_REG_MEM           Type = 0x1f
-	INST_ADD_MEM_IMM           Type = 0x20
-	INST_ADC_MEM_IMM           Type = 0x21
-	INST_ADD_MEM_REG           Type = 0x22
-	INST_ADD_SP_IMM            Type = 0x23
-	INST_SUB_SP_IMM            Type = 0x24
-	INST_ADD_IP_IMM            Type = 0x25
-	INST_SUB_IP_IMM            Type = 0x26
-	INST_MOV_REG_REG           Type = 0x27
-	INST_MOV_REG_IMM           Type = 0x28
-	INST_MOV_MEM_REG           Type = 0x29
-	INST_MOV_REG_MEM           Type = 0x2a
-	INST_MOV_MEM_REG_OFFSET    Type = 0x2b
-	INST_MOV_REG_MEM_OFFSET    Type = 0x2c
-	INST_MOV_REG_SP            Type = 0x2d
-	INST_MOV_SP_REG            Type = 0x2e
-	INST_MOV_REG_SP_OFFSET     Type = 0x2f
-	INST_MOV_SP_REG_OFFSET     Type = 0x30
-	INST_MOV_REG_SP_OFFSET_REG Type = 0x31
-	INST_MOV_SP_REG_OFFSET_REG Type = 0x32
-	INST_XOR_REG_REG           Type = 0x33
-	INST_XOR_REG_IMM           Type = 0x34
-	INST_AND_REG_REG           Type = 0x35
-	INST_AND_REG_IMM           Type = 0x36
-	INST_OR_REG_REG            Type = 0x37
-	INST_OR_REG_IMM            Type = 0x38
-	INST_NOT_REG               Type = 0x39
-	INST_SHL_REG               Type = 0x3a
-	INST_SHR_REG               Type = 0x3b
-	INST_ROL_REG               Type = 0x3c
-	INST_ROR_REG               Type = 0x3d
-	INST_CLC_IMPL              Type = 0x3e
-	INST_PUSH_IP               Type = 0x3f
-	INST_POP_IP                Type = 0x40
-	INST_PUSH_SP               Type = 0x41
-	INST_POP_SP                Type = 0x42
-	INST_PUSH_REG              Type = 0x43
-	INST_PUSH_IMM              Type = 0x44
-	INST_POP_REG               Type = 0x45
-	INST_CALL_IMPL             Type = 0x46
-	INST_RET_IMPL              Type = 0x47
+	INST_BRK_IMPL Type = iota
+	INST_NOP_IMPL
+	INST_JMP_IMM16
+	INST_JS_IMM16
+	INST_JNS_IMM16
+	INST_JZ_IMM
+	INST_JNZ_IMM16
+	INST_JC_IMM16
+	INST_CMP_REG8_REG8
+	INST_CMP_REG8_IMM8
+	INST_ADD_REG8_REG8
+	INST_ADD_REG8_IMM8
+	INST_ADD_SP_IMM8
+	INST_ADD_REG16_IMM8
+	INST_ADC_REG8_REG8
+	INST_ADC_REG8_IMM8
+	INST_SUB_REG8_REG8
+	INST_SUB_REG8_IMM8
+	INST_SUB_SP_IMM8
+	INST_SUB_REG16_IMM8
+	INST_SBB_REG8_REG8
+	INST_SBB_REG8_IMM8
+	INST_INC_REG8
+	INST_INC_REG16
+	INST_DEC_REG8
+	INST_DEC_REG16
+	INST_MOV_REG8_REG8
+	INST_MOV_REG8_IMM8
+	INST_MOV_DIRECT_REG8
+	INST_MOV_REG8_DIRECT
+	INST_MOV_MEM_REG8_OFFSET
+	INST_MOV_REG8_MEM_OFFSET
+	INST_MOV_MEM_INDEXED_REG  // not implemented yet
+	INST_MOV_REG8_MEM_INDEXED // not implemented yet
+	INST_MOV_REG8_IMM16
+	INST_MOV_REG16_REG16
+	INST_MOV_REG16_SP
+	INST_MOV_SP_REG16
+	INST_MOV_REG8_INDIRECT
+	INST_MOV_INDIRECT_REG8
+	INST_MOV_REG8_INDIRECT_OFFSET
+	INST_MOV_INDIRECT_OFFSET_REG8
+	INST_MOV_REG8_INDEXED
+	INST_MOV_INDEXED_REG8
+	INST_XOR_REG8_REG8
+	INST_XOR_REG8_IMM8
+	INST_AND_REG8_REG8
+	INST_AND_REG8_IMM8
+	INST_OR_REG8_REG8
+	INST_OR_REG8_IMM8
+	INST_NOT_REG8
+	INST_SHL_REG8
+	INST_SHR_REG8
+	INST_ROL_REG8
+	INST_ROR_REG8
+	INST_CLC_IMPL
+	INST_PUSH_SP
+	INST_PUSH_REG8
+	INST_PUSH_REG16
+	INST_POP_SP
+	INST_POP_REG8
+	INST_POP_REG16
+	INST_CALL_IMPL
+	INST_RET_IMPL
 )
 
 const (
@@ -112,76 +104,5 @@ const (
 var (
 	INST_HUMAN_READABLE = map[uint8]string{
 		0x00: "BRK_IMPL",
-		0x01: "NOP_IMPL",
-		0x02: "JMP_IMM",
-		0x03: "JS_IMM",
-		0x04: "JNS_IMM",
-		0x05: "JZ_IMM",
-		0x06: "JNZ_IMM",
-		0x07: "JC_IMM",
-		0x08: "JMP_IP",
-		0x09: "CMP_REG_REG",
-		0x0a: "CMP_REG_IMM",
-		0x0b: "MOV_REG_IP",
-		0x0c: "MOV_IP_REG",
-		0x0d: "MOV_REG_IP_OFFSET",
-		0x0e: "MOV_IP_REG_OFFSET",
-		0x0f: "MOV_REG_IP_OFFSET_REG",
-		0x10: "MOV_IP_REG_OFFSET_REG",
-		0x11: "MOV_IP_IMM_16",
-		0x12: "MOV_MEM_IMM",
-		0x13: "ADD_REG_REG",
-		0x14: "ADD_REG_IMM",
-		0x15: "ADC_REG_REG",
-		0x16: "ADC_REG_MEM",
-		0x17: "ADC_MEM_REG",
-		0x18: "ADC_REG_IMM",
-		0x19: "SUB_REG_REG",
-		0x1a: "SUB_REG_IMM",
-		0x1b: "SBB_REG_REG",
-		0x1c: "SBB_REG_IMM",
-		0x1d: "INC_REG",
-		0x1e: "DEC_REG",
-		0x1f: "ADD_REG_MEM",
-		0x20: "ADD_MEM_IMM",
-		0x21: "ADC_MEM_IMM",
-		0x22: "ADD_MEM_REG",
-		0x23: "ADD_SP_IMM",
-		0x24: "SUB_SP_IMM",
-		0x25: "ADD_IP_IMM",
-		0x26: "SUB_IP_IMM",
-		0x27: "MOV_REG_REG",
-		0x28: "MOV_REG_IMM",
-		0x29: "MOV_MEM_REG",
-		0x2a: "MOV_REG_MEM",
-		0x2b: "MOV_MEM_REG_OFFSET",
-		0x2c: "MOV_REG_MEM_OFFSET",
-		0x2d: "MOV_REG_SP",
-		0x2e: "MOV_SP_REG",
-		0x2f: "MOV_REG_SP_OFFSET",
-		0x30: "MOV_SP_REG_OFFSET",
-		0x31: "MOV_REG_SP_OFFSET_REG",
-		0x32: "MOV_SP_REG_OFFSET_REG",
-		0x33: "XOR_REG_REG",
-		0x34: "XOR_REG_IMM",
-		0x35: "AND_REG_REG",
-		0x36: "AND_REG_IMM",
-		0x37: "OR_REG_REG",
-		0x38: "OR_REG_IMM",
-		0x39: "NOT_REG",
-		0x3a: "SHL_REG",
-		0x3b: "SHR_REG",
-		0x3c: "ROL_REG",
-		0x3d: "ROR_REG",
-		0x3e: "CLC_IMPL",
-		0x3f: "PUSH_IP",
-		0x40: "POP_IP",
-		0x41: "PUSH_SP",
-		0x42: "POP_SP",
-		0x43: "PUSH_REG",
-		0x44: "PUSH_IMM",
-		0x45: "POP_REG",
-		0x46: "CALL_IMPL",
-		0x47: "RET_IMPL",
 	}
 )

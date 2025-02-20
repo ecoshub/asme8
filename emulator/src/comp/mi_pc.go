@@ -12,16 +12,6 @@ func mInstProgramCounterInAddr(c *Comp, _ uint64) {
 	c.programCounter = c.addrBus.Read_16()
 }
 
-func mInstProgramCounterLowIn(c *Comp, _ uint64) {
-	upper := c.programCounter & 0xff00
-	c.programCounter = upper | c.inputBus.Read_16()
-}
-
-func mInstProgramCounterHighIn(c *Comp, _ uint64) {
-	lower := c.programCounter & 0x00ff
-	c.programCounter = lower | (c.inputBus.Read_16() << 8)
-}
-
 func mInstProgramCounterLowOut(c *Comp, _ uint64) {
 	c.outputBus.Write_8(uint8(c.programCounter))
 	triggerBridge(c)

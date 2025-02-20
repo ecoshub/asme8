@@ -15,14 +15,14 @@ func mInstStatusControl(c *Comp, mi uint64) {
 	switch c.instructionRegister {
 	case instruction.INST_JZ_IMM:
 		statusMask = status.STATUS_FLAG_ZERO
-	case instruction.INST_JNZ_IMM:
+	case instruction.INST_JNZ_IMM16:
 		statusMask = status.STATUS_FLAG_ZERO
 		not = true
-	case instruction.INST_JC_IMM:
+	case instruction.INST_JC_IMM16:
 		statusMask = status.STATUS_FLAG_CARRY
-	case instruction.INST_JS_IMM:
+	case instruction.INST_JS_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
-	case instruction.INST_JNS_IMM:
+	case instruction.INST_JNS_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
 		not = true
 	}

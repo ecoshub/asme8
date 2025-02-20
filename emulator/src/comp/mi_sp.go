@@ -4,10 +4,6 @@ func mInstStackPointerOutAddr(c *Comp, _ uint64) {
 	c.addrBus.Write_16(c.stackPointer)
 }
 
-func mInstStackPointerInAddr(c *Comp, _ uint64) {
-	c.stackPointer = c.addrBus.Read_16()
-}
-
 func mInstStackPointerLowIn(c *Comp, _ uint64) {
 	upper := c.stackPointer & 0xff00
 	c.stackPointer = upper | c.inputBus.Read_16()

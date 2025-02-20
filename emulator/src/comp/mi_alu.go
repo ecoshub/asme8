@@ -6,8 +6,8 @@ import (
 
 const (
 	OPERATION_UNKNOWN uint8 = iota
-	OPERATION_PLUS
-	OPERATION_MINUS
+	OPERATION_ADD
+	OPERATION_SUB
 	OPERATION_CMP
 	OPERATION_XOR
 	OPERATION_AND
@@ -26,7 +26,7 @@ func mInstAluOut(c *Comp, _ uint64) {
 func mInstAluAdd(c *Comp, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
-	result := doOperation(c, OPERATION_PLUS, a, b, false)
+	result := doOperation(c, OPERATION_ADD, a, b, false)
 	if !c.aluOut {
 		return
 	}
@@ -37,7 +37,7 @@ func mInstAluAdd(c *Comp, mi uint64) {
 func mInstAluAdc(c *Comp, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
-	result := doOperation(c, OPERATION_PLUS, a, b, true)
+	result := doOperation(c, OPERATION_ADD, a, b, true)
 	if !c.aluOut {
 		return
 	}
@@ -48,7 +48,7 @@ func mInstAluAdc(c *Comp, mi uint64) {
 func mInstAluSub(c *Comp, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
-	result := doOperation(c, OPERATION_MINUS, a, b, false)
+	result := doOperation(c, OPERATION_SUB, a, b, false)
 	if !c.aluOut {
 		return
 	}
@@ -59,7 +59,7 @@ func mInstAluSub(c *Comp, mi uint64) {
 func mInstAluSbb(c *Comp, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
-	result := doOperation(c, OPERATION_MINUS, a, b, true)
+	result := doOperation(c, OPERATION_SUB, a, b, true)
 	if !c.aluOut {
 		return
 	}
@@ -166,13 +166,13 @@ func doOperation(c *Comp, op uint8, a uint8, b uint8, useCarry bool) uint8 {
 	if useCarry && c.status.IsSet(status.STATUS_FLAG_CARRY) {
 		carry = 1
 	}
-	// fmt.Printf("ALU OP. op: %d, op_1: %08b, op_2: %08b, use_carry: %5v, carry: %d, result: %08b, flags: %s\n", op, c.aluBus.Read_8(), c.outputBus.Read_8(), useCarry, carry, result, c.status)
 	switch op {
-	case OPERATION_MINUS:
+	case OPERATION_SUB:
 		result := opSub(c.status, a, b, carry)
+		// fmt.Printf("ALU OP. op: %d, op_1: %08b, op_2: %08b, use_carry: %5v, carry: %v, result: %08b, flags: %s\n", op, c.aluBus.Read_8(), c.outputBus.Read_8(), useCarry, c.status.IsSet(status.STATUS_FLAG_CARRY), result, c.status)
 		setFlags(c.status, uint16(result))
 		return uint8(result)
-	case OPERATION_PLUS:
+	case OPERATION_ADD:
 		result := opAdd(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
 		return uint8(result)
@@ -197,11 +197,8 @@ func doOperation(c *Comp, op uint8, a uint8, b uint8, useCarry bool) uint8 {
 		setFlags(c.status, uint16(result))
 		return uint8(result)
 	case OPERATION_SHL:
-		// fmt.Printf("before shl. a: %08b,  b: %08b, carry: %08b\n", a, b, carry)
 		result := opSHL(c.status, a, b, carry)
 		setFlags(c.status, uint16(result))
-		// fmt.Printf("after  shl. a: %08b,  b: %08b, carry_set: %v\n", result, b, c.status.IsSet(status.STATUS_FLAG_CARRY))
-		// c.terminal.Components.SysLogPanel.Push(fmt.Sprintf("after  shl. a: %08b,  carry_set: %v", result, c.status.IsSet(status.STATUS_FLAG_CARRY)))
 		return uint8(result)
 	case OPERATION_SHR:
 		result := opSHR(c.status, a, b, carry)

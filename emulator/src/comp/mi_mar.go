@@ -4,10 +4,6 @@ func mInstMemoryAddressRegisterOutAddr(c *Comp, _ uint64) {
 	c.addrBus.Write_16(c.memoryAddressRegister)
 }
 
-func mInstMemoryAddressRegisterInAddr(c *Comp, _ uint64) {
-	c.memoryAddressRegister = c.addrBus.Read_16()
-}
-
 func mInstMemoryAddressRegisterLowIn(c *Comp, _ uint64) {
 	upper := c.memoryAddressRegister & 0xff00
 	c.memoryAddressRegister = upper | c.inputBus.Read_16()

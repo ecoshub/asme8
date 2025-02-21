@@ -21,19 +21,19 @@ func mInstStatusControl(c *Comp, mi uint64) {
 	statusMask := uint8(0)
 	not := false
 	switch c.instructionRegister {
-	case instruction.INST_JZ_IMM16:
+	case instruction.INST_JZ_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_ZERO
-	case instruction.INST_JNZ_IMM16:
+	case instruction.INST_JNZ_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_ZERO
 		not = true
-	case instruction.INST_JC_IMM16:
+	case instruction.INST_JC_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_CARRY
-	case instruction.INST_JNC_IMM16:
+	case instruction.INST_JNC_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_CARRY
 		not = true
-	case instruction.INST_JS_IMM16:
+	case instruction.INST_JS_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
-	case instruction.INST_JNS_IMM16:
+	case instruction.INST_JNS_IMPL_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
 		not = true
 	}

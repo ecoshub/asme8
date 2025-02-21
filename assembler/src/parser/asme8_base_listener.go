@@ -209,6 +209,14 @@ func (s *BaseAsmE8Listener) EnterAddr_mode_implied_stack(ctx *Addr_mode_implied_
 // ExitAddr_mode_implied_stack is called when production addr_mode_implied_stack is exited.
 func (s *BaseAsmE8Listener) ExitAddr_mode_implied_stack(ctx *Addr_mode_implied_stackContext) {}
 
+// EnterAddr_mode_implied_status_register is called when production addr_mode_implied_status_register is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_implied_status_register(ctx *Addr_mode_implied_status_registerContext) {
+}
+
+// ExitAddr_mode_implied_status_register is called when production addr_mode_implied_status_register is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_implied_status_register(ctx *Addr_mode_implied_status_registerContext) {
+}
+
 // EnterAddr_mode_stack_imm8 is called when production addr_mode_stack_imm8 is entered.
 func (s *BaseAsmE8Listener) EnterAddr_mode_stack_imm8(ctx *Addr_mode_stack_imm8Context) {}
 
@@ -250,6 +258,12 @@ func (s *BaseAsmE8Listener) EnterStack(ctx *StackContext) {}
 
 // ExitStack is called when production stack is exited.
 func (s *BaseAsmE8Listener) ExitStack(ctx *StackContext) {}
+
+// EnterStatus_register is called when production status_register is entered.
+func (s *BaseAsmE8Listener) EnterStatus_register(ctx *Status_registerContext) {}
+
+// ExitStatus_register is called when production status_register is exited.
+func (s *BaseAsmE8Listener) ExitStatus_register(ctx *Status_registerContext) {}
 
 // EnterDirect is called when production direct is entered.
 func (s *BaseAsmE8Listener) EnterDirect(ctx *DirectContext) {}

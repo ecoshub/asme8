@@ -92,6 +92,9 @@ type AsmE8Listener interface {
 	// EnterAddr_mode_implied_stack is called when entering the addr_mode_implied_stack production.
 	EnterAddr_mode_implied_stack(c *Addr_mode_implied_stackContext)
 
+	// EnterAddr_mode_implied_status_register is called when entering the addr_mode_implied_status_register production.
+	EnterAddr_mode_implied_status_register(c *Addr_mode_implied_status_registerContext)
+
 	// EnterAddr_mode_stack_imm8 is called when entering the addr_mode_stack_imm8 production.
 	EnterAddr_mode_stack_imm8(c *Addr_mode_stack_imm8Context)
 
@@ -112,6 +115,9 @@ type AsmE8Listener interface {
 
 	// EnterStack is called when entering the stack production.
 	EnterStack(c *StackContext)
+
+	// EnterStatus_register is called when entering the status_register production.
+	EnterStatus_register(c *Status_registerContext)
 
 	// EnterDirect is called when entering the direct production.
 	EnterDirect(c *DirectContext)
@@ -245,6 +251,9 @@ type AsmE8Listener interface {
 	// ExitAddr_mode_implied_stack is called when exiting the addr_mode_implied_stack production.
 	ExitAddr_mode_implied_stack(c *Addr_mode_implied_stackContext)
 
+	// ExitAddr_mode_implied_status_register is called when exiting the addr_mode_implied_status_register production.
+	ExitAddr_mode_implied_status_register(c *Addr_mode_implied_status_registerContext)
+
 	// ExitAddr_mode_stack_imm8 is called when exiting the addr_mode_stack_imm8 production.
 	ExitAddr_mode_stack_imm8(c *Addr_mode_stack_imm8Context)
 
@@ -265,6 +274,9 @@ type AsmE8Listener interface {
 
 	// ExitStack is called when exiting the stack production.
 	ExitStack(c *StackContext)
+
+	// ExitStatus_register is called when exiting the status_register production.
+	ExitStatus_register(c *Status_registerContext)
 
 	// ExitDirect is called when exiting the direct production.
 	ExitDirect(c *DirectContext)

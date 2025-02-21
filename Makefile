@@ -1,5 +1,9 @@
 build: build-assembler build-linker build-emulator
 
+test:
+	go test ./emulator/test/...
+	go test ./assembler/test/...
+
 build-asm: build-assembler
 
 build-assembler:

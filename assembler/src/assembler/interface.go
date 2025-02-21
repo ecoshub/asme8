@@ -118,6 +118,19 @@ func (a *Assembler) EnterVariable_reference(c *parser.Variable_referenceContext)
 
 func (a *Assembler) EnterAddr_mode_imm16_tag(c *parser.Addr_mode_imm16_tagContext) {}
 
+func (a *Assembler) EnterAddr_mode_implied_status_register(c *parser.Addr_mode_implied_status_registerContext) {
+}
+
+func (a *Assembler) EnterStatus_register(c *parser.Status_registerContext) {}
+
+func (a *Assembler) ExitAddr_mode_implied_status_register(c *parser.Addr_mode_implied_status_registerContext) {
+	line := c.GetStart().GetLine()
+	column := c.RuleIndex
+	a.ParseImpliedStatusRegister(line, column)
+}
+
+func (a *Assembler) ExitStatus_register(c *parser.Status_registerContext) {}
+
 func (a *Assembler) ExitAddr_mode_imm16_tag(c *parser.Addr_mode_imm16_tagContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex

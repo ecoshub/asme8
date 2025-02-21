@@ -140,13 +140,13 @@ VALUE_5=0x50
     jnc 0x1234
 `,
 			Expected: []byte{
-				instruction.INST_JMP_IMM16, 0x34, 0x12,
-				instruction.INST_JZ_IMM16, 0x34, 0x12,
-				instruction.INST_JNZ_IMM16, 0x34, 0x12,
-				instruction.INST_JS_IMM16, 0x34, 0x12,
-				instruction.INST_JNS_IMM16, 0x34, 0x12,
-				instruction.INST_JC_IMM16, 0x34, 0x12,
-				instruction.INST_JNC_IMM16, 0x34, 0x12,
+				instruction.INST_JMP_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JZ_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNZ_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JS_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNS_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JC_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNC_IMPL_IMM16, 0x34, 0x12,
 			},
 		},
 		{
@@ -165,13 +165,13 @@ ADDR=0x1234
 
 `,
 			Expected: []byte{
-				instruction.INST_JMP_IMM16, 0x34, 0x12,
-				instruction.INST_JZ_IMM16, 0x34, 0x12,
-				instruction.INST_JNZ_IMM16, 0x34, 0x12,
-				instruction.INST_JS_IMM16, 0x34, 0x12,
-				instruction.INST_JNS_IMM16, 0x34, 0x12,
-				instruction.INST_JC_IMM16, 0x34, 0x12,
-				instruction.INST_JNC_IMM16, 0x34, 0x12,
+				instruction.INST_JMP_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JZ_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNZ_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JS_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNS_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JC_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JNC_IMPL_IMM16, 0x34, 0x12,
 			},
 		},
 		{
@@ -490,10 +490,10 @@ ADDR=0xabcd
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_DIRECT_REG8, instruction.REGISTER_OPCODE_A, 0x34, 0x12,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_B, 0x34, 0x12,
-				instruction.INST_MOV_DIRECT_REG8, instruction.REGISTER_OPCODE_A, 0xcd, 0xab,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_B, 0xcd, 0xab,
+				instruction.INST_MOV_MEM_TO_REG_DIRECT, instruction.REGISTER_OPCODE_A, 0x34, 0x12,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_B, 0x34, 0x12,
+				instruction.INST_MOV_MEM_TO_REG_DIRECT, instruction.REGISTER_OPCODE_A, 0xcd, 0xab,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_B, 0xcd, 0xab,
 			},
 		},
 		{
@@ -509,10 +509,10 @@ ADDR=0xabcd
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_MEM_INDEXED_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0x34, 0x12,
-				instruction.INST_MOV_REG8_MEM_INDEXED, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A, 0x34, 0x12,
-				instruction.INST_MOV_MEM_INDEXED_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0xcd, 0xab,
-				instruction.INST_MOV_REG8_MEM_INDEXED, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A, 0xcd, 0xab,
+				instruction.INST_MOV_MEM_TO_REG_INDEXED, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0x34, 0x12,
+				instruction.INST_MOV_REG_TO_MEM_INDEXED, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A, 0x34, 0x12,
+				instruction.INST_MOV_MEM_TO_REG_INDEXED, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0xcd, 0xab,
+				instruction.INST_MOV_REG_TO_MEM_INDEXED, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A, 0xcd, 0xab,
 			},
 		},
 		{
@@ -526,10 +526,10 @@ ADDR=0xabcd
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_INDIRECT_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IP,
-				instruction.INST_MOV_REG8_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B,
-				instruction.INST_MOV_INDIRECT_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_BP,
-				instruction.INST_MOV_REG8_INDIRECT, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IP,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_BP,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B,
 			},
 		},
 		{
@@ -543,10 +543,10 @@ ADDR=0xabcd
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_INDIRECT_OFFSET_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IP, 0x04,
-				instruction.INST_MOV_REG8_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B, 0x08,
-				instruction.INST_MOV_INDIRECT_OFFSET_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_BP, 0x04,
-				instruction.INST_MOV_REG8_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B, 0x08,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IP, 0x04,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B, 0x08,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_BP, 0x04,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B, 0x08,
 			},
 		},
 		{
@@ -560,10 +560,23 @@ ADDR=0xabcd
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_INDEXED_REG8, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_C, instruction.REGISTER_OPCODE_A,
-				instruction.INST_MOV_REG8_INDEXED, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_D, instruction.REGISTER_OPCODE_B,
-				instruction.INST_MOV_INDEXED_REG8, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_C, instruction.REGISTER_OPCODE_A,
-				instruction.INST_MOV_REG8_INDEXED, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_D, instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_REG16_INDEXED, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_C, instruction.REGISTER_OPCODE_A,
+				instruction.INST_MOV_REG_TO_MEM_REG16_INDEXED, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_D, instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_REG16_INDEXED, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_C, instruction.REGISTER_OPCODE_A,
+				instruction.INST_MOV_REG_TO_MEM_REG16_INDEXED, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_D, instruction.REGISTER_OPCODE_B,
+			},
+		},
+		{
+			Name: "status register",
+			Code: `
+
+	push sr
+	pop sr
+
+`,
+			Expected: []byte{
+				instruction.INST_PUSH_SR,
+				instruction.INST_POP_SR,
 			},
 		},
 	}

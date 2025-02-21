@@ -83,7 +83,7 @@ var (
 			Name: "mov reg data",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -104,11 +104,11 @@ var (
 			Name: "mov reg mem",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x90,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x91,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x01, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x01, 0x90,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x92,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x02, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x02, 0x90,
 			},
 			Expect: &test.Expect{
 				Data: []*test.ExpectData{
@@ -125,8 +125,8 @@ var (
 			Name: "mov reg mem",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x90,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
-				instruction.INST_MOV_DIRECT_REG8, instruction.REGISTER_OPCODE_B, 0x00, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
+				instruction.INST_MOV_MEM_TO_REG_DIRECT, instruction.REGISTER_OPCODE_B, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -146,8 +146,8 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x02, 0x90,
-				instruction.INST_MOV_MEM_INDEXED_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0x00, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x02, 0x90,
+				instruction.INST_MOV_MEM_TO_REG_INDEXED, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0x00, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -169,8 +169,8 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x01, 0x91,
-				instruction.INST_MOV_MEM_INDEXED_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x01, 0x91,
+				instruction.INST_MOV_MEM_TO_REG_INDEXED, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -193,8 +193,8 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x0,
-				instruction.INST_MOV_REG8_MEM_INDEXED, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
-				instruction.INST_MOV_MEM_INDEXED_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
+				instruction.INST_MOV_REG_TO_MEM_INDEXED, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
+				instruction.INST_MOV_MEM_TO_REG_INDEXED, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B, 0xff, 0x90,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -233,7 +233,7 @@ var (
 			Name: "jump imm",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_JMP_IMM16, 0x0a, 0x00,
+				instruction.INST_JMP_IMPL_IMM16, 0x0a, 0x00,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -257,7 +257,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_JZ_IMM16, 0x0d, 0x00,
+				instruction.INST_JZ_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -281,7 +281,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
-				instruction.INST_JZ_IMM16, 0x0d, 0x00,
+				instruction.INST_JZ_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -305,7 +305,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_JNZ_IMM16, 0x0d, 0x00,
+				instruction.INST_JNZ_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -329,7 +329,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_JNZ_IMM16, 0x0d, 0x00,
+				instruction.INST_JNZ_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -355,7 +355,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
 				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
-				instruction.INST_JZ_IMM16, 0x0f, 0x00,
+				instruction.INST_JZ_IMPL_IMM16, 0x0f, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -381,7 +381,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
-				instruction.INST_JZ_IMM16, 0x0f, 0x00,
+				instruction.INST_JZ_IMPL_IMM16, 0x0f, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -1042,7 +1042,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
-				instruction.INST_JC_IMM16, 0x0f, 0x00,
+				instruction.INST_JC_IMPL_IMM16, 0x0f, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
@@ -1070,7 +1070,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
-				instruction.INST_JC_IMM16, 0x0f, 0x00,
+				instruction.INST_JC_IMPL_IMM16, 0x0f, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
@@ -1100,7 +1100,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_CLC_IMPL,
-				instruction.INST_JC_IMM16, 0x10, 0x00,
+				instruction.INST_JC_IMPL_IMM16, 0x10, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
@@ -1126,7 +1126,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
-				instruction.INST_JS_IMM16, 0x0d, 0x00,
+				instruction.INST_JS_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -1150,7 +1150,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_JS_IMM16, 0x0d, 0x00,
+				instruction.INST_JS_IMPL_IMM16, 0x0d, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_BRK_IMPL,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
@@ -1702,9 +1702,9 @@ var (
 			// mov b, [ip]
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
-				instruction.INST_MOV_INDIRECT_REG8, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -1724,9 +1724,9 @@ var (
 			// mov b, [ip+8]
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x08, 0x80,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x08, 0x80,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
-				instruction.INST_MOV_INDIRECT_OFFSET_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP, 0x08,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP, 0x08,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -1748,9 +1748,9 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x08,
-				instruction.INST_MOV_REG8_DIRECT, instruction.REGISTER_OPCODE_A, 0x08, 0x80,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x08, 0x80,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
-				instruction.INST_MOV_INDEXED_REG8, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B, instruction.REGISTER_OPCODE_C,
+				instruction.INST_MOV_MEM_TO_REG_REG16_INDEXED, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B, instruction.REGISTER_OPCODE_C,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -1771,7 +1771,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
-				instruction.INST_MOV_REG8_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_A,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_A,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -1792,7 +1792,7 @@ var (
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_BP, 0x00, 0x80,
-				instruction.INST_MOV_REG8_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_A, 0x08,
+				instruction.INST_MOV_REG_TO_MEM_INDIRECT_OFFSET, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_A, 0x08,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
@@ -1815,7 +1815,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x08,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_BP, 0x00, 0x80,
-				instruction.INST_MOV_REG8_INDEXED, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B, instruction.REGISTER_OPCODE_A,
+				instruction.INST_MOV_REG_TO_MEM_REG16_INDEXED, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_B, instruction.REGISTER_OPCODE_A,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{

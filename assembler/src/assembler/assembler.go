@@ -181,21 +181,6 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 	a.offset++
 }
 
-// func (a *Assembler) ParseIndexImmediate(line, column int) {
-// 	if a.currentValue.GetSize() == 8 {
-// 		a.GetVariableOrTagMissing(1, 8)
-// 		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
-// 		a.AppendMachineCode(opcode)
-// 		a.AppendMachineCode(a.currentValue.GetLowByte())
-// 		return
-// 	}
-// 	a.GetVariableOrTagMissing(1, 16)
-// 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM_16, line, column)
-// 	a.AppendMachineCode(opcode)
-// 	a.AppendMachineCode(a.currentValue.GetLowByte())
-// 	a.AppendMachineCode(a.currentValue.GetHighByte())
-// }
-
 func (a *Assembler) ParseStackImm8(line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_STACK_IMM8, line, column)
 	a.AppendMachineCode(opcode)
@@ -342,19 +327,24 @@ func (a *Assembler) ParseIndexedReg16MemToReg(line, column int) {
 }
 
 func (a *Assembler) ParseImpliedReg8(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_REG8, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_REG8, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImpliedReg16(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_REG16, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_REG16, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImpliedStack(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_STACK, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_STACK, line, column)
+	a.AppendMachineCode(opcode)
+}
+
+func (a *Assembler) ParseImpliedStatusRegister(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_STATUS_REG, line, column)
 	a.AppendMachineCode(opcode)
 }
 
@@ -371,12 +361,12 @@ func (a *Assembler) ParseReg16Stack(line, column int) {
 }
 
 func (a *Assembler) ParseImplied(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL, line, column)
 	a.AppendMachineCode(opcode)
 }
 
 func (a *Assembler) ParseImpliedImm16(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_IMM16, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_IMM16, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
@@ -621,14 +611,6 @@ func (a *Assembler) ParseVariableReference() {
 func (a *Assembler) ParseInstruction(text string) {
 	a.currentInstruction = strings.ToLower(text)
 }
-
-// func (a *Assembler) ParsePtrImm(text string, line, column int) {
-// 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_IMM, line, column)
-// 	a.AppendMachineCode(opcode)
-// 	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
-// 	a.AppendMachineCode(a.currentValue.GetLowByte())
-// 	a.AppendMachineCode(a.currentValue.GetHighByte())
-// }
 
 func (a *Assembler) ParseValue(text string, line, column int) {
 	var ok bool

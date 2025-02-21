@@ -44,6 +44,7 @@ inst:
 	| addr_mode_reg16_reg16
 	| addr_mode_reg16_stack
 	| addr_mode_implied_stack
+	| addr_mode_implied_status_register
 	| addr_mode_stack_imm8
 	| addr_mode_stack_imm8_tag
 	| addr_mode_stack_reg16
@@ -72,6 +73,7 @@ addr_mode_reg16_imm_tag: mnemonic ' ' reg16 ', ' tag;
 addr_mode_reg16_reg16: mnemonic ' ' reg16 ', ' reg16;
 addr_mode_reg16_stack: mnemonic ' ' reg16 ', ' stack ;
 addr_mode_implied_stack: mnemonic ' ' stack;
+addr_mode_implied_status_register: mnemonic ' ' status_register;
 addr_mode_stack_imm8: mnemonic ' ' stack ', ' imm;
 addr_mode_stack_imm8_tag: mnemonic ' ' stack ', ' tag;
 addr_mode_stack_reg16: mnemonic ' ' stack ', ' reg16;
@@ -128,6 +130,8 @@ reg16:
 	;
 
 stack: 'sp';
+
+status_register: 'sr';
 
 direct: 
 	'[' imm ']'

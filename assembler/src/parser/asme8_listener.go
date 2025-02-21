@@ -23,95 +23,113 @@ type AsmE8Listener interface {
 	// EnterInst is called when entering the inst production.
 	EnterInst(c *InstContext)
 
-	// EnterInst_reg_reg is called when entering the inst_reg_reg production.
-	EnterInst_reg_reg(c *Inst_reg_regContext)
+	// EnterAddr_mode_imm16 is called when entering the addr_mode_imm16 production.
+	EnterAddr_mode_imm16(c *Addr_mode_imm16Context)
 
-	// EnterInst_reg_imm is called when entering the inst_reg_imm production.
-	EnterInst_reg_imm(c *Inst_reg_immContext)
+	// EnterAddr_mode_imm16_tag is called when entering the addr_mode_imm16_tag production.
+	EnterAddr_mode_imm16_tag(c *Addr_mode_imm16_tagContext)
 
-	// EnterInst_stack_imm is called when entering the inst_stack_imm production.
-	EnterInst_stack_imm(c *Inst_stack_immContext)
+	// EnterAddr_mode_reg_to_mem_indexed is called when entering the addr_mode_reg_to_mem_indexed production.
+	EnterAddr_mode_reg_to_mem_indexed(c *Addr_mode_reg_to_mem_indexedContext)
 
-	// EnterInst_index_register_imm_variable is called when entering the inst_index_register_imm_variable production.
-	EnterInst_index_register_imm_variable(c *Inst_index_register_imm_variableContext)
+	// EnterAddr_mode_reg_to_mem_direct is called when entering the addr_mode_reg_to_mem_direct production.
+	EnterAddr_mode_reg_to_mem_direct(c *Addr_mode_reg_to_mem_directContext)
 
-	// EnterInst_index_imm is called when entering the inst_index_imm production.
-	EnterInst_index_imm(c *Inst_index_immContext)
+	// EnterAddr_mode_reg_to_mem_indirect_offset is called when entering the addr_mode_reg_to_mem_indirect_offset production.
+	EnterAddr_mode_reg_to_mem_indirect_offset(c *Addr_mode_reg_to_mem_indirect_offsetContext)
 
-	// EnterInst_reg_imm_variable is called when entering the inst_reg_imm_variable production.
-	EnterInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
+	// EnterAddr_mode_reg_to_mem_reg16_indexed is called when entering the addr_mode_reg_to_mem_reg16_indexed production.
+	EnterAddr_mode_reg_to_mem_reg16_indexed(c *Addr_mode_reg_to_mem_reg16_indexedContext)
 
-	// EnterInst_ptr_reg is called when entering the inst_ptr_reg production.
-	EnterInst_ptr_reg(c *Inst_ptr_regContext)
+	// EnterAddr_mode_reg_to_mem_indirect is called when entering the addr_mode_reg_to_mem_indirect production.
+	EnterAddr_mode_reg_to_mem_indirect(c *Addr_mode_reg_to_mem_indirectContext)
 
-	// EnterInst_ptr_imm is called when entering the inst_ptr_imm production.
-	EnterInst_ptr_imm(c *Inst_ptr_immContext)
+	// EnterAddr_mode_implied_reg8 is called when entering the addr_mode_implied_reg8 production.
+	EnterAddr_mode_implied_reg8(c *Addr_mode_implied_reg8Context)
 
-	// EnterInst_reg_ptr is called when entering the inst_reg_ptr production.
-	EnterInst_reg_ptr(c *Inst_reg_ptrContext)
+	// EnterAddr_mode_reg8_imm8 is called when entering the addr_mode_reg8_imm8 production.
+	EnterAddr_mode_reg8_imm8(c *Addr_mode_reg8_imm8Context)
 
-	// EnterInst_reg_ptr_offset is called when entering the inst_reg_ptr_offset production.
-	EnterInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext)
+	// EnterAddr_mode_reg8_imm8_tag is called when entering the addr_mode_reg8_imm8_tag production.
+	EnterAddr_mode_reg8_imm8_tag(c *Addr_mode_reg8_imm8_tagContext)
 
-	// EnterInst_indirect_reg_stack is called when entering the inst_indirect_reg_stack production.
-	EnterInst_indirect_reg_stack(c *Inst_indirect_reg_stackContext)
+	// EnterAddr_mode_mem_to_reg_indexed is called when entering the addr_mode_mem_to_reg_indexed production.
+	EnterAddr_mode_mem_to_reg_indexed(c *Addr_mode_mem_to_reg_indexedContext)
 
-	// EnterInst_indirect_stack_register is called when entering the inst_indirect_stack_register production.
-	EnterInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
+	// EnterAddr_mode_mem_to_reg_direct is called when entering the addr_mode_mem_to_reg_direct production.
+	EnterAddr_mode_mem_to_reg_direct(c *Addr_mode_mem_to_reg_directContext)
 
-	// EnterInst_indirect_reg_index is called when entering the inst_indirect_reg_index production.
-	EnterInst_indirect_reg_index(c *Inst_indirect_reg_indexContext)
+	// EnterAddr_mode_mem_to_reg_indirect_offset is called when entering the addr_mode_mem_to_reg_indirect_offset production.
+	EnterAddr_mode_mem_to_reg_indirect_offset(c *Addr_mode_mem_to_reg_indirect_offsetContext)
 
-	// EnterInst_indirect_index_register is called when entering the inst_indirect_index_register production.
-	EnterInst_indirect_index_register(c *Inst_indirect_index_registerContext)
+	// EnterAddr_mode_mem_to_reg_reg16_indexed is called when entering the addr_mode_mem_to_reg_reg16_indexed production.
+	EnterAddr_mode_mem_to_reg_reg16_indexed(c *Addr_mode_mem_to_reg_reg16_indexedContext)
 
-	// EnterInst_ptr_offset_reg is called when entering the inst_ptr_offset_reg production.
-	EnterInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
+	// EnterAddr_mode_mem_to_reg_indirect is called when entering the addr_mode_mem_to_reg_indirect production.
+	EnterAddr_mode_mem_to_reg_indirect(c *Addr_mode_mem_to_reg_indirectContext)
 
-	// EnterInst_single_reg is called when entering the inst_single_reg production.
-	EnterInst_single_reg(c *Inst_single_regContext)
+	// EnterAddr_mode_reg8_reg8 is called when entering the addr_mode_reg8_reg8 production.
+	EnterAddr_mode_reg8_reg8(c *Addr_mode_reg8_reg8Context)
 
-	// EnterInst_implied_stack is called when entering the inst_implied_stack production.
-	EnterInst_implied_stack(c *Inst_implied_stackContext)
+	// EnterAddr_mode_implied is called when entering the addr_mode_implied production.
+	EnterAddr_mode_implied(c *Addr_mode_impliedContext)
 
-	// EnterInst_implied_index is called when entering the inst_implied_index production.
-	EnterInst_implied_index(c *Inst_implied_indexContext)
+	// EnterAddr_mode_implied_reg16 is called when entering the addr_mode_implied_reg16 production.
+	EnterAddr_mode_implied_reg16(c *Addr_mode_implied_reg16Context)
 
-	// EnterInst_single_imm is called when entering the inst_single_imm production.
-	EnterInst_single_imm(c *Inst_single_immContext)
+	// EnterAddr_mode_reg16_imm is called when entering the addr_mode_reg16_imm production.
+	EnterAddr_mode_reg16_imm(c *Addr_mode_reg16_immContext)
 
-	// EnterInst_single_tag is called when entering the inst_single_tag production.
-	EnterInst_single_tag(c *Inst_single_tagContext)
+	// EnterAddr_mode_reg16_imm_tag is called when entering the addr_mode_reg16_imm_tag production.
+	EnterAddr_mode_reg16_imm_tag(c *Addr_mode_reg16_imm_tagContext)
 
-	// EnterInst_single is called when entering the inst_single production.
-	EnterInst_single(c *Inst_singleContext)
+	// EnterAddr_mode_reg16_reg16 is called when entering the addr_mode_reg16_reg16 production.
+	EnterAddr_mode_reg16_reg16(c *Addr_mode_reg16_reg16Context)
+
+	// EnterAddr_mode_reg16_stack is called when entering the addr_mode_reg16_stack production.
+	EnterAddr_mode_reg16_stack(c *Addr_mode_reg16_stackContext)
+
+	// EnterAddr_mode_implied_stack is called when entering the addr_mode_implied_stack production.
+	EnterAddr_mode_implied_stack(c *Addr_mode_implied_stackContext)
+
+	// EnterAddr_mode_stack_imm8 is called when entering the addr_mode_stack_imm8 production.
+	EnterAddr_mode_stack_imm8(c *Addr_mode_stack_imm8Context)
+
+	// EnterAddr_mode_stack_imm8_tag is called when entering the addr_mode_stack_imm8_tag production.
+	EnterAddr_mode_stack_imm8_tag(c *Addr_mode_stack_imm8_tagContext)
+
+	// EnterAddr_mode_stack_reg16 is called when entering the addr_mode_stack_reg16 production.
+	EnterAddr_mode_stack_reg16(c *Addr_mode_stack_reg16Context)
 
 	// EnterMnemonic is called when entering the mnemonic production.
 	EnterMnemonic(c *MnemonicContext)
 
-	// EnterReg is called when entering the reg production.
-	EnterReg(c *RegContext)
+	// EnterReg8 is called when entering the reg8 production.
+	EnterReg8(c *Reg8Context)
+
+	// EnterReg16 is called when entering the reg16 production.
+	EnterReg16(c *Reg16Context)
 
 	// EnterStack is called when entering the stack production.
 	EnterStack(c *StackContext)
 
-	// EnterIndex is called when entering the index production.
-	EnterIndex(c *IndexContext)
+	// EnterDirect is called when entering the direct production.
+	EnterDirect(c *DirectContext)
 
-	// EnterPtr is called when entering the ptr production.
-	EnterPtr(c *PtrContext)
+	// EnterDirect_virtual_offset is called when entering the direct_virtual_offset production.
+	EnterDirect_virtual_offset(c *Direct_virtual_offsetContext)
 
-	// EnterPtr_virtual_offset is called when entering the ptr_virtual_offset production.
-	EnterPtr_virtual_offset(c *Ptr_virtual_offsetContext)
+	// EnterDirect_offset is called when entering the direct_offset production.
+	EnterDirect_offset(c *Direct_offsetContext)
 
-	// EnterPtr_offset is called when entering the ptr_offset production.
-	EnterPtr_offset(c *Ptr_offsetContext)
+	// EnterIndirect_offset is called when entering the indirect_offset production.
+	EnterIndirect_offset(c *Indirect_offsetContext)
 
-	// EnterStack_offset is called when entering the stack_offset production.
-	EnterStack_offset(c *Stack_offsetContext)
+	// EnterReg16_indexed is called when entering the reg16_indexed production.
+	EnterReg16_indexed(c *Reg16_indexedContext)
 
-	// EnterIndex_offset is called when entering the index_offset production.
-	EnterIndex_offset(c *Index_offsetContext)
+	// EnterIndirect is called when entering the indirect production.
+	EnterIndirect(c *IndirectContext)
 
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
@@ -158,95 +176,113 @@ type AsmE8Listener interface {
 	// ExitInst is called when exiting the inst production.
 	ExitInst(c *InstContext)
 
-	// ExitInst_reg_reg is called when exiting the inst_reg_reg production.
-	ExitInst_reg_reg(c *Inst_reg_regContext)
+	// ExitAddr_mode_imm16 is called when exiting the addr_mode_imm16 production.
+	ExitAddr_mode_imm16(c *Addr_mode_imm16Context)
 
-	// ExitInst_reg_imm is called when exiting the inst_reg_imm production.
-	ExitInst_reg_imm(c *Inst_reg_immContext)
+	// ExitAddr_mode_imm16_tag is called when exiting the addr_mode_imm16_tag production.
+	ExitAddr_mode_imm16_tag(c *Addr_mode_imm16_tagContext)
 
-	// ExitInst_stack_imm is called when exiting the inst_stack_imm production.
-	ExitInst_stack_imm(c *Inst_stack_immContext)
+	// ExitAddr_mode_reg_to_mem_indexed is called when exiting the addr_mode_reg_to_mem_indexed production.
+	ExitAddr_mode_reg_to_mem_indexed(c *Addr_mode_reg_to_mem_indexedContext)
 
-	// ExitInst_index_register_imm_variable is called when exiting the inst_index_register_imm_variable production.
-	ExitInst_index_register_imm_variable(c *Inst_index_register_imm_variableContext)
+	// ExitAddr_mode_reg_to_mem_direct is called when exiting the addr_mode_reg_to_mem_direct production.
+	ExitAddr_mode_reg_to_mem_direct(c *Addr_mode_reg_to_mem_directContext)
 
-	// ExitInst_index_imm is called when exiting the inst_index_imm production.
-	ExitInst_index_imm(c *Inst_index_immContext)
+	// ExitAddr_mode_reg_to_mem_indirect_offset is called when exiting the addr_mode_reg_to_mem_indirect_offset production.
+	ExitAddr_mode_reg_to_mem_indirect_offset(c *Addr_mode_reg_to_mem_indirect_offsetContext)
 
-	// ExitInst_reg_imm_variable is called when exiting the inst_reg_imm_variable production.
-	ExitInst_reg_imm_variable(c *Inst_reg_imm_variableContext)
+	// ExitAddr_mode_reg_to_mem_reg16_indexed is called when exiting the addr_mode_reg_to_mem_reg16_indexed production.
+	ExitAddr_mode_reg_to_mem_reg16_indexed(c *Addr_mode_reg_to_mem_reg16_indexedContext)
 
-	// ExitInst_ptr_reg is called when exiting the inst_ptr_reg production.
-	ExitInst_ptr_reg(c *Inst_ptr_regContext)
+	// ExitAddr_mode_reg_to_mem_indirect is called when exiting the addr_mode_reg_to_mem_indirect production.
+	ExitAddr_mode_reg_to_mem_indirect(c *Addr_mode_reg_to_mem_indirectContext)
 
-	// ExitInst_ptr_imm is called when exiting the inst_ptr_imm production.
-	ExitInst_ptr_imm(c *Inst_ptr_immContext)
+	// ExitAddr_mode_implied_reg8 is called when exiting the addr_mode_implied_reg8 production.
+	ExitAddr_mode_implied_reg8(c *Addr_mode_implied_reg8Context)
 
-	// ExitInst_reg_ptr is called when exiting the inst_reg_ptr production.
-	ExitInst_reg_ptr(c *Inst_reg_ptrContext)
+	// ExitAddr_mode_reg8_imm8 is called when exiting the addr_mode_reg8_imm8 production.
+	ExitAddr_mode_reg8_imm8(c *Addr_mode_reg8_imm8Context)
 
-	// ExitInst_reg_ptr_offset is called when exiting the inst_reg_ptr_offset production.
-	ExitInst_reg_ptr_offset(c *Inst_reg_ptr_offsetContext)
+	// ExitAddr_mode_reg8_imm8_tag is called when exiting the addr_mode_reg8_imm8_tag production.
+	ExitAddr_mode_reg8_imm8_tag(c *Addr_mode_reg8_imm8_tagContext)
 
-	// ExitInst_indirect_reg_stack is called when exiting the inst_indirect_reg_stack production.
-	ExitInst_indirect_reg_stack(c *Inst_indirect_reg_stackContext)
+	// ExitAddr_mode_mem_to_reg_indexed is called when exiting the addr_mode_mem_to_reg_indexed production.
+	ExitAddr_mode_mem_to_reg_indexed(c *Addr_mode_mem_to_reg_indexedContext)
 
-	// ExitInst_indirect_stack_register is called when exiting the inst_indirect_stack_register production.
-	ExitInst_indirect_stack_register(c *Inst_indirect_stack_registerContext)
+	// ExitAddr_mode_mem_to_reg_direct is called when exiting the addr_mode_mem_to_reg_direct production.
+	ExitAddr_mode_mem_to_reg_direct(c *Addr_mode_mem_to_reg_directContext)
 
-	// ExitInst_indirect_reg_index is called when exiting the inst_indirect_reg_index production.
-	ExitInst_indirect_reg_index(c *Inst_indirect_reg_indexContext)
+	// ExitAddr_mode_mem_to_reg_indirect_offset is called when exiting the addr_mode_mem_to_reg_indirect_offset production.
+	ExitAddr_mode_mem_to_reg_indirect_offset(c *Addr_mode_mem_to_reg_indirect_offsetContext)
 
-	// ExitInst_indirect_index_register is called when exiting the inst_indirect_index_register production.
-	ExitInst_indirect_index_register(c *Inst_indirect_index_registerContext)
+	// ExitAddr_mode_mem_to_reg_reg16_indexed is called when exiting the addr_mode_mem_to_reg_reg16_indexed production.
+	ExitAddr_mode_mem_to_reg_reg16_indexed(c *Addr_mode_mem_to_reg_reg16_indexedContext)
 
-	// ExitInst_ptr_offset_reg is called when exiting the inst_ptr_offset_reg production.
-	ExitInst_ptr_offset_reg(c *Inst_ptr_offset_regContext)
+	// ExitAddr_mode_mem_to_reg_indirect is called when exiting the addr_mode_mem_to_reg_indirect production.
+	ExitAddr_mode_mem_to_reg_indirect(c *Addr_mode_mem_to_reg_indirectContext)
 
-	// ExitInst_single_reg is called when exiting the inst_single_reg production.
-	ExitInst_single_reg(c *Inst_single_regContext)
+	// ExitAddr_mode_reg8_reg8 is called when exiting the addr_mode_reg8_reg8 production.
+	ExitAddr_mode_reg8_reg8(c *Addr_mode_reg8_reg8Context)
 
-	// ExitInst_implied_stack is called when exiting the inst_implied_stack production.
-	ExitInst_implied_stack(c *Inst_implied_stackContext)
+	// ExitAddr_mode_implied is called when exiting the addr_mode_implied production.
+	ExitAddr_mode_implied(c *Addr_mode_impliedContext)
 
-	// ExitInst_implied_index is called when exiting the inst_implied_index production.
-	ExitInst_implied_index(c *Inst_implied_indexContext)
+	// ExitAddr_mode_implied_reg16 is called when exiting the addr_mode_implied_reg16 production.
+	ExitAddr_mode_implied_reg16(c *Addr_mode_implied_reg16Context)
 
-	// ExitInst_single_imm is called when exiting the inst_single_imm production.
-	ExitInst_single_imm(c *Inst_single_immContext)
+	// ExitAddr_mode_reg16_imm is called when exiting the addr_mode_reg16_imm production.
+	ExitAddr_mode_reg16_imm(c *Addr_mode_reg16_immContext)
 
-	// ExitInst_single_tag is called when exiting the inst_single_tag production.
-	ExitInst_single_tag(c *Inst_single_tagContext)
+	// ExitAddr_mode_reg16_imm_tag is called when exiting the addr_mode_reg16_imm_tag production.
+	ExitAddr_mode_reg16_imm_tag(c *Addr_mode_reg16_imm_tagContext)
 
-	// ExitInst_single is called when exiting the inst_single production.
-	ExitInst_single(c *Inst_singleContext)
+	// ExitAddr_mode_reg16_reg16 is called when exiting the addr_mode_reg16_reg16 production.
+	ExitAddr_mode_reg16_reg16(c *Addr_mode_reg16_reg16Context)
+
+	// ExitAddr_mode_reg16_stack is called when exiting the addr_mode_reg16_stack production.
+	ExitAddr_mode_reg16_stack(c *Addr_mode_reg16_stackContext)
+
+	// ExitAddr_mode_implied_stack is called when exiting the addr_mode_implied_stack production.
+	ExitAddr_mode_implied_stack(c *Addr_mode_implied_stackContext)
+
+	// ExitAddr_mode_stack_imm8 is called when exiting the addr_mode_stack_imm8 production.
+	ExitAddr_mode_stack_imm8(c *Addr_mode_stack_imm8Context)
+
+	// ExitAddr_mode_stack_imm8_tag is called when exiting the addr_mode_stack_imm8_tag production.
+	ExitAddr_mode_stack_imm8_tag(c *Addr_mode_stack_imm8_tagContext)
+
+	// ExitAddr_mode_stack_reg16 is called when exiting the addr_mode_stack_reg16 production.
+	ExitAddr_mode_stack_reg16(c *Addr_mode_stack_reg16Context)
 
 	// ExitMnemonic is called when exiting the mnemonic production.
 	ExitMnemonic(c *MnemonicContext)
 
-	// ExitReg is called when exiting the reg production.
-	ExitReg(c *RegContext)
+	// ExitReg8 is called when exiting the reg8 production.
+	ExitReg8(c *Reg8Context)
+
+	// ExitReg16 is called when exiting the reg16 production.
+	ExitReg16(c *Reg16Context)
 
 	// ExitStack is called when exiting the stack production.
 	ExitStack(c *StackContext)
 
-	// ExitIndex is called when exiting the index production.
-	ExitIndex(c *IndexContext)
+	// ExitDirect is called when exiting the direct production.
+	ExitDirect(c *DirectContext)
 
-	// ExitPtr is called when exiting the ptr production.
-	ExitPtr(c *PtrContext)
+	// ExitDirect_virtual_offset is called when exiting the direct_virtual_offset production.
+	ExitDirect_virtual_offset(c *Direct_virtual_offsetContext)
 
-	// ExitPtr_virtual_offset is called when exiting the ptr_virtual_offset production.
-	ExitPtr_virtual_offset(c *Ptr_virtual_offsetContext)
+	// ExitDirect_offset is called when exiting the direct_offset production.
+	ExitDirect_offset(c *Direct_offsetContext)
 
-	// ExitPtr_offset is called when exiting the ptr_offset production.
-	ExitPtr_offset(c *Ptr_offsetContext)
+	// ExitIndirect_offset is called when exiting the indirect_offset production.
+	ExitIndirect_offset(c *Indirect_offsetContext)
 
-	// ExitStack_offset is called when exiting the stack_offset production.
-	ExitStack_offset(c *Stack_offsetContext)
+	// ExitReg16_indexed is called when exiting the reg16_indexed production.
+	ExitReg16_indexed(c *Reg16_indexedContext)
 
-	// ExitIndex_offset is called when exiting the index_offset production.
-	ExitIndex_offset(c *Index_offsetContext)
+	// ExitIndirect is called when exiting the indirect production.
+	ExitIndirect(c *IndirectContext)
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)

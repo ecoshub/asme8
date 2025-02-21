@@ -17,6 +17,10 @@ func NewStatusRegister() *StatusRegister {
 	return &StatusRegister{flag: 0}
 }
 
+func (s *StatusRegister) Set(value uint8) {
+	s.flag = value
+}
+
 func (s *StatusRegister) Clear() { s.flag = 0 }
 
 func (s *StatusRegister) SetZeroFlag() {

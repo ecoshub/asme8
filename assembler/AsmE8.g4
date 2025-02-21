@@ -21,138 +21,130 @@ line:
 label: tag  ':';
 
 inst: 
-	inst_reg_reg
-	| inst_reg_imm
-	| inst_stack_imm
-	| inst_index_imm
-	| inst_reg_imm_variable
-	| inst_ptr_reg
-	| inst_ptr_imm
-	| inst_reg_ptr
-	| inst_reg_ptr_offset
-	| inst_indirect_reg_stack
-	| inst_indirect_stack_register
-	| inst_indirect_reg_index
-	| inst_indirect_index_register
-	| inst_ptr_offset_reg
-	| inst_single_reg
-	| inst_implied_stack
-	| inst_implied_index
-	| inst_single_imm
-	| inst_single_tag
-	| inst_single
-	| inst_index_register_imm_variable
+	addr_mode_imm16
+	| addr_mode_imm16_tag
+	| addr_mode_reg_to_mem_indexed
+	| addr_mode_reg_to_mem_direct
+	| addr_mode_reg_to_mem_indirect_offset
+	| addr_mode_reg_to_mem_reg16_indexed
+	| addr_mode_reg_to_mem_indirect
+	| addr_mode_implied_reg8
+	| addr_mode_reg8_imm8
+	| addr_mode_reg8_imm8_tag
+	| addr_mode_mem_to_reg_indexed
+	| addr_mode_mem_to_reg_direct
+	| addr_mode_mem_to_reg_indirect_offset
+	| addr_mode_mem_to_reg_reg16_indexed
+	| addr_mode_mem_to_reg_indirect
+	| addr_mode_reg8_reg8
+	| addr_mode_implied
+	| addr_mode_implied_reg16
+	| addr_mode_reg16_imm
+	| addr_mode_reg16_imm_tag
+	| addr_mode_reg16_reg16
+	| addr_mode_reg16_stack
+	| addr_mode_implied_stack
+	| addr_mode_stack_imm8
+	| addr_mode_stack_imm8_tag
+	| addr_mode_stack_reg16
     ;
 
-inst_reg_reg: mnemonic ' ' reg  ', ' reg;
-
-inst_reg_imm: mnemonic ' ' reg  ', ' imm;
-
-inst_stack_imm: mnemonic ' ' stack  ', ' imm;
-
-inst_index_register_imm_variable: mnemonic ' ' index ', ' tag;
-
-inst_index_imm: mnemonic ' ' index  ', ' imm;
-
-inst_reg_imm_variable: mnemonic ' ' reg  ', ' tag;
-
-inst_ptr_reg: mnemonic ' ' ptr ', ' reg;
-
-inst_ptr_imm: mnemonic ' ' ptr ', ' imm;
-
-inst_reg_ptr: mnemonic ' ' reg ', ' ptr;
-
-inst_reg_ptr_offset: mnemonic ' ' reg ', ' ptr_offset;
-
-inst_indirect_reg_stack: mnemonic ' ' reg ', ' stack_offset;
-
-inst_indirect_stack_register: mnemonic ' ' stack_offset ', ' reg;
-
-inst_indirect_reg_index: mnemonic ' ' reg ', ' index_offset;
-
-inst_indirect_index_register: mnemonic ' ' index_offset ', ' reg;
-
-inst_ptr_offset_reg: mnemonic ' ' ptr_offset ', ' reg;
-
-inst_single_reg: mnemonic ' ' reg;
-
-inst_implied_stack: mnemonic ' ' stack;
-
-inst_implied_index: mnemonic ' ' index;
-
-inst_single_imm: mnemonic ' ' imm;
-
-inst_single_tag: mnemonic ' ' tag;
-
-inst_single: mnemonic;
+addr_mode_imm16: mnemonic ' ' imm;
+addr_mode_imm16_tag: mnemonic ' ' tag;
+addr_mode_reg_to_mem_indexed: mnemonic ' ' direct_offset ', ' reg8;
+addr_mode_reg_to_mem_direct: mnemonic ' ' direct ', ' reg8;
+addr_mode_reg_to_mem_indirect_offset: mnemonic ' ' indirect_offset ', ' reg8;
+addr_mode_reg_to_mem_reg16_indexed: mnemonic ' ' reg16_indexed ', ' reg8;
+addr_mode_reg_to_mem_indirect: mnemonic ' ' indirect ', ' reg8;
+addr_mode_implied_reg8: mnemonic ' ' reg8;
+addr_mode_reg8_imm8: mnemonic ' ' reg8 ', ' imm;
+addr_mode_reg8_imm8_tag: mnemonic ' ' reg8 ', ' tag;
+addr_mode_mem_to_reg_indexed: mnemonic ' ' reg8 ', ' direct_offset;
+addr_mode_mem_to_reg_direct: mnemonic ' ' reg8 ', ' direct;
+addr_mode_mem_to_reg_indirect_offset: mnemonic ' ' reg8 ', ' indirect_offset;
+addr_mode_mem_to_reg_reg16_indexed: mnemonic ' ' reg8 ', ' reg16_indexed;
+addr_mode_mem_to_reg_indirect: mnemonic ' ' reg8 ', ' indirect;
+addr_mode_reg8_reg8: mnemonic ' ' reg8 ', ' reg8;
+addr_mode_implied: mnemonic;
+addr_mode_implied_reg16: mnemonic ' ' reg16;
+addr_mode_reg16_imm: mnemonic ' ' reg16 ', ' imm;
+addr_mode_reg16_imm_tag: mnemonic ' ' reg16 ', ' tag;
+addr_mode_reg16_reg16: mnemonic ' ' reg16 ', ' reg16;
+addr_mode_reg16_stack: mnemonic ' ' reg16 ', ' stack ;
+addr_mode_implied_stack: mnemonic ' ' stack;
+addr_mode_stack_imm8: mnemonic ' ' stack ', ' imm;
+addr_mode_stack_imm8_tag: mnemonic ' ' stack ', ' tag;
+addr_mode_stack_reg16: mnemonic ' ' stack ', ' reg16;
 
 mnemonic: 
-	'mov'
-	| 'add'
-	| 'adc'
-	| 'sub'
-	| 'sbb'
-	| 'cmp'
-	| 'inc'
-	| 'dec'
-	| 'xor'
-	| 'and'
-	| 'or'
-	| 'not'
-	| 'shl'
-	| 'shr'
-	| 'rol'
-	| 'ror'
-	| 'jmp'
-	| 'jz'
-	| 'jnz'
-	| 'jc'
-	| 'js'
-	| 'jns'
-	| 'call'
-	| 'ret'
-	| 'brk'
-	| 'nop'
-	| 'push'
-	| 'pop'
-	| 'clc'
+'adc'
+| 'add'
+| 'and'
+| 'brk'
+| 'call'
+| 'clc'
+| 'cmp'
+| 'dec'
+| 'inc'
+| 'jc'
+| 'jmp'
+| 'jnc'
+| 'jns'
+| 'jnz'
+| 'js'
+| 'jz'
+| 'mov'
+| 'nop'
+| 'not'
+| 'or'
+| 'pop'
+| 'push'
+| 'ret'
+| 'rol'
+| 'ror'
+| 'rti'
+| 'sbb'
+| 'shl'
+| 'shr'
+| 'sub'
+| 'xor'
 	;
 
-reg: 
+reg8: 
 	'a' 
 	| 'b' 
 	| 'c'
 	| 'd'
+	| 'e'
 	| 'ipl'
 	| 'iph'
+	| 'bpl'
+	| 'bph'
+	;
+
+reg16: 
+	'ip'
+	| 'bp'
 	;
 
 stack: 'sp';
 
-index: 'ip';
-
-ptr: 
+direct: 
 	'[' imm ']'
 	| '[' tag ']'
-	| ptr_virtual_offset
+	| direct_virtual_offset
 	;
 
-ptr_virtual_offset: '[' STR  ('+' | '-' ) INT ']' ;
+direct_virtual_offset: '[' STR  ('+' | '-' ) INT ']' ;
 
-ptr_offset: 
-	'[' imm '+' reg ']'
-	| '[' tag '+' reg ']'
+direct_offset: 
+	'[' imm '+' reg8 ']'
+	| '[' tag '+' reg8 ']'
 	;
 
-stack_offset: '[' stack ']'
-	| '[' stack '+' imm ']'
-	| '[' stack '+' reg ']'
-	;
-
-index_offset: '[' index ']'
-	| '[' index '+' imm ']'
-	| '[' index '+' reg ']'
-	;
+indirect_offset: '[' reg16 '+' imm ']';
+reg16_indexed: '[' reg16 '+' reg8 ']';
+indirect: '[' reg16 ']';
 
 variable: tag  '=' imm;
 

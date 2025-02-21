@@ -119,6 +119,32 @@ func (a *Assembler) Assemble() ([]uint8, int, error) {
 	return nil, 0, errors.New("unknown assembly mode")
 }
 
+func (a *Assembler) Reset() {
+	a.offset = 0
+	a.currentInstruction = ""
+	a.currentValue = nil
+	a.reference = nil
+	a.currentTag = nil
+	a.hasVirtualOffset = false
+	a.out = make([]uint8, 0, 32)
+	a.topAddress = 0
+	a.currentValueList = []*types.Value{}
+	a.currentRegisters = []*types.Register{}
+	a.labels = make(map[string]*types.Label)
+	a.variables = make(map[string]*types.Variable)
+	a.unresolvedVariables = make(map[string]*types.Variable)
+	a.machineCode = make(map[uint16]uint8)
+	a.missingSymbols = make(map[uint16]*types.Tag)
+	a.directives = make(map[uint16]*types.Directive)
+	a.symbolTracker = object.NewTracker()
+	a.Coder = &Coder{
+		linesEndings: make([]uint16, 0, 16),
+		blanksLines:  make([]uint16, 0, 16),
+		skip:         make([]uint16, 0, 16),
+		instructions: make([]string, 0, 16),
+	}
+}
+
 func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErrorListener) {
 	a.errorListener = errorListener
 }
@@ -155,207 +181,212 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 	a.offset++
 }
 
-func (a *Assembler) ParseIndexImmediate(line, column int) {
-	if a.currentValue.GetSize() == 8 {
-		a.GetVariableOrTagMissing(1, 8)
-		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
+// func (a *Assembler) ParseIndexImmediate(line, column int) {
+// 	if a.currentValue.GetSize() == 8 {
+// 		a.GetVariableOrTagMissing(1, 8)
+// 		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM, line, column)
+// 		a.AppendMachineCode(opcode)
+// 		a.AppendMachineCode(a.currentValue.GetLowByte())
+// 		return
+// 	}
+// 	a.GetVariableOrTagMissing(1, 16)
+// 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM_16, line, column)
+// 	a.AppendMachineCode(opcode)
+// 	a.AppendMachineCode(a.currentValue.GetLowByte())
+// 	a.AppendMachineCode(a.currentValue.GetHighByte())
+// }
+
+func (a *Assembler) ParseStackImm8(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_STACK_IMM8, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+}
+
+func (a *Assembler) ParseReg8Imm8(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG8_IMM8, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+}
+
+func (a *Assembler) ParseReg8Reg8(line, column int) {
+	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG8_REG8, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+}
+
+func (a *Assembler) ParseReg16Reg16(line, column int) {
+	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG16_REG16, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+}
+
+func (a *Assembler) ParseReg16Imm(line, column int) {
+	reg := a.currentRegisters[0].GetCode()
+	if a.currentInstruction == instruction.INST_MNEMONICS_ADD || a.currentInstruction == instruction.INST_MNEMONICS_SUB {
+		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG16_IMM8, line, column)
 		a.AppendMachineCode(opcode)
+		a.AppendMachineCode(reg)
 		a.AppendMachineCode(a.currentValue.GetLowByte())
 		return
 	}
-	a.GetVariableOrTagMissing(1, 16)
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_IMM_16, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG16_IMM16, line, column)
 	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(reg)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
-func (a *Assembler) ParseStackImmediate(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_IMM, line, column)
-	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentValue.GetLowByte())
-}
-
-func (a *Assembler) ParseRegisterImmediate(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IMM, line, column)
+func (a *Assembler) ParseDirectRegToMem(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_DIRECT, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
-func (a *Assembler) ParseRegisterRegister(line, column int) {
-	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_REG, line, column)
+func (a *Assembler) ParseDirectMemToReg(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_DIRECT, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
+}
+
+func (a *Assembler) ParseIndirectRegToMem(line, column int) {
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_INDIRECT, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 }
 
-func (a *Assembler) ParseRegisterPointer(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_REG, line, column)
+func (a *Assembler) ParseIndirectMemToReg(line, column int) {
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_INDIRECT, line, column)
 	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentRegisters[0].GetCode())
-	a.AppendMachineCode(a.currentValue.GetLowByte())
-	a.AppendMachineCode(a.currentValue.GetHighByte())
+	a.AppendMachineCode(val)
 }
 
-func (a *Assembler) ParsePointerRegister(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_MEM, line, column)
+func (a *Assembler) ParseIndirectOffsetRegToMem(line, column int) {
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_INDIRECT_OFFSET, line, column)
 	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+	a.AppendMachineCode(val)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
-	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
-func (a *Assembler) ParseRegisterPointerOffset(line, column int) {
+func (a *Assembler) ParseIndirectOffsetMemToReg(line, column int) {
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_INDIRECT_OFFSET, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+}
+
+func (a *Assembler) ParseDirectOffsetRegToMem(line, column int) {
 	a.GetVariableOrTagMissing(2, 16)
 	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_REG_OFFSET, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_INDIRECT_OFFSET, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
-func (a *Assembler) ParsePointerRegisterOffset(line, column int) {
+func (a *Assembler) ParseDirectOffsetMemToReg(line, column int) {
 	a.GetVariableOrTagMissing(2, 16)
 	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_MEM_OFFSET, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_INDIRECT_OFFSET, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(val)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
 }
 
-func (a *Assembler) ParseImpliedRegister(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL_REG, line, column)
+func (a *Assembler) ParseIndexedRegToMem(line, column int) {
+	a.GetVariableOrTagMissing(2, 16)
+	var val uint8 = a.currentRegisters[0].GetCode() | (a.currentRegisters[1].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_INDEXED, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
+}
+
+func (a *Assembler) ParseIndexedMemToReg(line, column int) {
+	a.GetVariableOrTagMissing(2, 16)
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_INDEXED, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentValue.GetLowByte())
+	a.AppendMachineCode(a.currentValue.GetHighByte())
+}
+
+func (a *Assembler) ParseIndexedReg16RegToMem(line, column int) {
+	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[0].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG_TO_MEM_REG16_INDEXED, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentRegisters[2].GetCode())
+}
+
+func (a *Assembler) ParseIndexedReg16MemToReg(line, column int) {
+	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[1].GetCode() << 4)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_MEM_TO_REG_REG16_INDEXED, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+}
+
+func (a *Assembler) ParseImpliedReg8(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_REG8, line, column)
+	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentRegisters[0].GetCode())
+}
+
+func (a *Assembler) ParseImpliedReg16(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_REG16, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImpliedStack(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL_SP, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_STACK, line, column)
 	a.AppendMachineCode(opcode)
 }
 
-func (a *Assembler) ParseImpliedIndex(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL_IP, line, column)
+func (a *Assembler) ParseStackReg16(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_STACK_REG16, line, column)
 	a.AppendMachineCode(opcode)
+	a.AppendMachineCode(a.currentRegisters[1].GetCode())
 }
 
-func (a *Assembler) ParseStackRegister(rm bool, line, column int) {
-	if len(a.currentRegisters) == 2 {
-		if a.currentValue == nil {
-			if rm {
-				// mov [sp], a
-				opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_SP, line, column)
-				a.AppendMachineCode(opcode)
-				a.AppendMachineCode(a.currentRegisters[1].GetCode())
-				return
-			}
-			// mov a, [sp]
-			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_REG, line, column)
-			a.AppendMachineCode(opcode)
-			a.AppendMachineCode(a.currentRegisters[0].GetCode())
-			return
-		}
-		if rm {
-			// mov a, [sp+4]
-			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_SP_OFFSET, line, column)
-			a.AppendMachineCode(opcode)
-			a.AppendMachineCode(a.currentRegisters[1].GetCode())
-			a.AppendMachineCode(a.currentValue.GetLowByte())
-			return
-		}
-		// mov [sp+4], a
-		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_REG_OFFSET, line, column)
-		a.AppendMachineCode(opcode)
-		a.AppendMachineCode(a.currentRegisters[0].GetCode())
-		a.AppendMachineCode(a.currentValue.GetLowByte())
-		return
-	}
-	if rm {
-		// mov a, [sp+b]
-		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_SP_OFFSET_REG, line, column)
-		a.AppendMachineCode(opcode)
-		var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[2].GetCode() << 4)
-		a.AppendMachineCode(val)
-		return
-	}
-	// mov [sp+b], a
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_SP_REG_OFFSET_REG, line, column)
+func (a *Assembler) ParseReg16Stack(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG16_STACK, line, column)
 	a.AppendMachineCode(opcode)
-	var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[0].GetCode() << 4)
-	a.AppendMachineCode(val)
-}
-
-func (a *Assembler) ParseIndexRegister(rm bool, line, column int) {
-	if len(a.currentRegisters) == 2 {
-		if a.currentValue == nil {
-			if rm {
-				// mov [sp], a
-				opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP, line, column)
-				a.AppendMachineCode(opcode)
-				a.AppendMachineCode(a.currentRegisters[1].GetCode())
-				return
-			}
-			// mov a, [sp]
-			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG, line, column)
-			a.AppendMachineCode(opcode)
-			a.AppendMachineCode(a.currentRegisters[0].GetCode())
-			return
-		}
-		if rm {
-			// mov a, [sp+4]
-			opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP_OFFSET, line, column)
-			a.AppendMachineCode(opcode)
-			a.AppendMachineCode(a.currentRegisters[1].GetCode())
-			a.AppendMachineCode(a.currentValue.GetLowByte())
-			return
-		}
-		// mov [sp+4], a
-		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG_OFFSET, line, column)
-		a.AppendMachineCode(opcode)
-		a.AppendMachineCode(a.currentRegisters[0].GetCode())
-		a.AppendMachineCode(a.currentValue.GetLowByte())
-		return
-	}
-	if rm {
-		// mov a, [sp+b]
-		opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_REG_IP_OFFSET_REG, line, column)
-		a.AppendMachineCode(opcode)
-		var val uint8 = a.currentRegisters[2].GetCode() | (a.currentRegisters[1].GetCode() << 4)
-		a.AppendMachineCode(val)
-		return
-	}
-	// mov [sp+b], a
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IP_REG_OFFSET_REG, line, column)
-	a.AppendMachineCode(opcode)
-	var val uint8 = a.currentRegisters[1].GetCode() | (a.currentRegisters[2].GetCode() << 4)
-	a.AppendMachineCode(val)
+	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImplied(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL, line, column)
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED, line, column)
 	a.AppendMachineCode(opcode)
 }
 
-func (a *Assembler) ParseImpliedImmediate(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_IMPL_IMM_16, line, column)
+func (a *Assembler) ParseImpliedImm16(line, column int) {
+	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPLIED_IMM16, line, column)
 	a.AppendMachineCode(opcode)
 	a.AppendMachineCode(a.currentValue.GetLowByte())
 	a.AppendMachineCode(a.currentValue.GetHighByte())
-}
-
-func (a *Assembler) ParseRegisterImmediateVariable(line, column int) {
-	a.GetVariableOrTagMissing(2, 8)
-	a.ParseRegisterImmediate(line, column)
 }
 
 func (a *Assembler) ParseImpliedTag(line, column int) {
 	v, exists := a.FindVariable(a.currentTag.Text)
 	if exists {
 		a.currentValue = v
-		a.ParseImpliedImmediate(line, column)
+		a.ParseImpliedImm16(line, column)
 		return
 	}
 
@@ -364,7 +395,7 @@ func (a *Assembler) ParseImpliedTag(line, column int) {
 		a.symbolTracker.SymbolHit(label.Text, a.offset+1, 16, 0)
 		// fmt.Printf("[*] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d\n", label.Text, a.offset+1, label.Line, label.Column)
 		a.currentValue = types.NewValue(int64(label.Offset))
-		a.ParseImpliedImmediate(line, column)
+		a.ParseImpliedImm16(line, column)
 		return
 	}
 
@@ -373,7 +404,7 @@ func (a *Assembler) ParseImpliedTag(line, column int) {
 	a.missingSymbols[a.offset+1] = a.currentTag
 	a.currentValue = types.NewValue(0)
 
-	a.ParseImpliedImmediate(line, column)
+	a.ParseImpliedImm16(line, column)
 }
 
 func (a *Assembler) ParseLabel(text string, line, column int, disablePrint bool) {
@@ -591,13 +622,13 @@ func (a *Assembler) ParseInstruction(text string) {
 	a.currentInstruction = strings.ToLower(text)
 }
 
-func (a *Assembler) ParsePtrImm(text string, line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_IMM, line, column)
-	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
-	a.AppendMachineCode(a.currentValue.GetLowByte())
-	a.AppendMachineCode(a.currentValue.GetHighByte())
-}
+// func (a *Assembler) ParsePtrImm(text string, line, column int) {
+// 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDRESSING_MODE_MEM_IMM, line, column)
+// 	a.AppendMachineCode(opcode)
+// 	a.AppendMachineCode(a.currentValueList[0].GetLowByte())
+// 	a.AppendMachineCode(a.currentValue.GetLowByte())
+// 	a.AppendMachineCode(a.currentValue.GetHighByte())
+// }
 
 func (a *Assembler) ParseValue(text string, line, column int) {
 	var ok bool

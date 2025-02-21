@@ -51,137 +51,181 @@ func (s *BaseAsmE8Listener) EnterInst(ctx *InstContext) {}
 // ExitInst is called when production inst is exited.
 func (s *BaseAsmE8Listener) ExitInst(ctx *InstContext) {}
 
-// EnterInst_reg_reg is called when production inst_reg_reg is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_reg(ctx *Inst_reg_regContext) {}
+// EnterAddr_mode_imm16 is called when production addr_mode_imm16 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_imm16(ctx *Addr_mode_imm16Context) {}
 
-// ExitInst_reg_reg is called when production inst_reg_reg is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_reg(ctx *Inst_reg_regContext) {}
+// ExitAddr_mode_imm16 is called when production addr_mode_imm16 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_imm16(ctx *Addr_mode_imm16Context) {}
 
-// EnterInst_reg_imm is called when production inst_reg_imm is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_imm(ctx *Inst_reg_immContext) {}
+// EnterAddr_mode_imm16_tag is called when production addr_mode_imm16_tag is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_imm16_tag(ctx *Addr_mode_imm16_tagContext) {}
 
-// ExitInst_reg_imm is called when production inst_reg_imm is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_imm(ctx *Inst_reg_immContext) {}
+// ExitAddr_mode_imm16_tag is called when production addr_mode_imm16_tag is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_imm16_tag(ctx *Addr_mode_imm16_tagContext) {}
 
-// EnterInst_stack_imm is called when production inst_stack_imm is entered.
-func (s *BaseAsmE8Listener) EnterInst_stack_imm(ctx *Inst_stack_immContext) {}
-
-// ExitInst_stack_imm is called when production inst_stack_imm is exited.
-func (s *BaseAsmE8Listener) ExitInst_stack_imm(ctx *Inst_stack_immContext) {}
-
-// EnterInst_index_register_imm_variable is called when production inst_index_register_imm_variable is entered.
-func (s *BaseAsmE8Listener) EnterInst_index_register_imm_variable(ctx *Inst_index_register_imm_variableContext) {
+// EnterAddr_mode_reg_to_mem_indexed is called when production addr_mode_reg_to_mem_indexed is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg_to_mem_indexed(ctx *Addr_mode_reg_to_mem_indexedContext) {
 }
 
-// ExitInst_index_register_imm_variable is called when production inst_index_register_imm_variable is exited.
-func (s *BaseAsmE8Listener) ExitInst_index_register_imm_variable(ctx *Inst_index_register_imm_variableContext) {
+// ExitAddr_mode_reg_to_mem_indexed is called when production addr_mode_reg_to_mem_indexed is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg_to_mem_indexed(ctx *Addr_mode_reg_to_mem_indexedContext) {
 }
 
-// EnterInst_index_imm is called when production inst_index_imm is entered.
-func (s *BaseAsmE8Listener) EnterInst_index_imm(ctx *Inst_index_immContext) {}
-
-// ExitInst_index_imm is called when production inst_index_imm is exited.
-func (s *BaseAsmE8Listener) ExitInst_index_imm(ctx *Inst_index_immContext) {}
-
-// EnterInst_reg_imm_variable is called when production inst_reg_imm_variable is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_imm_variable(ctx *Inst_reg_imm_variableContext) {}
-
-// ExitInst_reg_imm_variable is called when production inst_reg_imm_variable is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_imm_variable(ctx *Inst_reg_imm_variableContext) {}
-
-// EnterInst_ptr_reg is called when production inst_ptr_reg is entered.
-func (s *BaseAsmE8Listener) EnterInst_ptr_reg(ctx *Inst_ptr_regContext) {}
-
-// ExitInst_ptr_reg is called when production inst_ptr_reg is exited.
-func (s *BaseAsmE8Listener) ExitInst_ptr_reg(ctx *Inst_ptr_regContext) {}
-
-// EnterInst_ptr_imm is called when production inst_ptr_imm is entered.
-func (s *BaseAsmE8Listener) EnterInst_ptr_imm(ctx *Inst_ptr_immContext) {}
-
-// ExitInst_ptr_imm is called when production inst_ptr_imm is exited.
-func (s *BaseAsmE8Listener) ExitInst_ptr_imm(ctx *Inst_ptr_immContext) {}
-
-// EnterInst_reg_ptr is called when production inst_reg_ptr is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_ptr(ctx *Inst_reg_ptrContext) {}
-
-// ExitInst_reg_ptr is called when production inst_reg_ptr is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_ptr(ctx *Inst_reg_ptrContext) {}
-
-// EnterInst_reg_ptr_offset is called when production inst_reg_ptr_offset is entered.
-func (s *BaseAsmE8Listener) EnterInst_reg_ptr_offset(ctx *Inst_reg_ptr_offsetContext) {}
-
-// ExitInst_reg_ptr_offset is called when production inst_reg_ptr_offset is exited.
-func (s *BaseAsmE8Listener) ExitInst_reg_ptr_offset(ctx *Inst_reg_ptr_offsetContext) {}
-
-// EnterInst_indirect_reg_stack is called when production inst_indirect_reg_stack is entered.
-func (s *BaseAsmE8Listener) EnterInst_indirect_reg_stack(ctx *Inst_indirect_reg_stackContext) {}
-
-// ExitInst_indirect_reg_stack is called when production inst_indirect_reg_stack is exited.
-func (s *BaseAsmE8Listener) ExitInst_indirect_reg_stack(ctx *Inst_indirect_reg_stackContext) {}
-
-// EnterInst_indirect_stack_register is called when production inst_indirect_stack_register is entered.
-func (s *BaseAsmE8Listener) EnterInst_indirect_stack_register(ctx *Inst_indirect_stack_registerContext) {
+// EnterAddr_mode_reg_to_mem_direct is called when production addr_mode_reg_to_mem_direct is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg_to_mem_direct(ctx *Addr_mode_reg_to_mem_directContext) {
 }
 
-// ExitInst_indirect_stack_register is called when production inst_indirect_stack_register is exited.
-func (s *BaseAsmE8Listener) ExitInst_indirect_stack_register(ctx *Inst_indirect_stack_registerContext) {
+// ExitAddr_mode_reg_to_mem_direct is called when production addr_mode_reg_to_mem_direct is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg_to_mem_direct(ctx *Addr_mode_reg_to_mem_directContext) {
 }
 
-// EnterInst_indirect_reg_index is called when production inst_indirect_reg_index is entered.
-func (s *BaseAsmE8Listener) EnterInst_indirect_reg_index(ctx *Inst_indirect_reg_indexContext) {}
-
-// ExitInst_indirect_reg_index is called when production inst_indirect_reg_index is exited.
-func (s *BaseAsmE8Listener) ExitInst_indirect_reg_index(ctx *Inst_indirect_reg_indexContext) {}
-
-// EnterInst_indirect_index_register is called when production inst_indirect_index_register is entered.
-func (s *BaseAsmE8Listener) EnterInst_indirect_index_register(ctx *Inst_indirect_index_registerContext) {
+// EnterAddr_mode_reg_to_mem_indirect_offset is called when production addr_mode_reg_to_mem_indirect_offset is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg_to_mem_indirect_offset(ctx *Addr_mode_reg_to_mem_indirect_offsetContext) {
 }
 
-// ExitInst_indirect_index_register is called when production inst_indirect_index_register is exited.
-func (s *BaseAsmE8Listener) ExitInst_indirect_index_register(ctx *Inst_indirect_index_registerContext) {
+// ExitAddr_mode_reg_to_mem_indirect_offset is called when production addr_mode_reg_to_mem_indirect_offset is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg_to_mem_indirect_offset(ctx *Addr_mode_reg_to_mem_indirect_offsetContext) {
 }
 
-// EnterInst_ptr_offset_reg is called when production inst_ptr_offset_reg is entered.
-func (s *BaseAsmE8Listener) EnterInst_ptr_offset_reg(ctx *Inst_ptr_offset_regContext) {}
+// EnterAddr_mode_reg_to_mem_reg16_indexed is called when production addr_mode_reg_to_mem_reg16_indexed is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg_to_mem_reg16_indexed(ctx *Addr_mode_reg_to_mem_reg16_indexedContext) {
+}
 
-// ExitInst_ptr_offset_reg is called when production inst_ptr_offset_reg is exited.
-func (s *BaseAsmE8Listener) ExitInst_ptr_offset_reg(ctx *Inst_ptr_offset_regContext) {}
+// ExitAddr_mode_reg_to_mem_reg16_indexed is called when production addr_mode_reg_to_mem_reg16_indexed is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg_to_mem_reg16_indexed(ctx *Addr_mode_reg_to_mem_reg16_indexedContext) {
+}
 
-// EnterInst_single_reg is called when production inst_single_reg is entered.
-func (s *BaseAsmE8Listener) EnterInst_single_reg(ctx *Inst_single_regContext) {}
+// EnterAddr_mode_reg_to_mem_indirect is called when production addr_mode_reg_to_mem_indirect is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg_to_mem_indirect(ctx *Addr_mode_reg_to_mem_indirectContext) {
+}
 
-// ExitInst_single_reg is called when production inst_single_reg is exited.
-func (s *BaseAsmE8Listener) ExitInst_single_reg(ctx *Inst_single_regContext) {}
+// ExitAddr_mode_reg_to_mem_indirect is called when production addr_mode_reg_to_mem_indirect is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg_to_mem_indirect(ctx *Addr_mode_reg_to_mem_indirectContext) {
+}
 
-// EnterInst_implied_stack is called when production inst_implied_stack is entered.
-func (s *BaseAsmE8Listener) EnterInst_implied_stack(ctx *Inst_implied_stackContext) {}
+// EnterAddr_mode_implied_reg8 is called when production addr_mode_implied_reg8 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_implied_reg8(ctx *Addr_mode_implied_reg8Context) {}
 
-// ExitInst_implied_stack is called when production inst_implied_stack is exited.
-func (s *BaseAsmE8Listener) ExitInst_implied_stack(ctx *Inst_implied_stackContext) {}
+// ExitAddr_mode_implied_reg8 is called when production addr_mode_implied_reg8 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_implied_reg8(ctx *Addr_mode_implied_reg8Context) {}
 
-// EnterInst_implied_index is called when production inst_implied_index is entered.
-func (s *BaseAsmE8Listener) EnterInst_implied_index(ctx *Inst_implied_indexContext) {}
+// EnterAddr_mode_reg8_imm8 is called when production addr_mode_reg8_imm8 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg8_imm8(ctx *Addr_mode_reg8_imm8Context) {}
 
-// ExitInst_implied_index is called when production inst_implied_index is exited.
-func (s *BaseAsmE8Listener) ExitInst_implied_index(ctx *Inst_implied_indexContext) {}
+// ExitAddr_mode_reg8_imm8 is called when production addr_mode_reg8_imm8 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg8_imm8(ctx *Addr_mode_reg8_imm8Context) {}
 
-// EnterInst_single_imm is called when production inst_single_imm is entered.
-func (s *BaseAsmE8Listener) EnterInst_single_imm(ctx *Inst_single_immContext) {}
+// EnterAddr_mode_reg8_imm8_tag is called when production addr_mode_reg8_imm8_tag is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg8_imm8_tag(ctx *Addr_mode_reg8_imm8_tagContext) {}
 
-// ExitInst_single_imm is called when production inst_single_imm is exited.
-func (s *BaseAsmE8Listener) ExitInst_single_imm(ctx *Inst_single_immContext) {}
+// ExitAddr_mode_reg8_imm8_tag is called when production addr_mode_reg8_imm8_tag is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg8_imm8_tag(ctx *Addr_mode_reg8_imm8_tagContext) {}
 
-// EnterInst_single_tag is called when production inst_single_tag is entered.
-func (s *BaseAsmE8Listener) EnterInst_single_tag(ctx *Inst_single_tagContext) {}
+// EnterAddr_mode_mem_to_reg_indexed is called when production addr_mode_mem_to_reg_indexed is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_mem_to_reg_indexed(ctx *Addr_mode_mem_to_reg_indexedContext) {
+}
 
-// ExitInst_single_tag is called when production inst_single_tag is exited.
-func (s *BaseAsmE8Listener) ExitInst_single_tag(ctx *Inst_single_tagContext) {}
+// ExitAddr_mode_mem_to_reg_indexed is called when production addr_mode_mem_to_reg_indexed is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_mem_to_reg_indexed(ctx *Addr_mode_mem_to_reg_indexedContext) {
+}
 
-// EnterInst_single is called when production inst_single is entered.
-func (s *BaseAsmE8Listener) EnterInst_single(ctx *Inst_singleContext) {}
+// EnterAddr_mode_mem_to_reg_direct is called when production addr_mode_mem_to_reg_direct is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_mem_to_reg_direct(ctx *Addr_mode_mem_to_reg_directContext) {
+}
 
-// ExitInst_single is called when production inst_single is exited.
-func (s *BaseAsmE8Listener) ExitInst_single(ctx *Inst_singleContext) {}
+// ExitAddr_mode_mem_to_reg_direct is called when production addr_mode_mem_to_reg_direct is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_mem_to_reg_direct(ctx *Addr_mode_mem_to_reg_directContext) {
+}
+
+// EnterAddr_mode_mem_to_reg_indirect_offset is called when production addr_mode_mem_to_reg_indirect_offset is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_mem_to_reg_indirect_offset(ctx *Addr_mode_mem_to_reg_indirect_offsetContext) {
+}
+
+// ExitAddr_mode_mem_to_reg_indirect_offset is called when production addr_mode_mem_to_reg_indirect_offset is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_mem_to_reg_indirect_offset(ctx *Addr_mode_mem_to_reg_indirect_offsetContext) {
+}
+
+// EnterAddr_mode_mem_to_reg_reg16_indexed is called when production addr_mode_mem_to_reg_reg16_indexed is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_mem_to_reg_reg16_indexed(ctx *Addr_mode_mem_to_reg_reg16_indexedContext) {
+}
+
+// ExitAddr_mode_mem_to_reg_reg16_indexed is called when production addr_mode_mem_to_reg_reg16_indexed is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_mem_to_reg_reg16_indexed(ctx *Addr_mode_mem_to_reg_reg16_indexedContext) {
+}
+
+// EnterAddr_mode_mem_to_reg_indirect is called when production addr_mode_mem_to_reg_indirect is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_mem_to_reg_indirect(ctx *Addr_mode_mem_to_reg_indirectContext) {
+}
+
+// ExitAddr_mode_mem_to_reg_indirect is called when production addr_mode_mem_to_reg_indirect is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_mem_to_reg_indirect(ctx *Addr_mode_mem_to_reg_indirectContext) {
+}
+
+// EnterAddr_mode_reg8_reg8 is called when production addr_mode_reg8_reg8 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg8_reg8(ctx *Addr_mode_reg8_reg8Context) {}
+
+// ExitAddr_mode_reg8_reg8 is called when production addr_mode_reg8_reg8 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg8_reg8(ctx *Addr_mode_reg8_reg8Context) {}
+
+// EnterAddr_mode_implied is called when production addr_mode_implied is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_implied(ctx *Addr_mode_impliedContext) {}
+
+// ExitAddr_mode_implied is called when production addr_mode_implied is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_implied(ctx *Addr_mode_impliedContext) {}
+
+// EnterAddr_mode_implied_reg16 is called when production addr_mode_implied_reg16 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_implied_reg16(ctx *Addr_mode_implied_reg16Context) {}
+
+// ExitAddr_mode_implied_reg16 is called when production addr_mode_implied_reg16 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_implied_reg16(ctx *Addr_mode_implied_reg16Context) {}
+
+// EnterAddr_mode_reg16_imm is called when production addr_mode_reg16_imm is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg16_imm(ctx *Addr_mode_reg16_immContext) {}
+
+// ExitAddr_mode_reg16_imm is called when production addr_mode_reg16_imm is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg16_imm(ctx *Addr_mode_reg16_immContext) {}
+
+// EnterAddr_mode_reg16_imm_tag is called when production addr_mode_reg16_imm_tag is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg16_imm_tag(ctx *Addr_mode_reg16_imm_tagContext) {}
+
+// ExitAddr_mode_reg16_imm_tag is called when production addr_mode_reg16_imm_tag is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg16_imm_tag(ctx *Addr_mode_reg16_imm_tagContext) {}
+
+// EnterAddr_mode_reg16_reg16 is called when production addr_mode_reg16_reg16 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg16_reg16(ctx *Addr_mode_reg16_reg16Context) {}
+
+// ExitAddr_mode_reg16_reg16 is called when production addr_mode_reg16_reg16 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg16_reg16(ctx *Addr_mode_reg16_reg16Context) {}
+
+// EnterAddr_mode_reg16_stack is called when production addr_mode_reg16_stack is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_reg16_stack(ctx *Addr_mode_reg16_stackContext) {}
+
+// ExitAddr_mode_reg16_stack is called when production addr_mode_reg16_stack is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_reg16_stack(ctx *Addr_mode_reg16_stackContext) {}
+
+// EnterAddr_mode_implied_stack is called when production addr_mode_implied_stack is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_implied_stack(ctx *Addr_mode_implied_stackContext) {}
+
+// ExitAddr_mode_implied_stack is called when production addr_mode_implied_stack is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_implied_stack(ctx *Addr_mode_implied_stackContext) {}
+
+// EnterAddr_mode_stack_imm8 is called when production addr_mode_stack_imm8 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_stack_imm8(ctx *Addr_mode_stack_imm8Context) {}
+
+// ExitAddr_mode_stack_imm8 is called when production addr_mode_stack_imm8 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_stack_imm8(ctx *Addr_mode_stack_imm8Context) {}
+
+// EnterAddr_mode_stack_imm8_tag is called when production addr_mode_stack_imm8_tag is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_stack_imm8_tag(ctx *Addr_mode_stack_imm8_tagContext) {}
+
+// ExitAddr_mode_stack_imm8_tag is called when production addr_mode_stack_imm8_tag is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_stack_imm8_tag(ctx *Addr_mode_stack_imm8_tagContext) {}
+
+// EnterAddr_mode_stack_reg16 is called when production addr_mode_stack_reg16 is entered.
+func (s *BaseAsmE8Listener) EnterAddr_mode_stack_reg16(ctx *Addr_mode_stack_reg16Context) {}
+
+// ExitAddr_mode_stack_reg16 is called when production addr_mode_stack_reg16 is exited.
+func (s *BaseAsmE8Listener) ExitAddr_mode_stack_reg16(ctx *Addr_mode_stack_reg16Context) {}
 
 // EnterMnemonic is called when production mnemonic is entered.
 func (s *BaseAsmE8Listener) EnterMnemonic(ctx *MnemonicContext) {}
@@ -189,11 +233,17 @@ func (s *BaseAsmE8Listener) EnterMnemonic(ctx *MnemonicContext) {}
 // ExitMnemonic is called when production mnemonic is exited.
 func (s *BaseAsmE8Listener) ExitMnemonic(ctx *MnemonicContext) {}
 
-// EnterReg is called when production reg is entered.
-func (s *BaseAsmE8Listener) EnterReg(ctx *RegContext) {}
+// EnterReg8 is called when production reg8 is entered.
+func (s *BaseAsmE8Listener) EnterReg8(ctx *Reg8Context) {}
 
-// ExitReg is called when production reg is exited.
-func (s *BaseAsmE8Listener) ExitReg(ctx *RegContext) {}
+// ExitReg8 is called when production reg8 is exited.
+func (s *BaseAsmE8Listener) ExitReg8(ctx *Reg8Context) {}
+
+// EnterReg16 is called when production reg16 is entered.
+func (s *BaseAsmE8Listener) EnterReg16(ctx *Reg16Context) {}
+
+// ExitReg16 is called when production reg16 is exited.
+func (s *BaseAsmE8Listener) ExitReg16(ctx *Reg16Context) {}
 
 // EnterStack is called when production stack is entered.
 func (s *BaseAsmE8Listener) EnterStack(ctx *StackContext) {}
@@ -201,41 +251,41 @@ func (s *BaseAsmE8Listener) EnterStack(ctx *StackContext) {}
 // ExitStack is called when production stack is exited.
 func (s *BaseAsmE8Listener) ExitStack(ctx *StackContext) {}
 
-// EnterIndex is called when production index is entered.
-func (s *BaseAsmE8Listener) EnterIndex(ctx *IndexContext) {}
+// EnterDirect is called when production direct is entered.
+func (s *BaseAsmE8Listener) EnterDirect(ctx *DirectContext) {}
 
-// ExitIndex is called when production index is exited.
-func (s *BaseAsmE8Listener) ExitIndex(ctx *IndexContext) {}
+// ExitDirect is called when production direct is exited.
+func (s *BaseAsmE8Listener) ExitDirect(ctx *DirectContext) {}
 
-// EnterPtr is called when production ptr is entered.
-func (s *BaseAsmE8Listener) EnterPtr(ctx *PtrContext) {}
+// EnterDirect_virtual_offset is called when production direct_virtual_offset is entered.
+func (s *BaseAsmE8Listener) EnterDirect_virtual_offset(ctx *Direct_virtual_offsetContext) {}
 
-// ExitPtr is called when production ptr is exited.
-func (s *BaseAsmE8Listener) ExitPtr(ctx *PtrContext) {}
+// ExitDirect_virtual_offset is called when production direct_virtual_offset is exited.
+func (s *BaseAsmE8Listener) ExitDirect_virtual_offset(ctx *Direct_virtual_offsetContext) {}
 
-// EnterPtr_virtual_offset is called when production ptr_virtual_offset is entered.
-func (s *BaseAsmE8Listener) EnterPtr_virtual_offset(ctx *Ptr_virtual_offsetContext) {}
+// EnterDirect_offset is called when production direct_offset is entered.
+func (s *BaseAsmE8Listener) EnterDirect_offset(ctx *Direct_offsetContext) {}
 
-// ExitPtr_virtual_offset is called when production ptr_virtual_offset is exited.
-func (s *BaseAsmE8Listener) ExitPtr_virtual_offset(ctx *Ptr_virtual_offsetContext) {}
+// ExitDirect_offset is called when production direct_offset is exited.
+func (s *BaseAsmE8Listener) ExitDirect_offset(ctx *Direct_offsetContext) {}
 
-// EnterPtr_offset is called when production ptr_offset is entered.
-func (s *BaseAsmE8Listener) EnterPtr_offset(ctx *Ptr_offsetContext) {}
+// EnterIndirect_offset is called when production indirect_offset is entered.
+func (s *BaseAsmE8Listener) EnterIndirect_offset(ctx *Indirect_offsetContext) {}
 
-// ExitPtr_offset is called when production ptr_offset is exited.
-func (s *BaseAsmE8Listener) ExitPtr_offset(ctx *Ptr_offsetContext) {}
+// ExitIndirect_offset is called when production indirect_offset is exited.
+func (s *BaseAsmE8Listener) ExitIndirect_offset(ctx *Indirect_offsetContext) {}
 
-// EnterStack_offset is called when production stack_offset is entered.
-func (s *BaseAsmE8Listener) EnterStack_offset(ctx *Stack_offsetContext) {}
+// EnterReg16_indexed is called when production reg16_indexed is entered.
+func (s *BaseAsmE8Listener) EnterReg16_indexed(ctx *Reg16_indexedContext) {}
 
-// ExitStack_offset is called when production stack_offset is exited.
-func (s *BaseAsmE8Listener) ExitStack_offset(ctx *Stack_offsetContext) {}
+// ExitReg16_indexed is called when production reg16_indexed is exited.
+func (s *BaseAsmE8Listener) ExitReg16_indexed(ctx *Reg16_indexedContext) {}
 
-// EnterIndex_offset is called when production index_offset is entered.
-func (s *BaseAsmE8Listener) EnterIndex_offset(ctx *Index_offsetContext) {}
+// EnterIndirect is called when production indirect is entered.
+func (s *BaseAsmE8Listener) EnterIndirect(ctx *IndirectContext) {}
 
-// ExitIndex_offset is called when production index_offset is exited.
-func (s *BaseAsmE8Listener) ExitIndex_offset(ctx *Index_offsetContext) {}
+// ExitIndirect is called when production indirect is exited.
+func (s *BaseAsmE8Listener) ExitIndirect(ctx *IndirectContext) {}
 
 // EnterVariable is called when production variable is entered.
 func (s *BaseAsmE8Listener) EnterVariable(ctx *VariableContext) {}

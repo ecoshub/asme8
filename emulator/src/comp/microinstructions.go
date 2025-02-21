@@ -57,6 +57,8 @@ const (
 	MI_STEP_CLR
 	MI_JMP_CTRL
 	MI_CLC
+	MI_STATUS_OUT
+	MI_STATUS_IN
 )
 
 var (
@@ -164,5 +166,7 @@ var (
 		MI_STEP_CLR:              mInstStepClr,
 		MI_JMP_CTRL:              mInstStatusControl,
 		MI_CLC:                   mInstClearCarryFlag,
+		MI_STATUS_OUT:            mInstStatusRegisterOut,
+		MI_STATUS_IN:             mInstStatusRegisterIn,
 	}
 )

@@ -5,6 +5,7 @@ type Type = uint8
 const (
 	INST_BRK_IMPL                       Type = iota // example: brk
 	INST_NOP_IMPL                                   // example: nop
+	INST_JMP_REG16                                  // example: jmp ip
 	INST_JMP_IMPL_IMM16                             // example: jmp 0x1234
 	INST_JS_IMPL_IMM16                              // example: js 0x1234
 	INST_JNS_IMPL_IMM16                             // example: jns 0x1234

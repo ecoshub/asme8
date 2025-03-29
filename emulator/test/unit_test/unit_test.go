@@ -245,6 +245,31 @@ var (
 			},
 		},
 		{
+			//    mov a, 0x10
+			//    mov ipl, 0x0f
+			//    mov iph, 0x00
+			//    jmp ip
+			//    mov a, 0x20
+			//    brk
+			// here:
+			//    mov a, 0x30
+			Name: "jump reg16",
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x0f,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x00,
+				instruction.INST_JMP_REG16, instruction.REGISTER_OPCODE_IP,
+				instruction.INST_BRK_IMPL,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x30},
+				},
+			},
+		},
+		{
 			// start:
 			//     mov a, 0x10
 			//     cmp a, 0x10
@@ -1210,414 +1235,170 @@ var (
 				},
 			},
 		},
-		// {
-		// 	Name: "mov reg sp",
-		// 	// mov b, 0x10
-		// 	// mov [sp], b
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP, instruction.REGISTER_OPCODE_B,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov sp reg",
-		// 	// mov b, 0x10
-		// 	// mov [sp], b
-		// 	// mov a, [sp]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP, instruction.REGISTER_OPCODE_B,
-		// 		instruction.INST_MOV_SP_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov reg sp offset",
-		// 	// mov b, 0x10
-		// 	// mov [sp+2], b
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP_OFFSET, instruction.REGISTER_OPCODE_B, 0x02,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START + 2, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov sp reg offset",
-		// 	// mov b, 0x10
-		// 	// mov [sp+2], b
-		// 	// mov a, [sp+2]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP_OFFSET, instruction.REGISTER_OPCODE_B, 0x02,
-		// 		instruction.INST_MOV_SP_REG_OFFSET, instruction.REGISTER_OPCODE_A, 0x02,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov reg sp offset reg",
-		// 	// mov a, 0x02
-		// 	// mov b, 0x10
-		// 	// mov [sp+a], b
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x02,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP_OFFSET_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START + 2, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov sp reg offset reg",
-		// 	// mov a, 0x02
-		// 	// mov b, 0x10
-		// 	// mov [sp+a], b
-		// 	// mov b, [sp+a]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x02,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_SP_OFFSET_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
-		// 		instruction.INST_MOV_SP_REG_OFFSET_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Debug: true,
-		// 	Name:  "mov ipl iph imm",
-		// 	// mov ipl, 0x10
-		// 	// mov iph, 0x20
-		// 	// push ip
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
-		// 		instruction.INST_PUSH_IP,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
-		// 		},
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x20},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov ipl iph reg",
-		// 	// mov a, 0x10
-		// 	// mov b, 0x20
-		// 	// mov ipl, a
-		// 	// mov iph, b
-		// 	// push ip
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
-		// 		instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IPL,
-		// 		instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IPH,
-		// 		instruction.INST_PUSH_IP,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x20},
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
-		// 		},
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x10},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x20},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "push ip",
-		// 	// mov ipl, 0x30
-		// 	// mov iph, 0x20
-		// 	// push ip
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x30,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x20,
-		// 		instruction.INST_PUSH_IP,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x30},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x20},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "push pop ip",
-		// 	// mov ipl, 0x30
-		// 	// mov iph, 0x20
-		// 	// push ip
-		// 	// mov ip, 0x4000
-		// 	// pop ip
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x30,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x20,
-		// 		instruction.INST_PUSH_IP,
-		// 		instruction.INST_MOV_IP_IMM_16, 0x00, 0x40,
-		// 		instruction.INST_POP_IP,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x30},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "add ip",
-		// 	// mov ipl, 0x20
-		// 	// mov iph, 0x10
-		// 	// add ip, 4
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
-		// 		instruction.INST_ADD_IP_IMM, 0x04,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-		// 		instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x24},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "add ip carry",
-		// 	// mov ipl, 0xff
-		// 	// mov iph, 0x10
-		// 	// add ip, 4
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0xff,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
-		// 		instruction.INST_ADD_IP_IMM, 0x04,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-		// 		instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x03},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x11},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "sub ip",
-		// 	// mov ipl, 0x25
-		// 	// mov iph, 0x10
-		// 	// sub ip, 4
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x25,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
-		// 		instruction.INST_SUB_IP_IMM, 0x04,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-		// 		instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x21},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "sub ip borrow",
-		// 	// mov ipl, 0x20
-		// 	// mov iph, 0x10
-		// 	// sub ip, 4
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
-		// 		instruction.INST_SUB_IP_IMM, 0x04,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-		// 		instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x1c},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov ip reg",
-		// 	// mov ipl, 0x20
-		// 	// mov iph, 0x80
-		// 	// mov b, 0x10
-		// 	// mov [ip], b
-		// 	// mov a, [ip]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x80,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_IP, instruction.REGISTER_OPCODE_B,
-		// 		instruction.INST_MOV_IP_REG8, instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x80},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov reg ip offset",
-		// 	// mov ipl, 0x20
-		// 	// mov iph, 0x80
-		// 	// mov b, 0x10
-		// 	// mov [ip+2], b
-		// 	// mov a, [ip+2]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x80,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG_IP_OFFSET, instruction.REGISTER_OPCODE_B, 0x2,
-		// 		instruction.INST_MOV_IP_REG_OFFSET, instruction.REGISTER_OPCODE_A, 0x2,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x80},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov reg ip offset reg",
-		// 	// mov ipl, 0x20
-		// 	// mov iph, 0x80
-		// 	// mov b, 0x10
-		// 	// mov c, 0x5
-		// 	// mov [ip+c], b
-		// 	// mov a, [ip+c]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x80,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x5,
-		// 		instruction.INST_MOV_REG_IP_OFFSET_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
-		// 		instruction.INST_MOV_IP_REG_OFFSET_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_A,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x10},
-		// 			{Index: instruction.REGISTER_OPCODE_C, Data: 0x5},
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x80},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "add ptr imm",
-		// 	// mov a, 4
-		// 	// mov [0x8000], a
-		// 	// add [0x8000], 5
-		// 	// mov b, [0x8000]
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x4,
-		// 		instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
-		// 		instruction.INST_ADD_MEM_IMM, 0x5, 0x00, 0x80,
-		// 		instruction.INST_MOV_MEM_REG8, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x8000, Data: 0x9},
-		// 		},
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0x4},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x9},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "adc ptr imm",
-		// 	// mov ip, 0x12ab
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_IP_IMM_16, 0xab, 0x12,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_IPL, Data: 0xab},
-		// 			{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x12},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "ip imm 16",
-		// 	// mov a, 0xff
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
-		// 		instruction.INST_MOV_REG_MEM, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
-		// 		instruction.INST_ADD_MEM_IMM, 0x5, 0x00, 0x80,
-		// 		instruction.INST_ADC_MEM_IMM, 0x0, 0x01, 0x80,
-		// 		instruction.INST_MOV_MEM_REG8, instruction.REGISTER_OPCODE_B, 0x00, 0x80,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x8000, Data: 0x04},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x8001, Data: 0x01},
-		// 		},
-		// 		Registers: []*test.ExpectRegister{
-		// 			{Index: instruction.REGISTER_OPCODE_A, Data: 0xff},
-		// 			{Index: instruction.REGISTER_OPCODE_B, Data: 0x4},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "mov mem imm",
-		// 	// mov [0x9000], 0x10
-		// 	// mov [0x9001], 0x20
-		// 	// mov [0x9002], 0xff
-		// 	// mov [0x9003], 0x00
-		// 	Program: []uint8{
-		// 		instruction.INST_MOV_MEM_IMM, 0x10, 0x00, 0x90,
-		// 		instruction.INST_MOV_MEM_IMM, 0x20, 0x01, 0x90,
-		// 		instruction.INST_MOV_MEM_IMM, 0xff, 0x02, 0x90,
-		// 		instruction.INST_MOV_MEM_IMM, 0x00, 0x03, 0x90,
-		// 	},
-		// 	Expect: &test.Expect{
-		// 		Data: []*test.ExpectData{
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x9000, Data: 0x10},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x9001, Data: 0x20},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x9002, Data: 0xff},
-		// 			{Type: test.DEV_TYPE_RAM, Addr: 0x9003, Data: 0x00},
-		// 		},
-		// 	},
-		// },
+		{
+			Name: "mov ipl iph imm",
+			// mov ipl, 0x10
+			// mov iph, 0x20
+			// push ip
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
+				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "mov ipl iph reg",
+			// mov a, 0x10
+			// mov b, 0x20
+			// mov ipl, a
+			// mov iph, b
+			// push ip
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
+				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_IPL,
+				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IPH,
+				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x20},
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x20},
+				},
+			},
+		},
+		{
+			Name: "push ip",
+			// mov ipl, 0x30
+			// mov iph, 0x20
+			// push ip
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x30,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x20,
+				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START, Data: 0x30},
+					{Type: test.DEV_TYPE_RAM, Addr: TEST_STACK_START - 1, Data: 0x20},
+				},
+			},
+		},
+		{
+			Name: "push pop ip",
+			// mov ipl, 0x30
+			// mov iph, 0x20
+			// push ip
+			// mov ip, 0x4000
+			// pop ip
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x30,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x20,
+				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
+				instruction.INST_MOV_REG16_IMM16, 0x00, 0x40,
+				instruction.INST_POP_REG16, instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x30},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x20},
+				},
+			},
+		},
+		{
+			Name: "add ip",
+			// mov ipl, 0x20
+			// mov iph, 0x10
+			// add ip, 4
+			// mov a, 0x10
+			// push a
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
+				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x04,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x24},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "add ip carry",
+			// mov ipl, 0xff
+			// mov iph, 0x10
+			// add ip, 4
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0xff,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
+				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x04,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x03},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x11},
+				},
+			},
+		},
+		{
+			Name: "sub ip",
+			// mov ipl, 0x25
+			// mov iph, 0x10
+			// sub ip, 4
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x25,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x04,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x21},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+			},
+		},
+		{
+			Name: "sub ip borrow",
+			// mov ipl, 0x20
+			// mov iph, 0x10
+			// sub ip, 4
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x04,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x1c},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+			},
+		},
 		{
 			Name: "mov reg imm16",
 			// mov ip, 0x1234
@@ -1704,7 +1485,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
 				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x80,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
-				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_B,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{

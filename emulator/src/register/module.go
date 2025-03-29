@@ -28,7 +28,7 @@ func (m Module) Clear() {
 
 func (m Module) String() string {
 	str := ""
-	for i, r := range m[:6] {
+	for i, r := range m[:9] {
 		str += fmt.Sprintf("%02x", r)
 		if i != len(m)-1 {
 			str += " "

@@ -102,7 +102,7 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")
 	c.LogfFlagIndexWithStyle(2, DefaultStyle6, "%s", c.status)
 	c.LogfFlagIndexWithStyle(3, DefaultStyle6, "")
-	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  IH IL")
+	c.LogfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  E  IH IL BH BL")
 	c.LogfFlagIndexWithStyle(5, DefaultStyle7, "%s", c.registers)
 	c.LogfFlagIndexWithStyle(6, DefaultStyle7, "")
 	c.LogfFlagIndexWithStyle(7, DefaultStyle1, "IR    : %02x [%s]", c.instructionRegister, instruction.INST_HUMAN_READABLE[c.instructionRegister])

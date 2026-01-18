@@ -1,5 +1,11 @@
 package comp
 
+import (
+	"fmt"
+
+	"github.com/ecoshub/termium/component/style"
+)
+
 func mInstProgramCounterOutAddr(c *Comp, _ uint64) {
 	c.addrBus.Write_16(c.programCounter)
 	// c.LogCodePanel(false)
@@ -24,26 +30,31 @@ func mInstProgramCounterInc(c *Comp, _ uint64) {
 	c.programCounter++
 }
 
-// func (c *Comp) checkBreakPoint() {
-// 	ok := c.IsBreakPoint(c.programCounter)
-// 	if !ok {
-// 		c.breakpointHit = false
-// 		return
-// 	}
-// 	if c.breakpointHit {
-// 		if c.lastBreakpoint == c.programCounter {
-// 			return
-// 		}
-// 	}
-// 	c.pause = true
-// 	c.lastBreakpoint = c.programCounter
-// 	c.breakpointHit = true
-// 	c.Log("Stop")
-// 	c.LogWithStyle(fmt.Sprintf("● Breakpoint triggered. addr: 0x%04x", c.programCounter), BreakStyle)
+func (c *Comp) checkBreakPoint() {
+	ok := c.IsBreakPoint(c.programCounter)
+	if !ok {
+		c.breakpointHit = false
+		return
+	}
+	if c.breakpointHit {
+		if c.lastBreakpoint == c.programCounter {
+			return
+		}
+	}
+	c.pause = true
+	c.lastBreakpoint = c.programCounter
+	c.breakpointHit = true
+	c.LogWithStyle(fmt.Sprintf("● Breakpoint triggered. addr: 0x%04x", c.programCounter), BreakStyle)
+	c.Log("Stop")
 
-// 	c.forcePageEnable = false
-// 	c.LogCodePanel(true)
-// }
+	if c.terminal.Keyboard.GetPipeInput() {
+		c.terminal.Components.SysLogPanel.Push(">> Keyboard input directed to command pallet ( use CTRL + D to switch)", style.DefaultStyleInfo)
+		c.terminal.Keyboard.SetPipeInput(false)
+		c.terminal.Components.Screen.CommandPalette.SetBaseListener(false)
+	}
+
+	c.LogCodePanel(true)
+}
 
 // func (c *Comp) IsBreakPoint(offset uint16) bool {
 // 	for _, bp := range c.breakPoints {

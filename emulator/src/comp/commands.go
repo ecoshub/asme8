@@ -18,7 +18,6 @@ func (c *Comp) HandleCommands(command string) {
 		}
 		if c.pause {
 			c.Log("Starts running...")
-			// c.forcePageEnable = false
 		} else {
 			c.Log("Stop")
 		}
@@ -48,19 +47,15 @@ func (c *Comp) HandleCommands(command string) {
 		c.singleTicker <- struct{}{}
 		// c.pushToCommandPalletHistory(command)
 		return
-		// case "mem":
-		// c.LogMemory()
-		// c.pushToCommandPalletHistory(command)
-		// return
-	// case "page":
-	// 	c.forcePageEnable = !c.forcePageEnable
-	// 	if c.forcePageEnable {
-	// 		c.Logf("page point enable")
-	// 	} else {
-	// 		c.Logf("page point disable")
-	// 	}
-	// 	c.LogCodePanel(true)
-	// 	return
+	case "mem":
+		c.LogMemory()
+		c.pushToCommandPalletHistory(command)
+		return
+	case "f":
+		c.scrollFocus = "nan"
+		c.Log("Scroll focus 'Disabled'")
+		c.pushToCommandPalletHistory(command)
+		return
 	case "h":
 		fallthrough
 	case "help":
@@ -78,6 +73,7 @@ func (c *Comp) HandleCommands(command string) {
 		fallthrough
 	case "clear":
 		c.terminal.Components.SysLogPanel.Clear()
+		c.pushToCommandPalletHistory(command)
 		return
 	case "r":
 		fallthrough
@@ -86,6 +82,7 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	case "hz":
 		c.Logf("HZ: %d", time.Second/c.Config.Delay)
+		c.pushToCommandPalletHistory(command)
 		return
 	case "exit":
 		fallthrough
@@ -94,7 +91,7 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
-	exists, path, err := SplitStringCommand(command, "load-asm")
+	path, exists, err := SplitStringCommand(command, "load-asm")
 	if exists {
 		if err != nil {
 			c.Log(err.Error())
@@ -117,7 +114,7 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
-	exists, path, err = SplitStringCommand(command, "load-bin")
+	path, exists, err = SplitStringCommand(command, "load-bin")
 	if exists {
 		if err != nil {
 			c.Log(err.Error())
@@ -138,156 +135,167 @@ func (c *Comp) HandleCommands(command string) {
 		return
 	}
 
-	// exists, n, err := SplitNumberCommand(command, "b")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	ok := c.AddBreakPoint(int(n))
-	// 	if !ok {
-	// 		c.Logf("# Breakpoint already exists. point: 0x%x", n)
-	// 		return
-	// 	}
-	// 	c.Logf("● Breakpoint added 0x%x", n)
-	// 	c.terminal.Components.CodeRulerPanel.Clear()
-	// 	c.LogCodePanel(true)
-	// 	// c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	n, exists, err := SplitNumberCommand(command, "b")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		ok := c.AddBreakPoint(int(n))
+		if !ok {
+			c.Logf("# Breakpoint already exists. point: 0x%x", n)
+			return
+		}
+		c.Logf("● Breakpoint added 0x%x", n)
+		c.terminal.Components.CodeRulerPanel.Clear()
+		c.LogCodePanel(true)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
-	// exists, n, err = SplitNumberCommand(command, "rb")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	ok := c.RemoveBreakPoint(int(n))
-	// 	if !ok {
-	// 		return
-	// 	}
-	// 	c.Logf("○ Breakpoint removed 0x%x", n)
-	// 	c.terminal.Components.CodeRulerPanel.Clear()
-	// 	c.LogCodePanel(true)
-	// 	// c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	n, exists, err = SplitNumberCommand(command, "rb")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		ok := c.RemoveBreakPoint(int(n))
+		if !ok {
+			return
+		}
+		c.Logf("○ Breakpoint removed 0x%x", n)
+		c.terminal.Components.CodeRulerPanel.Clear()
+		c.LogCodePanel(true)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
-	// exists, cmd, err := SplitStringCommand(command, "mem")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	if cmd == "STACK" {
-	// 		c.inspectionMemoryOffset = StackStart
-	// 		c.LogMemory()
-	// 		c.Logf("Memory panel now points to addr 0x%04x", StackStart)
-	// 		c.pushToCommandPalletHistory(command)
-	// 		return
-	// 	}
-	// 	dev, ok := c.GetDevice(cmd)
-	// 	if ok {
-	// 		start, _ := dev.GetRange()
-	// 		c.inspectionMemoryOffset = start
-	// 		c.LogMemory()
-	// 		c.Logf("Memory panel now points to addr 0x%04x", start)
-	// 		c.pushToCommandPalletHistory(command)
-	// 		return
-	// 	}
-	// }
+	cmd, exists, err := SplitStringCommand(command, "mem")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		if cmd == "STACK" {
+			c.inspectionMemoryOffset = StackStart
+			c.inspectionMemoryCustomOffset = 0
+			c.LogMemory()
+			c.Logf("Memory panel now points to addr 0x%04x", StackStart)
+			c.pushToCommandPalletHistory(command)
+			return
+		}
+		dev, ok := c.GetDevice(cmd)
+		if ok {
+			start, _ := dev.GetRange()
+			c.inspectionMemoryOffset = start
+			c.inspectionMemoryCustomOffset = 0
+			c.LogMemory()
+			c.Logf("Memory panel now points to addr 0x%04x", start)
+			c.pushToCommandPalletHistory(command)
+			return
+		}
+	}
 
-	// exists, n, err = SplitNumberCommand(command, "mem")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	n = (n / 8) * 8
-	// 	c.inspectionMemoryOffset = uint16(n)
-	// 	c.LogMemory()
-	// 	c.Logf("Memory panel now points to addr 0x%04x", n)
-	// 	c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	cmd, exists, err = SplitStringCommand(command, "f")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		switch cmd {
+		case "mem":
+			c.Log("Scroll focus changed to 'mem'")
+			c.scrollFocus = "mem"
+		case "code":
+			c.Log("Scroll focus changed to 'code'")
+			c.scrollFocus = "code"
+		case "nan":
+			c.Log("Scroll focus 'Disabled'")
+			c.scrollFocus = "nan"
+		}
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
-	// exists, n, err = SplitNumberCommand(command, "tick")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	for i := 0; i < int(n); i++ {
-	// 		c.tick()
-	// 		time.Sleep(c.Config.Delay)
-	// 	}
-	// 	c.Logf("clock tick %d time", n)
-	// 	c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	n, exists, err = SplitNumberCommand(command, "mem")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		n = (n / 8) * 8
+		c.inspectionMemoryOffset = uint16(n)
+		c.inspectionMemoryCustomOffset = 0
+		c.LogMemory()
+		c.Logf("Memory panel now points to addr 0x%04x", n)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
-	// exists, n, err = SplitNumberCommand(command, "page")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	c.forcePageEnable = true
-	// 	c.forcePage = int(n)
-	// 	c.Logf("page is pointing to 0x%04x", n)
-	// 	c.LogCodePanel(true)
-	// 	c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	n, exists, err = SplitNumberCommand(command, "tick")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		for i := 0; i < int(n); i++ {
+			c.tick()
+			time.Sleep(c.Config.Delay)
+		}
+		c.Logf("clock tick %d time", n)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
-	// exists, param, err := SplitNumberCommand(command, "hz")
-	// if exists {
-	// 	if err != nil {
-	// 		c.Log(err.Error())
-	// 		return
-	// 	}
-	// 	delay := time.Second / time.Duration(param)
-	// 	from := c.Config.Delay
-	// 	c.SetDelay(delay)
-	// 	c.Restart(true)
-	// 	c.Logf("delay changed from %s to %s and computer restarted", from, delay)
-	// 	c.pushToCommandPalletHistory(command)
-	// 	return
-	// }
+	param, exists, err := SplitNumberCommand(command, "hz")
+	if exists {
+		if err != nil {
+			c.Log(err.Error())
+			return
+		}
+		delay := time.Second / time.Duration(param)
+		from := c.Config.Delay
+		c.SetDelay(delay)
+		c.Restart(true)
+		c.Logf("delay changed from %s to %s and computer restarted", from, delay)
+		c.pushToCommandPalletHistory(command)
+		return
+	}
 
 	c.LogWithStyle(fmt.Sprintf("# unknown command '%s'", command), WarningStyle)
 }
 
-func SplitNumberCommand(command string, prefix string) (bool, int64, error) {
-	if !strings.HasPrefix(command, prefix+" ") {
-		return false, 0, fmt.Errorf("error unknown command. command: %s", command)
-	}
-	tokens := strings.Split(command, prefix+" ")
-	number := tokens[1]
-	var n int64
-	var err error
-	if strings.HasPrefix(number, "0x") {
-		number = strings.TrimPrefix(number, "0x")
-		n, err = strconv.ParseInt(number, 16, 64)
-		if err != nil {
-			return true, 0, fmt.Errorf("parse hex error. command: %s, err: %s", command, err)
-		}
-		return true, n, nil
-	}
-	n, err = strconv.ParseInt(number, 10, 64)
+func SplitNumberCommand(command string, prefixes ...string) (int64, bool, error) {
+	param, exists, err := SplitStringCommand(command, prefixes...)
 	if err != nil {
-		return true, 0, fmt.Errorf("parse number error. command: %s, err: %s", command, err)
+		return 0, exists, err
 	}
-	return true, n, nil
+
+	var n int64
+	if strings.HasPrefix(param, "0x") {
+		param = strings.TrimPrefix(param, "0x")
+		n, err = strconv.ParseInt(param, 16, 64)
+		if err != nil {
+			return 0, true, fmt.Errorf("parse hex error. command: %s, err: %s", command, err)
+		}
+		return n, true, nil
+	}
+	n, err = strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		return 0, true, fmt.Errorf("parse number error. command: %s, err: %s", command, err)
+	}
+	return n, true, nil
 }
 
-func SplitStringCommand(command string, prefix string) (bool, string, error) {
-	if !strings.HasPrefix(command, prefix+" ") {
-		return false, "", fmt.Errorf("error unknown command. command: %s", command)
+func SplitStringCommand(command string, prefixes ...string) (string, bool, error) {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(command, prefix+" ") {
+			tokens := strings.Split(command, " ")
+			param := tokens[1]
+			return param, true, nil
+		}
 	}
-	tokens := strings.Split(command, prefix+" ")
-	param := tokens[1]
-	return true, param, nil
+	return "", false, fmt.Errorf("error unknown command. command: %s", command)
 }
 
 // func (c *Comp) pushToCommandPalletHistory(command string) {
@@ -297,25 +305,26 @@ func SplitStringCommand(command string, prefix string) (bool, string, error) {
 // 	c.terminal.Components.Screen.CommandPalette.AddToHistory(command)
 // }
 
-// func (c *Comp) Help() {
-// 	c.LogWithStyle("help:", HelpStyle)
-// 	c.LogWithStyle("- s .....................: start/stop clock", HelpStyle)
-// 	c.LogWithStyle("- t | tick | tick <n> ...: advance clock 1 or n time", HelpStyle)
-// 	c.LogWithStyle("- b <n> .................: add breakpoint to address n", HelpStyle)
-// 	c.LogWithStyle("- rb <n> ................: remove breakpoint to address n", HelpStyle)
-// 	c.LogWithStyle("- lbp ...................: list breakpoints", HelpStyle)
-// 	c.LogWithStyle("- cbp ...................: clear all breakpoints", HelpStyle)
-// 	c.LogWithStyle("- mem | mem <n> .........: get or set memory starting with address n", HelpStyle)
-// 	c.LogWithStyle("- r | restart ...........: restart the emulator", HelpStyle)
-// 	c.LogWithStyle("- hz | hz <n> ...........: get or set clock speed in hertz (hz)", HelpStyle)
-// 	c.LogWithStyle("- load-asm | load-bin ...: load program using '.asm' file or '.bin' file", HelpStyle)
-// 	c.LogWithStyle("- cycle | cyc ...........: print total cycle run", HelpStyle)
-// 	c.LogWithStyle("- clear cycle | ccyc ....: reset total cycle", HelpStyle)
-// 	c.LogWithStyle("- page | page <n> .......: toggle page mode, set page offset", HelpStyle)
-// 	c.LogWithStyle("- exit | quit ...........: exit emulator", HelpStyle)
-// 	c.LogWithStyle("- clear .................: clear the log panel", HelpStyle)
-// 	c.LogWithStyle("- help ..................: prints this dialog box", HelpStyle)
-// 	c.LogWithStyle("* note:  n values can be number of hex with e '0x' prefix", HelpStyle)
-// 	c.LogWithStyle("* note:  use ctrl+D to direct keyboard input into emulator", HelpStyle)
-// 	c.LogWithStyle("", HelpStyle)
-// }
+func (c *Comp) Help() {
+	c.LogWithStyle("help:", HelpStyle)
+	c.LogWithStyle("- s ...................: start/stop clock", HelpStyle)
+	c.LogWithStyle("- t | tick | tick <n> .: advance clock 1 or n time", HelpStyle)
+	c.LogWithStyle("- b <n> ...............: add breakpoint to address n", HelpStyle)
+	c.LogWithStyle("- rb <n> ..............: remove breakpoint to address n", HelpStyle)
+	c.LogWithStyle("- lbp .................: list breakpoints", HelpStyle)
+	c.LogWithStyle("- cbp .................: clear all breakpoints", HelpStyle)
+	c.LogWithStyle("- mem | mem <n> .......: get or set memory starting with address n", HelpStyle)
+	c.LogWithStyle("- r | restart .........: restart the emulator", HelpStyle)
+	c.LogWithStyle("- f <mem/code/nan> ....: focus scroll. use left and right arrows", HelpStyle)
+	c.LogWithStyle("- hz | hz <n> .........: get or set clock speed in hertz (hz)", HelpStyle)
+	c.LogWithStyle("- load-asm | load-bin .: load program using '.asm' file or '.bin' file", HelpStyle)
+	c.LogWithStyle("- cycle | cyc .........: print total cycle run", HelpStyle)
+	c.LogWithStyle("- clear cycle | ccyc ..: reset total cycle", HelpStyle)
+	c.LogWithStyle("- page | page <n> .....: toggle page mode, set page offset", HelpStyle)
+	c.LogWithStyle("- exit | quit .........: exit emulator", HelpStyle)
+	c.LogWithStyle("- clear ...............: clear the log panel", HelpStyle)
+	c.LogWithStyle("- help ................: prints this dialog box", HelpStyle)
+	c.LogWithStyle("* note:  n values can be number of hex with e '0x' prefix", HelpStyle)
+	c.LogWithStyle("* note:  use ctrl+D to direct keyboard input into emulator", HelpStyle)
+	c.LogWithStyle("", HelpStyle)
+}

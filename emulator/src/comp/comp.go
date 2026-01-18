@@ -14,6 +14,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/ecoshub/termium/component/style"
+	"github.com/eiannone/keyboard"
 )
 
 const (
@@ -49,8 +52,20 @@ type Comp struct {
 	rw        uint8 // read 1 write 0
 	devices   []connectable.Connectable
 
-	terminal        *terminal.Terminal
-	singleTicker    chan struct{}
+	terminal                     *terminal.Terminal
+	singleTicker                 chan struct{}
+	breakPoints                  []uint16
+	inspectionMemoryOffset       uint16
+	inspectionMemoryCustomOffset uint16
+	scrollFocus                  string
+
+	codeLines                   map[uint16]string
+	lastRenderedPage            int
+	lastPageCustomOffsetRequest int
+	lastPageCustomOffset        int
+
+	codeLinesSorted []uint16
+	activeCodeLine  int
 	programLoaded   bool
 	stopChan        chan struct{}
 	running         bool
@@ -75,17 +90,18 @@ func New(conf *Config) (*Comp, error) {
 		conf.Delay = time.Millisecond * 50
 	}
 	c := &Comp{
-		Config:    conf,
-		registers: register.NewModule(16),
-		status:    status.NewStatusRegister(),
-		aluBus:    bus.New(),
-		outputBus: bus.New(),
-		inputBus:  bus.New(),
-		addrBus:   bus.New(),
-		devices:   make([]connectable.Connectable, 0, 1),
-		// stopChan:      make(chan struct{}, 1),
-		singleTicker: make(chan struct{}, 1),
-		// programLoaded: false,
+		Config:        conf,
+		registers:     register.NewModule(16),
+		status:        status.NewStatusRegister(),
+		aluBus:        bus.New(),
+		outputBus:     bus.New(),
+		inputBus:      bus.New(),
+		addrBus:       bus.New(),
+		devices:       make([]connectable.Connectable, 0, 1),
+		stopChan:      make(chan struct{}, 1),
+		singleTicker:  make(chan struct{}, 1),
+		programLoaded: false,
+		scrollFocus:   "nan",
 	}
 	err := c.CreateDevices()
 	if err != nil {
@@ -111,6 +127,39 @@ func New(conf *Config) (*Comp, error) {
 
 func (c *Comp) AttachTerminal(terminal *terminal.Terminal) {
 	c.terminal = terminal
+	c.terminal.Keyboard.AttachPipeChange(func(pipeInput bool) {
+		if pipeInput {
+			c.terminal.Components.SysLogPanel.Push("<< Keyboard input directed to emulator ( use CTRL + D to switch)", style.DefaultStyleInfo)
+		} else {
+			c.terminal.Components.SysLogPanel.Push(">> Keyboard input directed to command pallet ( use CTRL + D to switch)", style.DefaultStyleInfo)
+		}
+	})
+	c.terminal.Keyboard.AttachScrollEvent(func(char uint16) {
+		switch char {
+		case uint16(keyboard.KeyArrowLeft):
+			switch c.scrollFocus {
+			case "mem":
+				c.inspectionMemoryCustomOffset -= 16
+				if c.inspectionMemoryCustomOffset < 0 {
+					c.inspectionMemoryCustomOffset = 0
+				}
+				c.LogMemory()
+			case "code":
+				c.lastPageCustomOffset -= 1
+				c.LogCodePanel(true)
+			}
+		case uint16(keyboard.KeyArrowRight):
+			switch c.scrollFocus {
+			case "mem":
+				c.inspectionMemoryCustomOffset += 16
+				c.LogMemory()
+			case "code":
+				c.lastPageCustomOffset += 1
+				c.LogCodePanel(true)
+			}
+		}
+		return
+	})
 	c.terminal.Components.Screen.CommandPalette.ListenKeyEventEnter(func(input string) {
 		c.HandleCommands(input)
 	})
@@ -296,6 +345,10 @@ func (c *Comp) Reset(excludeROM bool, startWithPause bool) {
 	c.stopChan = make(chan struct{}, 1)
 	c.running = false
 	c.pause = startWithPause
+	c.inspectionMemoryOffset = 0
+	c.inspectionMemoryCustomOffset = 0
+	c.lastRenderedPage = 0
+	c.lastPageCustomOffset = 0
 	c.cycleCount = 0
 	c.clear()
 }

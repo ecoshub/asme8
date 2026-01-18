@@ -1,7 +1,6 @@
 package terminal
 
 import (
-	"github.com/ecoshub/termium/component/style"
 	"github.com/ecoshub/termium/utils/ansi"
 )
 
@@ -18,13 +17,6 @@ func New(sizeBufferSize int, isSerial bool) (*Terminal, error) {
 		return nil, err
 	}
 	k := NewKeyboard(components.Screen.CommandPalette)
-	k.AttachPipeChange(func(pipeInput bool) {
-		if pipeInput {
-			components.SysLogPanel.Push("<< Keyboard input directed to emulator ( use CTRL + D to switch)", style.DefaultStyleInfo)
-		} else {
-			components.SysLogPanel.Push(">> Keyboard input directed to command pallet ( use CTRL + D to switch)", style.DefaultStyleInfo)
-		}
-	})
 	s, err := NewScreen(components, sizeBufferSize, isSerial)
 	if err != nil {
 		return nil, err

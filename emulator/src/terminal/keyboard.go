@@ -12,16 +12,17 @@ import (
 var _ connectable.Connectable = &Keyboard{}
 
 type Keyboard struct {
-	name        string
-	addressBus  *bus.Bus
-	dataBus     *bus.Bus
-	addrStart   uint16
-	addrSize    uint16
-	input       uint8
-	ready       bool
-	cp          *palette.Palette
-	pipeInput   bool
-	pipeChanged func(pipeInput bool)
+	name             string
+	addressBus       *bus.Bus
+	dataBus          *bus.Bus
+	addrStart        uint16
+	addrSize         uint16
+	input            uint8
+	ready            bool
+	cp               *palette.Palette
+	pipeInput        bool
+	pipeChangedEvent func(pipeInput bool)
+	scrollEvent      func(c uint16)
 }
 
 func NewKeyboard(cp *palette.Palette) *Keyboard {
@@ -31,11 +32,17 @@ func NewKeyboard(cp *palette.Palette) *Keyboard {
 		pipeInput: false,
 	}
 	cp.AttachKeyEventHandler(func(event keyboard.KeyEvent) {
-		if event.Key == keyboard.KeyCtrlD {
+		switch event.Key {
+		case keyboard.KeyCtrlD:
 			k.pipeInput = !k.pipeInput
 			cp.SetBaseListener(k.pipeInput)
-			if k.pipeChanged != nil {
-				k.pipeChanged(k.pipeInput)
+			if k.pipeChangedEvent != nil {
+				k.pipeChangedEvent(k.pipeInput)
+			}
+			return
+		case keyboard.KeyArrowLeft, keyboard.KeyArrowRight:
+			if k.scrollEvent != nil {
+				k.scrollEvent(uint16(event.Key))
 			}
 			return
 		}
@@ -119,5 +126,20 @@ func (k *Keyboard) AttachPipeChange(f func(pipeInput bool)) {
 	if f == nil {
 		return
 	}
-	k.pipeChanged = f
+	k.pipeChangedEvent = f
+}
+
+func (k *Keyboard) AttachScrollEvent(f func(c uint16)) {
+	if f == nil {
+		return
+	}
+	k.scrollEvent = f
+}
+
+func (k *Keyboard) SetPipeInput(value bool) {
+	k.pipeInput = value
+}
+
+func (k *Keyboard) GetPipeInput() bool {
+	return k.pipeInput
 }

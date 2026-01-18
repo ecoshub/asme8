@@ -123,7 +123,6 @@ func (c *Comp) ReadSymbolFile() error {
 }
 
 func (c *Comp) ResolveSymbolFromFile(code string) error {
-
 	codeLines := make(map[uint16]string, 64)
 	lines := strings.Split(code, "\n")
 	for _, l := range lines {

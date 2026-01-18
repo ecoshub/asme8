@@ -49,25 +49,25 @@ type Comp struct {
 	rw        uint8 // read 1 write 0
 	devices   []connectable.Connectable
 
-	terminal               *terminal.Terminal
-	singleTicker           chan struct{}
-	breakPoints            []uint16
-	inspectionMemoryOffset uint16
-
-	codeLines       map[uint16]string
-	lastPage        int
-	codeLinesSorted []uint16
-	forcePageEnable bool
-	forcePage       int
-	activeCodeLine  int
+	terminal        *terminal.Terminal
+	singleTicker    chan struct{}
 	programLoaded   bool
 	stopChan        chan struct{}
 	running         bool
 	pause           bool
-	lastBreakpoint  uint16
-	breakpointHit   bool
-	lastCommand     string
 	cycleCount      int
+	codeLines       map[uint16]string
+	codeLinesSorted []uint16
+	// breakPoints            []uint16
+	// inspectionMemoryOffset uint16
+
+	// lastPage        int
+	// forcePageEnable bool
+	// forcePage       int
+	// activeCodeLine  int
+	// lastBreakpoint  uint16
+	// breakpointHit   bool
+	// lastCommand     string
 }
 
 func New(conf *Config) (*Comp, error) {
@@ -75,17 +75,17 @@ func New(conf *Config) (*Comp, error) {
 		conf.Delay = time.Millisecond * 50
 	}
 	c := &Comp{
-		Config:        conf,
-		registers:     register.NewModule(16),
-		status:        status.NewStatusRegister(),
-		aluBus:        bus.New(),
-		outputBus:     bus.New(),
-		inputBus:      bus.New(),
-		addrBus:       bus.New(),
-		devices:       make([]connectable.Connectable, 0, 1),
-		stopChan:      make(chan struct{}, 1),
-		singleTicker:  make(chan struct{}, 1),
-		programLoaded: false,
+		Config:    conf,
+		registers: register.NewModule(16),
+		status:    status.NewStatusRegister(),
+		aluBus:    bus.New(),
+		outputBus: bus.New(),
+		inputBus:  bus.New(),
+		addrBus:   bus.New(),
+		devices:   make([]connectable.Connectable, 0, 1),
+		// stopChan:      make(chan struct{}, 1),
+		singleTicker: make(chan struct{}, 1),
+		// programLoaded: false,
 	}
 	err := c.CreateDevices()
 	if err != nil {
@@ -166,7 +166,7 @@ func (c *Comp) Run() {
 		c.SetDebug(true)
 	} else {
 		c.SetPause(true)
-		c.Help()
+		// c.Help()
 	}
 
 	go c.run()
@@ -196,12 +196,12 @@ func (c *Comp) run() {
 
 	c.inputBus.AttachBusChange(func(rw uint8) {
 		if rw == utils.IO_WRITE {
-			c.LogMemory()
+			// c.LogMemory()
 		}
 	})
 
-	c.LogMemory()
-	c.LogCodePanel(true)
+	// c.LogMemory()
+	// c.LogCodePanel(true)
 	c.LogState()
 
 	if !c.programLoaded {

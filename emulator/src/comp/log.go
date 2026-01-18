@@ -2,7 +2,6 @@ package comp
 
 import (
 	"asme8/common/instruction"
-	"asme8/emulator/utils"
 	"fmt"
 	"strings"
 
@@ -124,145 +123,145 @@ func (c *Comp) LogState() {
 	c.LogfFlagIndexWithStyle(23, DefaultStyle3, "ENB : %v", c.bridgeEnable)
 }
 
-func (c *Comp) LogCodePanel(forceRender bool) {
-	if c.terminal == nil || c.terminal.Components.CodePanel == nil {
-		return
-	}
+// func (c *Comp) LogCodePanel(forceRender bool) {
+// 	if c.terminal == nil || c.terminal.Components.CodePanel == nil {
+// 		return
+// 	}
 
-	if len(c.codeLines) == 0 {
-		return
-	}
+// 	if len(c.codeLines) == 0 {
+// 		return
+// 	}
 
-	var point uint16
-	if c.forcePageEnable {
-		point = uint16(c.forcePage)
-	} else {
-		point = c.programCounter
-	}
+// 	var point uint16
+// 	if c.forcePageEnable {
+// 		point = uint16(c.forcePage)
+// 	} else {
+// 		point = c.programCounter
+// 	}
 
-	h := c.terminal.Components.CodePanel.Config.Height
-	l := findLine(c.codeLinesSorted, point)
-	lines := make([]string, h)
-	page := l / h
-	count := 0
-	found := false
-	index := 0
+// 	h := c.terminal.Components.CodePanel.Config.Height
+// 	l := findLine(c.codeLinesSorted, point)
+// 	lines := make([]string, h)
+// 	page := l / h
+// 	count := 0
+// 	found := false
+// 	index := 0
 
-	if page != c.lastPage {
-		c.terminal.Components.CodeRulerPanel.Clear()
-		c.lastPage = page
-	}
+// 	if page != c.lastPage {
+// 		c.terminal.Components.CodeRulerPanel.Clear()
+// 		c.lastPage = page
+// 	}
 
-	breakPoints := make(map[uint16]int)
-	for i, offset := range c.codeLinesSorted {
-		if i < (page * h) {
-			continue
-		}
-		if count >= h {
-			break
-		}
-		line := c.codeLines[offset]
-		if offset == c.programCounter {
-			index = count
-			found = true
-			lines[count] = line
-			count++
-			continue
-		}
-		if i >= h+(page*h) {
-			break
-		}
-		ok := c.IsBreakPoint(offset)
-		if ok {
-			breakPoints[offset] = count
-			lines[count] = line
-			c.terminal.Components.CodeRulerPanel.Write(count, '●', BreakStyle)
-			count++
-			continue
-		}
-		lines[count] = line
-		count++
-	}
+// 	breakPoints := make(map[uint16]int)
+// 	for i, offset := range c.codeLinesSorted {
+// 		if i < (page * h) {
+// 			continue
+// 		}
+// 		if count >= h {
+// 			break
+// 		}
+// 		line := c.codeLines[offset]
+// 		if offset == c.programCounter {
+// 			index = count
+// 			found = true
+// 			lines[count] = line
+// 			count++
+// 			continue
+// 		}
+// 		if i >= h+(page*h) {
+// 			break
+// 		}
+// 		ok := c.IsBreakPoint(offset)
+// 		if ok {
+// 			breakPoints[offset] = count
+// 			lines[count] = line
+// 			c.terminal.Components.CodeRulerPanel.Write(count, '●', BreakStyle)
+// 			count++
+// 			continue
+// 		}
+// 		lines[count] = line
+// 		count++
+// 	}
 
-	if !forceRender {
-		if found {
-			if index != 0 && index == c.activeCodeLine {
-				return
-			}
-		} else {
-			return
-		}
-	}
-	sty := CodeStyle
-	if c.forcePageEnable {
-		sty = GrayCode
-	}
+// 	if !forceRender {
+// 		if found {
+// 			if index != 0 && index == c.activeCodeLine {
+// 				return
+// 			}
+// 		} else {
+// 			return
+// 		}
+// 	}
+// 	sty := CodeStyle
+// 	if c.forcePageEnable {
+// 		sty = GrayCode
+// 	}
 
-	c.terminal.Components.CodePanel.WriteMultiStyle(lines, sty)
+// 	c.terminal.Components.CodePanel.WriteMultiStyle(lines, sty)
 
-	line := c.codeLines[c.programCounter]
-	ok := c.IsBreakPoint(c.programCounter)
-	if ok {
-		c.terminal.Components.CodePanel.Write(index, line, BreakStyle)
-	} else {
-		if !c.forcePageEnable {
-			c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
-		}
-	}
-	c.activeCodeLine = index
+// 	line := c.codeLines[c.programCounter]
+// 	ok := c.IsBreakPoint(c.programCounter)
+// 	if ok {
+// 		c.terminal.Components.CodePanel.Write(index, line, BreakStyle)
+// 	} else {
+// 		if !c.forcePageEnable {
+// 			c.terminal.Components.CodePanel.Write(index, line, HighlightedCodeStyle)
+// 		}
+// 	}
+// 	c.activeCodeLine = index
 
-}
+// }
 
-func (c *Comp) LogMemory() {
-	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
-		return
-	}
-	buffer := make([]uint8, 0x10000)
-	for _, dev := range c.devices {
-		start, end := dev.GetRange()
-		for i := start; i < end; i++ {
-			buffer[i] = dev.Read(i)
-		}
-	}
-	height := c.terminal.Components.MemoryPanel.Config.Height
-	lineCount := 0
-	logLines := make([]string, 0, height)
-	for i := 0; i < 0x10000; i += 8 {
-		index := i + int(c.inspectionMemoryOffset)
-		if index > 0xffff {
-			logLines = append(logLines, "")
-		} else {
-			end := (index + 8)
-			if index+8 > 0xffff {
-				end = 0xffff + 1
-			}
-			line := utils.ToHexArray(buffer[index:end], false)
-			logLines = append(logLines, fmt.Sprintf(" %04x: %s", index, line))
-		}
-		lineCount++
-		if height <= lineCount {
-			break
-		}
-	}
+// func (c *Comp) LogMemory() {
+// 	if c.terminal == nil || c.terminal.Components.MemoryPanel == nil {
+// 		return
+// 	}
+// 	buffer := make([]uint8, 0x10000)
+// 	for _, dev := range c.devices {
+// 		start, end := dev.GetRange()
+// 		for i := start; i < end; i++ {
+// 			buffer[i] = dev.Read(i)
+// 		}
+// 	}
+// 	height := c.terminal.Components.MemoryPanel.Config.Height
+// 	lineCount := 0
+// 	logLines := make([]string, 0, height)
+// 	for i := 0; i < 0x10000; i += 8 {
+// 		index := i + int(c.inspectionMemoryOffset)
+// 		if index > 0xffff {
+// 			logLines = append(logLines, "")
+// 		} else {
+// 			end := (index + 8)
+// 			if index+8 > 0xffff {
+// 				end = 0xffff + 1
+// 			}
+// 			line := utils.ToHexArray(buffer[index:end], false)
+// 			logLines = append(logLines, fmt.Sprintf(" %04x: %s", index, line))
+// 		}
+// 		lineCount++
+// 		if height <= lineCount {
+// 			break
+// 		}
+// 	}
 
-	c.terminal.Components.MemoryPanel.WriteMultiStyle(logLines, DefaultStyle5)
-}
+// 	c.terminal.Components.MemoryPanel.WriteMultiStyle(logLines, DefaultStyle5)
+// }
 
-func (c *Comp) ListBreakPoints() {
-	if len(c.breakPoints) == 0 {
-		c.Logf("No breakpoints set")
-		return
-	}
-	c.Logf("Breakpoints:")
-	for _, bp := range c.breakPoints {
-		c.Logf("● 0x%04x", bp)
-	}
-}
+// func (c *Comp) ListBreakPoints() {
+// 	if len(c.breakPoints) == 0 {
+// 		c.Logf("No breakpoints set")
+// 		return
+// 	}
+// 	c.Logf("Breakpoints:")
+// 	for _, bp := range c.breakPoints {
+// 		c.Logf("● 0x%04x", bp)
+// 	}
+// }
 
-func (c *Comp) ClearBreakPoints() {
-	c.breakPoints = make([]uint16, 0, 4)
-	c.Logf("break points cleared")
-}
+// func (c *Comp) ClearBreakPoints() {
+// 	c.breakPoints = make([]uint16, 0, 4)
+// 	c.Logf("break points cleared")
+// }
 
 func findLine(arr []uint16, c uint16) int {
 	minIndex := 0

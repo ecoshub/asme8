@@ -16,13 +16,12 @@ func New(sizeBufferSize int, isSerial bool) (*Terminal, error) {
 	if err != nil {
 		return nil, err
 	}
-	k := NewKeyboard(components.Screen.CommandPalette)
 	s, err := NewScreen(components, sizeBufferSize, isSerial)
 	if err != nil {
 		return nil, err
 	}
 	return &Terminal{
-		Keyboard:   k,
+		Keyboard:   NewKeyboard(components.Screen.CommandPalette),
 		Screen:     s,
 		Components: components,
 	}, nil
@@ -35,10 +34,6 @@ func (t *Terminal) Run() {
 	t.running = true
 	t.Components.Screen.Start()
 	t.running = false
-}
-
-func (t *Terminal) Clear() {
-	t.Screen.Clear()
 }
 
 func ResetScreen() {

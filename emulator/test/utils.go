@@ -2,7 +2,7 @@ package test
 
 import (
 	"asme8/common/config"
-	"asme8/emulator/src/comp"
+	"asme8/emulator/src/computer"
 	"asme8/emulator/src/connectable"
 	"asme8/emulator/src/ram"
 	"asme8/emulator/src/rom"
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	MainTestComputer *comp.Comp
+	MainTestComputer *computer.Computer
 	MainROM          *rom.Rom
 	MainRAM          *ram.Ram
 )
@@ -31,25 +31,27 @@ func DataTest(t *testing.T, dev connectable.Connectable, addr uint16, data uint8
 	}
 }
 
-func GetComp() *comp.Comp {
+func GetComp() *computer.Computer {
 	if MainTestComputer != nil {
 		return MainTestComputer
 	}
 
 	var err error
-	MainTestComputer, err = comp.New(&comp.Config{
+	MainTestComputer, err = computer.New(&computer.Config{
 		MemoryConfig: &config.MemoryConfig{
 			Configs: []*config.Memory{
 				{Name: "ROM", Size: config.NewNullable(0x2000), Type: "ro"},
 				{Name: "RAM", Size: config.NewNullable(0xdfff), Type: "rw"},
 			},
 		},
-		Headless: true,
-		Delay:    time.Nanosecond,
-		Test:     true,
+		IsHeadless:     true,
+		Delay:          time.Nanosecond,
+		EnableTestMode: true,
 	})
 	if err != nil {
-		panic(err)
+		if err.Error() != "program not found" {
+			panic(err)
+		}
 	}
 	MainROM, _ = MainTestComputer.GetRom()
 	MainRAM, _ = MainTestComputer.GetRam()

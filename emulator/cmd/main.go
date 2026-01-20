@@ -3,7 +3,8 @@ package main
 import (
 	"asme8/assembler/src/utils"
 	"asme8/common/config"
-	"asme8/emulator/src/comp"
+	"asme8/emulator/src/computer"
+	"asme8/emulator/src/emulator"
 	"flag"
 	"fmt"
 	"time"
@@ -33,28 +34,35 @@ func main() {
 	}
 
 	var program []uint8
-	var code string
-	var path string
-	program, code, path, err = utils.ResolveProgram(*flagFileBin, *flagFileAsm)
+	program, code, path, err := utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c, err := comp.New(&comp.Config{
-		MemoryConfig:   conf.MemoryConfig,
-		Headless:       *flagHeadless,
-		Program:        program,
-		Delay:          *flagDelay,
-		FilePath:       path,
-		SymbolFilePath: *flagSymbolFile,
-		SymbolFile:     code,
+	c, err := computer.New(&computer.Config{
+		MemoryConfig: conf.MemoryConfig,
+		IsHeadless:   *flagHeadless,
+		Program:      program,
+		Delay:        *flagDelay,
 	})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c.Run()
-
+	var codeLines map[uint16]string
+	var hasSymbols bool
+	if code != "" {
+		codeLines, hasSymbols, err = emulator.ResolveSymbolFromFile(code)
+	} else {
+		codeLines, hasSymbols, err = emulator.ReadSymbolFileAndCreateCodePanel(path, *flagSymbolFile)
+	}
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	e := emulator.New(c, &emulator.Config{})
+	e.CreateCodePanel(codeLines, hasSymbols)
+	e.Run()
 }

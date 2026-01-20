@@ -1,10 +1,10 @@
-package comp
+package computer
 
-func mInstBridgeEnable(c *Comp, _ uint64) {
+func mInstBridgeEnable(c *Computer, _ uint64) {
 	c.bridgeEnable = true
 }
 
-func triggerBridge(c *Comp) {
+func triggerBridge(c *Computer) {
 	if !c.bridgeEnable {
 		return
 	}

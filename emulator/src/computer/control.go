@@ -1,4 +1,4 @@
-package comp
+package computer
 
 import (
 	"asme8/common/instruction"

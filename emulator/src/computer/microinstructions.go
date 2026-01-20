@@ -1,4 +1,4 @@
-package comp
+package computer
 
 const (
 	MI_BRK uint64 = iota
@@ -106,7 +106,7 @@ var (
 	}
 )
 
-type miFunc func(c *Comp, command uint64)
+type miFunc func(c *Computer, command uint64)
 
 var (
 	microinstructionFunctions map[uint64]miFunc = map[uint64]miFunc{

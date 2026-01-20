@@ -25,7 +25,7 @@ func AssembleFile(options *Options) ([]byte, string, int, error) {
 
 	input, err := antlr.NewFileStream(options.FilePath)
 	if err != nil {
-		return nil, "", 0, fmt.Errorf("file stream error. err: %s", err)
+		return nil, "", 0, err
 	}
 
 	if options.Mode == ASM_MODE_NONE {

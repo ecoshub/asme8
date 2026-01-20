@@ -1,4 +1,4 @@
-package comp
+package computer
 
 import (
 	"asme8/emulator/src/status"
@@ -19,11 +19,11 @@ const (
 	OPERATION_ROR
 )
 
-func mInstAluOut(c *Comp, _ uint64) {
+func mInstAluOut(c *Computer, _ uint64) {
 	c.aluOut = true
 }
 
-func mInstAluAdd(c *Comp, mi uint64) {
+func mInstAluAdd(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_ADD, a, b, false)
@@ -34,7 +34,7 @@ func mInstAluAdd(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluAdc(c *Comp, mi uint64) {
+func mInstAluAdc(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_ADD, a, b, true)
@@ -45,7 +45,7 @@ func mInstAluAdc(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluSub(c *Comp, mi uint64) {
+func mInstAluSub(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_SUB, a, b, false)
@@ -56,7 +56,7 @@ func mInstAluSub(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluSbb(c *Comp, mi uint64) {
+func mInstAluSbb(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_SUB, a, b, true)
@@ -67,13 +67,13 @@ func mInstAluSbb(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluCmp(c *Comp, mi uint64) {
+func mInstAluCmp(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	doOperation(c, OPERATION_CMP, a, b, false)
 }
 
-func mInstAluXor(c *Comp, mi uint64) {
+func mInstAluXor(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_XOR, a, b, false)
@@ -84,7 +84,7 @@ func mInstAluXor(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluAnd(c *Comp, mi uint64) {
+func mInstAluAnd(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_AND, a, b, false)
@@ -95,7 +95,7 @@ func mInstAluAnd(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluOr(c *Comp, mi uint64) {
+func mInstAluOr(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_OR, a, b, false)
@@ -106,7 +106,7 @@ func mInstAluOr(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluNot(c *Comp, mi uint64) {
+func mInstAluNot(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_NOT, a, b, false)
@@ -117,7 +117,7 @@ func mInstAluNot(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluShl(c *Comp, mi uint64) {
+func mInstAluShl(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_SHL, a, b, true)
@@ -128,7 +128,7 @@ func mInstAluShl(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluShr(c *Comp, mi uint64) {
+func mInstAluShr(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_SHR, a, b, true)
@@ -139,7 +139,7 @@ func mInstAluShr(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluRol(c *Comp, mi uint64) {
+func mInstAluRol(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_ROL, a, b, true)
@@ -150,7 +150,7 @@ func mInstAluRol(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func mInstAluRor(c *Comp, mi uint64) {
+func mInstAluRor(c *Computer, mi uint64) {
 	a := c.aluBus.Read_8()
 	b := c.outputBus.Read_8()
 	result := doOperation(c, OPERATION_ROR, a, b, true)
@@ -161,7 +161,7 @@ func mInstAluRor(c *Comp, mi uint64) {
 	triggerBridge(c)
 }
 
-func doOperation(c *Comp, op uint8, a uint8, b uint8, useCarry bool) uint8 {
+func doOperation(c *Computer, op uint8, a uint8, b uint8, useCarry bool) uint8 {
 	carry := uint8(0)
 	if useCarry && c.status.IsSet(status.STATUS_FLAG_CARRY) {
 		carry = 1

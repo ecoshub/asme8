@@ -1,23 +1,23 @@
-package comp
+package computer
 
 import (
 	"asme8/common/instruction"
 	"asme8/emulator/src/status"
 )
 
-func mInstStatusRegisterOut(c *Comp, mi uint64) {
+func mInstStatusRegisterOut(c *Computer, mi uint64) {
 	c.outputBus.Write_8(c.status.Flag())
 }
 
-func mInstStatusRegisterIn(c *Comp, mi uint64) {
+func mInstStatusRegisterIn(c *Computer, mi uint64) {
 	c.status.Set(c.inputBus.Read_8())
 }
 
-func mInstClearCarryFlag(c *Comp, mi uint64) {
+func mInstClearCarryFlag(c *Computer, mi uint64) {
 	c.status.ClearCarryFlag()
 }
 
-func mInstStatusControl(c *Comp, mi uint64) {
+func mInstStatusControl(c *Computer, mi uint64) {
 	statusMask := uint8(0)
 	not := false
 	switch c.instructionRegister {

@@ -1,4 +1,4 @@
-package comp
+package computer
 
 import (
 	"asme8/common/instruction"
@@ -14,8 +14,8 @@ const (
 	OP_OUTPUT_SPECIAL
 )
 
-func OperandOperation(command uint8) func(c *Comp, _ uint64) {
-	return func(c *Comp, _ uint64) {
+func OperandOperation(command uint8) func(c *Computer, _ uint64) {
+	return func(c *Computer, _ uint64) {
 		var reg uint8
 		if command&OP_1 > 0 {
 			reg = c.operandRegister & 0xf
@@ -74,11 +74,11 @@ func OperandOperation(command uint8) func(c *Comp, _ uint64) {
 	}
 }
 
-func mInstOnesOutAlu(c *Comp, _ uint64) {
+func mInstOnesOutAlu(c *Computer, _ uint64) {
 	c.aluBus.Write_8(1)
 }
 
-func mInstOnesOut(c *Comp, _ uint64) {
+func mInstOnesOut(c *Computer, _ uint64) {
 	c.outputBus.Write_8(1)
 	triggerBridge(c)
 }

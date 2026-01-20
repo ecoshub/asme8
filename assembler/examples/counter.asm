@@ -4,6 +4,5 @@ loop:
     dec a
     jz end
     jmp loop
-
 end:
     brk

@@ -65,7 +65,7 @@ func RunCase(t *testing.T, tc *TestCase) {
 			DataTest(tt, dev, d.Addr, d.Data)
 		}
 		if tc.Expect.Status != nil {
-			if c.GetStatusRegister() != tc.Expect.Status.Data {
+			if c.GetStatusRegister().Flag() != tc.Expect.Status.Data {
 				t.Fatalf("unexpected flag status. expected: 0b%08b, got: 0b%08b", tc.Expect.Status.Data, c.GetStatusRegister())
 			}
 		}

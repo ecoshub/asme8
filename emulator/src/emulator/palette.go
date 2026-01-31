@@ -18,9 +18,14 @@ func (s *CommandPalette) AddToCommandHistory(input string) {
 		return
 	}
 	s.commandPalette.AddToHistory(input)
+	s.lastCommand = input
 }
 
 func (s *CommandPalette) ClearCommandHistory() {
 	s.commandPalette.ClearHistory()
 	s.lastCommand = ""
+}
+
+func (s *CommandPalette) GetLastCommand() string {
+	return s.lastCommand
 }

@@ -34,6 +34,7 @@ func OperandOperation(command uint8) func(c *Computer, _ uint64) {
 				addr = true
 			}
 		}
+
 		if command&OP_HIGH > 0 {
 			if reg == instruction.REGISTER_OPCODE_IP {
 				reg = instruction.REGISTER_OPCODE_IPH
@@ -45,11 +46,13 @@ func OperandOperation(command uint8) func(c *Computer, _ uint64) {
 			}
 		}
 		if command&OP_INPUT > 0 {
-			c.registers.Write(reg, c.inputBus.Read_8())
+			val := c.inputBus.Read_8()
+			c.registers.Write(reg, val)
 			return
 		}
 		if command&OP_OUTPUT > 0 {
-			c.outputBus.Write_8(c.registers.Read_8(reg))
+			val := c.registers.Read_8(reg)
+			c.outputBus.Write_8(val)
 			triggerBridge(c)
 			return
 		}
@@ -57,14 +60,12 @@ func OperandOperation(command uint8) func(c *Computer, _ uint64) {
 			if addr {
 				value := c.addrBus.Read_16()
 				if command&OP_LOW > 0 {
-					value = value & 0xf0
-					regValue := c.registers.Read_16(reg)
-					value = value | regValue
+					regValue := c.registers.Read_8(reg)
+					value = value | uint16(regValue)
 				}
 				if command&OP_HIGH > 0 {
-					value = value & 0xf
-					regValue := c.registers.Read_16(reg) << 8
-					value = value | regValue
+					regValue := c.registers.Read_8(reg)
+					value = value | (uint16(regValue) << 8)
 				}
 				c.addrBus.Write_16(value)
 			} else {

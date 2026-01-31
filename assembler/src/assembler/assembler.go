@@ -383,13 +383,11 @@ func (a *Assembler) ParseImpliedTag(line, column int) {
 	label, exist := a.FindLabel(a.currentTag.Text)
 	if exist {
 		a.symbolTracker.SymbolHit(label.Text, a.offset+1, 16, 0)
-		// fmt.Printf("[*] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d\n", label.Text, a.offset+1, label.Line, label.Column)
 		a.currentValue = types.NewValue(int64(label.Offset))
 		a.ParseImpliedImm16(line, column)
 		return
 	}
 
-	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+1] = a.currentTag
 	a.currentValue = types.NewValue(0)
@@ -420,7 +418,6 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 	v, exists := a.FindVariable(text)
 	if exists {
 		a.symbolTracker.SymbolHit(a.currentTag.Text, a.offset+2, 16, 0)
-		// fmt.Printf("[v] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d\n", a.currentTag.Text, a.offset+2, 0, 0)
 		a.currentValue = v
 		return
 	}
@@ -433,7 +430,6 @@ func (a *Assembler) ParsePtr(text string, line, column int) {
 		return
 	}
 
-	// fmt.Printf("? symbol not found. tag:>%s<, offset: %d\n", a.currentTag.Text, a.offset)
 	a.currentTag.Size = 16
 	a.missingSymbols[a.offset+2] = a.currentTag
 	a.currentValue = types.NewValue(0)
@@ -464,18 +460,13 @@ func (a *Assembler) ParsePtrVirtualOffset(text string, line, column int) {
 	tag := tokens[0]
 	offsetString := tokens[1]
 	offset, _ := strconv.Atoi(offsetString)
-	// fmt.Printf("tag: >%s<, offset(%s): %d, op: %d\n", tag, offsetString, offset, sign)
-	// t := types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset}
 	offset = offset * sign
 	v, exists := a.FindVariable(tag)
 	if exists {
 		a.symbolTracker.SymbolHit(tag, a.offset+2, 16, uint16(offset))
-		// fmt.Printf("[V] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d\n", tag, a.offset+2, line, column, offset)
 		a.currentValue = types.NewValue(int64(v.GetValue()) + int64(offset))
-		// fmt.Println("val", a.currentValue.GetValue())
 		return
 	}
-	// fmt.Printf("??? text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d\n", tag, a.offset+2, line, column, offset)
 	a.missingSymbols[a.offset+2] = &types.Tag{Text: tag, Line: line, Column: column, OptionalOffset: offset, Size: 16}
 	a.currentValue = types.NewValue(0)
 }
@@ -583,7 +574,6 @@ func (a *Assembler) ParseReference(text string) {
 	}
 	a.reference = types.NewVariable(refName, types.NewValue(0))
 	a.reference.Offset = offset
-	// fmt.Println("REFERENCE CREATED", a.currentTag.Text, refName, offset)
 }
 
 func (a *Assembler) ParseVariableReference() {
@@ -605,7 +595,6 @@ func (a *Assembler) ParseVariableReference() {
 	vr.Offset = a.reference.Offset
 	a.unresolvedVariables[a.currentTag.Text] = vr
 	a.symbolTracker.SetReference(a.currentTag.Text, a.reference.Name, int32(a.reference.Offset))
-	// fmt.Println("REFERENCE VARIABLE SET", a.currentTag.Text, a.reference.Name, a.reference.Offset)
 }
 
 func (a *Assembler) ParseInstruction(text string) {
@@ -705,7 +694,6 @@ func (a *Assembler) ResolveReferenceVariables() []error {
 		if !uv.Unresolved {
 			continue
 		}
-		// fmt.Println("UNRESOLVED VARIABLE FOUND", uv.Name)
 		found := false
 		var ref *types.Variable
 		for _, v := range a.variables {
@@ -722,7 +710,6 @@ func (a *Assembler) ResolveReferenceVariables() []error {
 			// return fmt.Errorf("variable reference not found. variable: %s, reference: %s", uv.Name, uv.ReferenceName)
 		}
 		value := int(ref.Val.GetValue()) + uv.Offset
-		// fmt.Printf("VARIABLE RESOLVED. variable: %s, value: %04x, offset: %d. final_value: %04x\n", uv.Name, ref.Val.GetValue(), uv.Offset, value)
 		val := types.NewValue(int64(value))
 		a.variables[uv.Name] = types.NewVariable(uv.Name, val)
 
@@ -734,27 +721,20 @@ func (a *Assembler) ResolveReferenceVariables() []error {
 }
 
 func (a *Assembler) RestoreSymbol(symbol *types.Tag, offset uint16) error {
-	// fmt.Printf("* searching symbol. symbol:>%v<\n", symbol)
 	im, exists := a.FindVariable(symbol.Text)
 	if !exists {
 		label, exists := a.FindLabel(symbol.Text)
 		if !exists {
-			// fmt.Println("symbol not found", symbol.Text, "size", uint8(symbol.Size))
 			size := a.symbolTracker.GetSymbolSize(symbol.Text, uint8(symbol.Size))
 			a.symbolTracker.SetMissing(symbol.Text, offset, size, uint16(symbol.OptionalOffset))
-			// fmt.Printf("[x] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", symbol.Text, offset, 0, 0, 0, false)
 			return fmt.Errorf("line %d:%d symbol not found. symbol: '%s'", symbol.Line, symbol.Column, symbol.Text)
 		}
-		// fmt.Printf("* symbol found it is a label. tag:>%s<, label_offset: %d\n", a.currentTag.Text, label.Offset)
 		im = types.NewValue(int64(label.Offset))
 		a.symbolTracker.SymbolHit(label.Text, offset, uint8(symbol.Size), uint16(symbol.OptionalOffset))
-		// fmt.Printf("[?] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", label.Text, offset, label.Line, label.Column, symbol.OptionalOffset, true)
 	} else {
 		a.symbolTracker.SymbolHit(symbol.Text, offset, uint8(symbol.Size), uint16(symbol.OptionalOffset))
-		// fmt.Printf("[!] SYMBOL: text:>%16s<, offset: %04x, line: %4d, column: %4d, optionalOffset: %d, resolved: %v\n", symbol.Text, offset, 0, 0, symbol.OptionalOffset, true)
 	}
 	im.Add(uint16(symbol.OptionalOffset))
-	// fmt.Printf("* restoring symbol. symbol:>%s<, val: %04x, offset: %d\n", symbol.Text, im.GetValue(), offset)
 	a.machineCode[offset] = im.GetLowByte()
 	if im.GetSize() == 16 {
 		a.machineCode[offset+1] = im.GetHighByte()

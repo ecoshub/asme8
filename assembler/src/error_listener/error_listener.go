@@ -18,19 +18,15 @@ func NewCustomErrorListener() *CustomErrorListener {
 }
 
 func (l *CustomErrorListener) SyntaxError(_ antlr.Recognizer, _ interface{}, line, column int, msg string, _ antlr.RecognitionException) {
-	// fmt.Println("SyntaxError")
 	errorMessage := fmt.Sprintf("line %d:%d %s", line, column, msg)
 	l.Errors = append(l.Errors, errorMessage)
 }
 
 func (l *CustomErrorListener) ReportAmbiguity(_ antlr.Parser, _ *antlr.DFA, _ int, _ int, _ bool, _ *antlr.BitSet, _ *antlr.ATNConfigSet) {
-	// fmt.Println("ReportAmbiguity")
 }
 func (l *CustomErrorListener) ReportAttemptingFullContext(_ antlr.Parser, _ *antlr.DFA, _ int, _ int, _ *antlr.BitSet, _ *antlr.ATNConfigSet) {
-	// fmt.Println("ReportAttemptingFullContext")
 }
 func (l *CustomErrorListener) ReportContextSensitivity(_ antlr.Parser, _ *antlr.DFA, _ int, _ int, _ int, _ *antlr.ATNConfigSet) {
-	// fmt.Println("ReportContextSensitivity")
 }
 
 func (l *CustomErrorListener) NewSimpleError(msg string, line, column int) {

@@ -16,11 +16,11 @@ var (
 
 func OutTest(t *testing.T, expected, got []byte) {
 	if len(expected) != len(got) {
-		t.Fatalf("out is wrong. expected: %s, got: %s", ToHexArray(expected), ToHexArray(got))
+		t.Fatalf("out is wrong. expected:\n %s, got:\n %s", ToHexArray(expected), ToHexArray(got))
 	}
 	for i := 0; i < len(got); i++ {
 		if expected[i] != got[i] {
-			t.Fatalf("out is wrong. index: %d, expected: %s, got: %s", i, ToHexArray(expected), ToHexArray(got))
+			t.Fatalf("out is wrong. index: %d, expected:\n %s, got:\n %s", i, ToHexArray(expected), ToHexArray(got))
 		}
 	}
 }

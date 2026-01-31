@@ -44,13 +44,24 @@ func (sp *StatePanel) Render() {
 		visualStep = ((int(step) + stepLen - 1) % stepLen) + 1
 	}
 
+	registerStatus := ""
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_A])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_B])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_C])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_D])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_E])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_IPH])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_IPL])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPH])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPL])
+
 	// NOTE: can not try to convert for 'multi write'. do not try it please...
 	sp.logfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
 	sp.logfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")
 	sp.logfFlagIndexWithStyle(2, DefaultStyle6, "%s", status)
 	sp.logfFlagIndexWithStyle(3, DefaultStyle6, "")
 	sp.logfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  E  IH IL BH BL")
-	sp.logfFlagIndexWithStyle(5, DefaultStyle7, "%s", registers)
+	sp.logfFlagIndexWithStyle(5, DefaultStyle7, "%s", registerStatus)
 	sp.logfFlagIndexWithStyle(6, DefaultStyle7, "")
 	sp.logfFlagIndexWithStyle(7, DefaultStyle1, "IR   : %02x [%s]", ir, instruction.INST_HUMAN_READABLE[ir])
 	sp.logfFlagIndexWithStyle(8, DefaultStyle1, "STEP : %d/%d", visualStep, stepLen)

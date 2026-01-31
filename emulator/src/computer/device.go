@@ -88,7 +88,8 @@ func (c *Computer) CreateDevices() error {
 		return fmt.Errorf("memory config must define RAM")
 	}
 
-	c.SetStackStart(ramStart + 0xff)
+	c.ramStart = ramStart
+	c.SetStackStart(ramStart + StackSize)
 
 	return nil
 }

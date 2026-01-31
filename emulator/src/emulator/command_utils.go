@@ -16,15 +16,10 @@ func splitNumberCommand(command string, prefixes ...string) (int64, bool, error)
 	var n int64
 	if strings.HasPrefix(param, "0x") {
 		param = strings.TrimPrefix(param, "0x")
-		n, err = strconv.ParseInt(param, 16, 64)
-		if err != nil {
-			return 0, true, fmt.Errorf("parse hex error. command: %s, err: %s", command, err)
-		}
-		return n, true, nil
 	}
-	n, err = strconv.ParseInt(param, 10, 64)
+	n, err = strconv.ParseInt(param, 16, 64)
 	if err != nil {
-		return 0, true, fmt.Errorf("parse number error. command: %s, err: %s", command, err)
+		return 0, true, fmt.Errorf("parse hex error. command: %s, err: %s", command, err)
 	}
 	return n, true, nil
 }

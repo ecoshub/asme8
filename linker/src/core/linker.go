@@ -101,21 +101,17 @@ func (l *Linker) OutCode(path string) (int, error) {
 }
 
 func (l *Linker) putLinkerGlobals() {
-	// fmt.Println("LINKER GLOBALS:")
-	// fmt.Println("    VALUE        SYMBOL")
 	for _, m := range l.config.MemoryConfig.Configs {
 		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
-		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
-		// fmt.Printf("    0x%04x       %s\n", linkerGlobalSymbol.GetIndex(), linkerGlobalSymbol.GetSymbol())
 	}
 }
 
@@ -129,7 +125,6 @@ func ResolveMemoryLayout(ml []*config.Memory) error {
 			m.Start = &config.NullableValue{Value: offset}
 			offset += m.Size.Value
 		}
-		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size.Value, m.Type)
 	}
 	return nil
 }
@@ -177,11 +172,9 @@ func (l *Linker) putExplicitSegment(o *object.ELF, m *config.Memory, s *config.S
 	offset := l.memoryLastSegmentOffset[m.Name]
 	position := m.Start.Value + offset
 	l.segmentOffsets[s.Name] = position
-	// fmt.Printf("writing to %s to %s, from: %04x, to: %04x\n", s.Name, m.Name, position, position+length)
 	if position+length > m.Start.Value+m.Size.Value {
 		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
 	}
-	// fmt.Println(m.Name, s.Name, position, length, position+length)
 	copy(l.memory[position:position+length], bin[:length])
 	l.memoryLastSegmentOffset[m.Name] += length
 	return nil
@@ -236,7 +229,6 @@ func (l *Linker) resolveSymbols() error {
 }
 
 func (l *Linker) resolveReference() error {
-	// fmt.Println("REFERENCE RESOLVING")
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
 		_, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
@@ -254,7 +246,6 @@ func (l *Linker) resolveReference() error {
 				s.SetIndex(uint16(int32(sym.GetIndex()) + offset))
 				s.SetReference("", 0)
 				s.SetType(sym.GetType())
-				// fmt.Println("REFERENCE RESTORED", s.GetSymbol(), ref, offset)
 				pushSymbol(segment, s, l.globals)
 				continue
 			}
@@ -272,7 +263,6 @@ func (l *Linker) linkSymbols() error {
 			continue
 		}
 
-		// fmt.Println("---", segment, "---")
 		// symbols := o.Tracker.GetSymbols()
 		positions := o.Tracker.GetPositions()
 		for _, p := range positions {

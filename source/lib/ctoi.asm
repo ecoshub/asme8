@@ -62,7 +62,7 @@ hex_conv_loop:
     cmp a, CHAR_NOT_VALID           ; check if char is valid
     jz buffer_not_valid             ; return if not
     push c                          ; save c
-    mov c, a                        ; get a to c
+    ; mov c, a                        ; get a to c
     mov c, [CONVERTER_BUFFER]       ; get lower part of result
     mov d, [CONVERTER_BUFFER+1]     ; get upper part of result
     shl c                           ; shift lower and upper  (16 bit) 4 times 

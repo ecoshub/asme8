@@ -579,6 +579,25 @@ ADDR=0xabcd
 				instruction.INST_POP_SR,
 			},
 		},
+		{
+			Name: "index pointer low-high register",
+			Code: `
+
+    mov a, 0xff
+    mov [0x3010], a
+    mov ipl, 0x10
+    mov iph, 0x30
+    mov b, [ip]
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x10, 0x30,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x30,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP,
+			},
+		},
 	}
 )
 

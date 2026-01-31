@@ -12,7 +12,7 @@ type MemoryPanel struct {
 	enabled     bool
 	memoryPanel *panel.Stack
 	devices     []connectable.Connectable
-	offset      int
+	offset      uint16
 }
 
 func NewMemoryPanel(memoryPanel *panel.Stack, devices []connectable.Connectable) *MemoryPanel {
@@ -23,12 +23,12 @@ func NewMemoryPanel(memoryPanel *panel.Stack, devices []connectable.Connectable)
 	}
 }
 
-func (mp *MemoryPanel) IncOffset(value int) {
+func (mp *MemoryPanel) IncOffset(value uint16) {
 	mp.offset += value
 	mp.Render()
 }
 
-func (mp *MemoryPanel) SetOffset(value int) {
+func (mp *MemoryPanel) SetOffset(value uint16) {
 	mp.offset = value
 	mp.Render()
 }
@@ -48,7 +48,7 @@ func (mp *MemoryPanel) Render() {
 	lineCount := 0
 	logLines := make([]string, 0, height)
 	for i := 0; i < 0x10000; i += 8 {
-		index := i + mp.offset
+		index := i + int(mp.offset)
 		if index > 0xffff {
 			logLines = append(logLines, "")
 		} else {

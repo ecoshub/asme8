@@ -6,6 +6,7 @@ import (
 	"asme8/emulator/src/emulator/panel"
 	"asme8/emulator/src/terminal"
 	"asme8/emulator/utils"
+	"fmt"
 )
 
 type Config struct {
@@ -62,6 +63,7 @@ func (e *Emulator) renderPanels() {
 func (e *Emulator) Run() {
 	e.computer.AttachTickEventHandle(e.tickHandle)
 	e.computer.AttachBreakEventHandle(e.breakHandle)
+	e.terminal.Components.Screen.CommandPalette.Config.AllowEnterNullString = true
 	e.terminal.Components.Screen.CommandPalette.ListenKeyEventEnter(e.handleCommand)
 	e.terminal.Keyboard.AttachPipeChange(e.pipeChangeHandler)
 	e.computer.GetInputBus().AttachBusChange(e.busChangeHandle)
@@ -81,12 +83,15 @@ func (e *Emulator) pipeChangeHandler(pipeInput bool) {
 
 func (e *Emulator) breakHandle(pc uint16) {
 	e.sysLogPanel.Log(" # code hit the 'break' computer halted")
+	e.setTrackExecution(true)
 }
 
 func (e *Emulator) tickHandle(pc uint16, step uint8) {
 	e.statePanel.Render()
 	e.CheckBreakPoint(pc)
-	e.codePanel.Render(pc, true)
+	if step == 0 {
+		e.codePanel.Render(pc, true)
+	}
 }
 
 func (e *Emulator) busChangeHandle(rw uint8) {
@@ -95,10 +100,11 @@ func (e *Emulator) busChangeHandle(rw uint8) {
 	}
 }
 
-func (e *Emulator) CheckBreakPoint(pc uint16) {
+func (e *Emulator) CheckBreakPoint(pc uint16) bool {
 	if !e.breakpointManager.CheckAndHitBreakpoint(pc) {
-		return
+		return false
 	}
 	e.computer.SetPause(true)
-	e.sysLogPanel.Logf("break point!")
+	e.sysLogPanel.LogWithStyle(fmt.Sprintf("● break point hit. pc: %04x", pc), panel.BreakStyle)
+	return true
 }

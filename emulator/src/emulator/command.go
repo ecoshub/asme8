@@ -2,7 +2,6 @@ package emulator
 
 import (
 	"asme8/assembler/src/utils"
-	"asme8/emulator/src/computer"
 	"asme8/emulator/src/emulator/panel"
 	"asme8/emulator/src/terminal"
 	"fmt"
@@ -34,9 +33,23 @@ const (
 	CommandShortClearBreakpoints    string = "cb"
 	CommandLoadAsmFile              string = "load-asm"
 	CommandLoadBinFile              string = "load-bin"
+	CommandShortScrollCodePanelDown string = ">"
+	CommandShortScrollCodePanelUp   string = "<"
+	CommandShortScrollCodePanelTop  string = "<<"
+	CommandShortScrollCodePanelBot  string = ">>"
+	CommandToggleCodeTracking       string = "track"
+	CommandShortToggleCodeTracking  string = "tr"
 )
 
 func (e *Emulator) handleCommand(input string) {
+	if input == "" {
+		lastCommand := e.commandPalette.GetLastCommand()
+		if lastCommand != "" {
+			e.handleCommand(lastCommand)
+			return
+		}
+	}
+
 	tokens := strings.Split(input, " ")
 	cmd := tokens[0]
 	switch cmd {
@@ -68,10 +81,73 @@ func (e *Emulator) handleCommand(input string) {
 		e.commandLoadAsmFile(input)
 	case CommandLoadBinFile:
 		e.commandLoadBinFile(input)
+	case CommandShortScrollCodePanelDown:
+		e.commandScrollCodePanelDown(input)
+	case CommandShortScrollCodePanelUp:
+		e.commandScrollCodePanelUp(input)
+	case CommandShortScrollCodePanelTop:
+		e.commandScrollCodePanelTop(input)
+	case CommandShortScrollCodePanelBot:
+		e.commandScrollCodePanelBot(input)
+	case CommandShortToggleCodeTracking, CommandToggleCodeTracking:
+		e.commandToggleCodeTracking(input)
 	default:
 		e.sysLogPanel.LogWithStyle(fmt.Sprintf("command not found. command: '%s'", input), style.DefaultStyleError)
 	}
 	e.commandPalette.AddToCommandHistory(input)
+}
+
+func (e *Emulator) commandToggleCodeTracking(_ string) {
+	tracking := e.codePanel.ToggleTrackExecution()
+	if tracking {
+		e.sysLogPanel.LogWithStyle("tracking enabled", style.DefaultStyleInfo)
+	} else {
+		e.sysLogPanel.LogWithStyle("tracking disabled", style.DefaultStyleInfo)
+	}
+}
+
+func (e *Emulator) setTrackExecution(tracking bool) {
+	if e.codePanel.GetTrackExecution() == tracking {
+		return
+	}
+	e.codePanel.SetTrackExecution(tracking)
+	if tracking {
+		e.sysLogPanel.LogWithStyle("tracking enabled", style.DefaultStyleInfo)
+	} else {
+		e.sysLogPanel.LogWithStyle("tracking disabled", style.DefaultStyleInfo)
+	}
+}
+
+func (e *Emulator) commandScrollCodePanelDown(_ string) {
+	e.setTrackExecution(false)
+	e.codePanel.SetSkipRequest(1)
+	e.codePanel.Render(e.computer.GetProgramCounter(), true)
+	skip := e.codePanel.GetSkip()
+	e.sysLogPanel.LogWithStyle(fmt.Sprintf(" -- page %d --", skip+1), style.DefaultStyleInfo)
+}
+
+func (e *Emulator) commandScrollCodePanelUp(_ string) {
+	e.setTrackExecution(false)
+	e.codePanel.SetSkipRequest(-1)
+	e.codePanel.Render(e.computer.GetProgramCounter(), true)
+	skip := e.codePanel.GetSkip()
+	e.sysLogPanel.LogWithStyle(fmt.Sprintf(" -- page %d --", skip+1), style.DefaultStyleInfo)
+}
+
+func (e *Emulator) commandScrollCodePanelTop(_ string) {
+	e.setTrackExecution(false)
+	e.codePanel.SetSkipTop()
+	e.codePanel.Render(e.computer.GetProgramCounter(), true)
+	skip := e.codePanel.GetSkip()
+	e.sysLogPanel.LogWithStyle(fmt.Sprintf(" -- page %d --", skip+1), style.DefaultStyleInfo)
+}
+
+func (e *Emulator) commandScrollCodePanelBot(_ string) {
+	e.setTrackExecution(false)
+	e.codePanel.SetSkipBot()
+	e.codePanel.Render(e.computer.GetProgramCounter(), true)
+	skip := e.codePanel.GetSkip()
+	e.sysLogPanel.LogWithStyle(fmt.Sprintf(" -- page %d --", skip+1), style.DefaultStyleInfo)
 }
 
 func (e *Emulator) commandLoadAsmFile(input string) {
@@ -178,10 +254,17 @@ func (e *Emulator) commandChangeClockSpeed(input string) {
 }
 
 func (e *Emulator) commandMemory(input string) {
-	if input == CommandShortMemory+" STACK" {
-		number := computer.StackStart
-		e.memoryPanel.SetOffset(int(number))
+	if input == CommandShortMemory+" STACK" || input == CommandShortMemory+" stack" {
+		number := e.computer.GetStartOfStack()
+		e.memoryPanel.SetOffset(number)
 		e.sysLogPanel.LogWithStyle(fmt.Sprintf("now memory page points to 0x%x [stack]", number), panel.DefaultStyle1)
+		return
+	}
+
+	if input == CommandShortMemory+" RAM" || input == CommandShortMemory+" ram" {
+		number := e.computer.GetRamStart()
+		e.memoryPanel.SetOffset(number)
+		e.sysLogPanel.LogWithStyle(fmt.Sprintf("now memory page points to 0x%x [ram]", number), panel.DefaultStyle1)
 		return
 	}
 
@@ -196,7 +279,7 @@ func (e *Emulator) commandMemory(input string) {
 		return
 	}
 
-	e.memoryPanel.SetOffset(int(number))
+	e.memoryPanel.SetOffset(uint16(number))
 	e.sysLogPanel.LogWithStyle(fmt.Sprintf("now memory page points to 0x%x", number), panel.DefaultStyle1)
 }
 
@@ -292,17 +375,19 @@ func (e *Emulator) commandHelp(_ string) {
 	e.sysLogPanel.LogWithStyle("help:", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- help | h  ...........: display this help dialog", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- s ...................: start or stop the clock", panel.HelpStyle)
-	e.sysLogPanel.LogWithStyle("- t ...................: advance the clock by 1 cycles", panel.HelpStyle)
+	e.sysLogPanel.LogWithStyle("- t ...................: advance the clock by 1 cycle", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- b <n> ...............: add a breakpoint at address n", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- rb <n> ..............: remove the breakpoint at address n", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- lb ..................: list all breakpoints", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- cb ..................: clear all breakpoints", panel.HelpStyle)
-	e.sysLogPanel.LogWithStyle("- mem <n> .............: set memory starting at address n", panel.HelpStyle)
+	e.sysLogPanel.LogWithStyle("- mem <n> .............: set memory page starting at address n (or 'stack'/'ram')", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- r | restart .........: restart the emulator", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- hz | hz <n> .........: get or set clock speed in hertz (Hz)", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- load-asm | load-bin .: load a program from a '.asm' or '.bin' file", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- q | quit | exit .....: exit the emulator", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- c | clear ...........: clear the log panel", panel.HelpStyle)
+	e.sysLogPanel.LogWithStyle("- > | < | << | >> .....: scroll code panel down/up/top/bottom", panel.HelpStyle)
+	e.sysLogPanel.LogWithStyle("- track | tr ..........: toggle code execution tracking", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("tips:", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- <n> values can be decimal or hexadecimal with a '0x' prefix", panel.HelpStyle)

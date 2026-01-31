@@ -26,13 +26,13 @@ func (m *Manager) Remove(point uint16) {
 }
 
 func (m *Manager) CheckAndHitBreakpoint(point uint16) bool {
-	if m.hitPoint == point {
-		m.hitPoint = 0
-		return true
-	}
 	_, exists := m.breakpoints[point]
 	if exists {
 		m.hitPoint = point
+	}
+	if exists && m.hitPoint == point {
+		m.hitPoint = 0
+		return true
 	}
 	return exists
 }

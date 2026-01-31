@@ -2,6 +2,7 @@ package panel
 
 import (
 	"asme8/emulator/src/emulator/breakpoint"
+	"strings"
 
 	"github.com/ecoshub/termium/component/panel"
 	"github.com/ecoshub/termium/component/style"
@@ -32,6 +33,38 @@ func NewCodePanel(codeLines map[uint16]string, bpm *breakpoint.Manager, codePane
 		lineToOffsetMap: createLineToCodeOffsetMap(codeLines),
 		trackExecution:  true,
 	}
+}
+
+func (cp *CodePanel) SetTrackExecution(value bool) {
+	cp.trackExecution = value
+}
+
+func (cp *CodePanel) GetTrackExecution() bool {
+	return cp.trackExecution
+}
+
+func (cp *CodePanel) ToggleTrackExecution() bool {
+	cp.trackExecution = !cp.trackExecution
+	return cp.trackExecution
+}
+
+func (cp *CodePanel) SetSkipRequest(value int) {
+	cp.skipRequest = value
+}
+
+func (cp *CodePanel) SetSkipTop() {
+	cp.skip = 0
+	cp.skipRequest = 0
+}
+
+func (cp *CodePanel) SetSkipBot() {
+	totalPage := len(cp.codeLines) / cp.codePanel.Config.Height
+	cp.skip = totalPage
+	cp.skipRequest = 0
+}
+
+func (cp *CodePanel) GetSkip() int {
+	return cp.skip
 }
 
 func (cp *CodePanel) Clear() {
@@ -84,8 +117,7 @@ func (cp *CodePanel) trackPage(pc uint16) {
 }
 
 func (cp *CodePanel) staticPage(pc uint16) {
-	totalPage := len(cp.codeLines) / cp.codePanel.Config.Height
-	cp.processSkipRequest(totalPage)
+	cp.processSkipRequest()
 	cp.renderCodePanel(pc)
 }
 
@@ -108,7 +140,8 @@ func (cp *CodePanel) findPage(pc uint16) (int, bool) {
 	return 0, false
 }
 
-func (cp *CodePanel) processSkipRequest(totalPage int) {
+func (cp *CodePanel) processSkipRequest() {
+	totalPage := len(cp.codeLines) / cp.codePanel.Config.Height
 	if cp.skipRequest == 0 {
 		return
 	}
@@ -164,7 +197,13 @@ func (cp *CodePanel) isExecutedLineShown(start, height int, pc uint16) (bool, in
 }
 
 func (cp *CodePanel) renderStandartLines(lines []string) {
-	cp.codePanel.WriteMultiStyle(lines, CodeStyle)
+	for i, line := range lines {
+		if strings.Contains(line, ":") {
+			cp.codePanel.Write(i, line, DefaultStyle4)
+			continue
+		}
+		cp.codePanel.Write(i, line, CodeStyle)
+	}
 }
 
 func (cp *CodePanel) renderBreakpoints(breakPoints map[int]string) {

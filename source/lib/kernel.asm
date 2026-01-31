@@ -8,7 +8,7 @@
 
 .segment "SEG_KERNEL"
 
-    global ADDR_PUT_CHAR                ; char put address for serial terminals creen
+    global ADDR_PUT_CHAR                ; char put address for serial terminals screen
     global ADDR_GET_CHAR                ; char read address from keyboard interface
     global ADDR_READY_CHAR              ; char ready address from keyboard interface
     global CONVERTER_BUFFER             ; converter utils buffer

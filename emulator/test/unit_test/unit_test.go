@@ -1620,6 +1620,32 @@ var (
 				},
 			},
 		},
+		{
+			Name: "index pointer reconstruction",
+			// mov a, 0xff
+			// mov [0x3010], a
+			// mov ipl, 0x10
+			// mov iph, 0x30
+			// mov b, [ip]
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x10, 0x30,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x30,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x30},
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0xff},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0xff},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM, Addr: 0x3010, Data: 0xff},
+				},
+			},
+		},
 	}
 )
 

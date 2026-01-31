@@ -16,11 +16,7 @@ import (
 )
 
 const (
-	DefaultMemorySize = 1 << 16
-)
-
-var (
-	StackStart uint16
+	StackSize uint16 = 0xff
 )
 
 type Computer struct {
@@ -41,12 +37,14 @@ type Computer struct {
 	aluOut       bool
 	bridgeEnable bool
 
-	aluBus    *bus.Bus
-	outputBus *bus.Bus
-	inputBus  *bus.Bus
-	addrBus   *bus.Bus
-	rw        uint8 // read 1 write 0
-	devices   []connectable.Connectable
+	aluBus     *bus.Bus
+	outputBus  *bus.Bus
+	inputBus   *bus.Bus
+	addrBus    *bus.Bus
+	rw         uint8 // read 1 write 0
+	devices    []connectable.Connectable
+	stackStart uint16
+	ramStart   uint16
 
 	terminal         *terminal.Terminal
 	tickEventHandle  func(pc uint16, step uint8)
@@ -107,7 +105,7 @@ func (c *Computer) IsProgramLoaded() bool {
 }
 
 func (c *Computer) SetStackStart(start uint16) {
-	StackStart = start
+	c.stackStart = start
 	c.stackPointer = start
 }
 
@@ -160,7 +158,11 @@ func (c *Computer) GetStackPointer() uint16 {
 }
 
 func (c *Computer) GetStartOfStack() uint16 {
-	return StackStart
+	return c.stackStart
+}
+
+func (c *Computer) GetRamStart() uint16 {
+	return c.ramStart
 }
 
 func (c *Computer) GetMemoryAddressRegister() uint16 {
@@ -258,7 +260,7 @@ func (c *Computer) Reset(excludeROM bool, startWithPause bool) {
 	c.instructionRegister = 0
 	c.operandRegister = 0
 	c.programCounter = 0
-	c.stackPointer = StackStart
+	c.stackPointer = c.stackStart
 	c.memoryAddressRegister = 0
 	c.memoryAddressRegister = 0
 	c.rw = utils.IO_READ

@@ -1152,10 +1152,16 @@ var (
 			// mov ipl, 0x10
 			// mov iph, 0x20
 			// push ip
+			// mov ipl, 0x11
+			// mov iph, 0x21
+			// pop ip
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
 				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x21,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x12,
+				instruction.INST_POP_REG16, instruction.REGISTER_OPCODE_IP,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{

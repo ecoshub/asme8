@@ -140,10 +140,10 @@ write_loop:
     call __STR_CONV_HEX__               ; execute conversion subroutine
     pop c                               ; restore c
     pop d                               ; restore d
-    mov a, [CONVERTER_BUFFER]           ; read converted value from converter buffer
     push ip                             ; save ip
     mov ipl, [RANGE_START]              ; set ip=range_start(16 bit)
     mov iph, [RANGE_START+1]
+    mov a, [CONVERTER_BUFFER]           ; read converted value from converter buffer
     mov [ip+c], a                       ; set a to memory address plus offset
     pop ip                              ; restore ip
     add ipl, 2                          ; increment char buffer start as 2 byte

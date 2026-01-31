@@ -10,6 +10,7 @@ This project is a fully custom-designed 8-bit computer, including its own instru
 - [4. Getting Started Guide](#4-getting-started-guide)  
 - [5. Hardware Specs (Planned)](#5-hardware-specs-planned)  
 - [6. Future Enhancements (Planned)](#6-future-enhancements-planned)  
+- [7. Fast Start](#7-how-to-run)
 
 <br>
 <br>
@@ -495,3 +496,31 @@ The E8 computer is designed with expandability in mind, allowing for future soft
   Implement a basic terminal interface and shell for user interaction.  
   - **Terminal**: Display text output and handle keyboard input.
   - **Shell**:  Provide a command-line interface (CLI) for executing programs and managing files.  
+
+
+# 7. Fast Start
+
+## 1. Run single `.asm` file
+Use test file in the root directory. (`test.asm`)
+
+```sh
+# if you have go installed
+go run emulator/cmd/main.go --config default_config --load-asm test.asm
+
+#if you have the binary file
+bin/emu_asme8 --config default_config --load-asm debug.asm
+```
+
+#### What the hell is `default_config`?
+It is a bios configuration file. it contains a default memory map. something like that 
+
+```
+MEMORY {
+    ROM: size=0x2000, type=ro;
+    RAM: size=0xdfec, type=rw;
+    SERIAL: size=0x3, type=rw;
+    INT: start=0xffef, size=0x10, type=rw;
+}
+```
+
+Thats it!

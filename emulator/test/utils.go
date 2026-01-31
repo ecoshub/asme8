@@ -44,7 +44,7 @@ func GetComp() *computer.Computer {
 				{Name: "RAM", Size: config.NewNullable(0xdfff), Type: "rw"},
 			},
 		},
-		IsHeadless:     true,
+		Headless:       true,
 		Delay:          time.Nanosecond,
 		EnableTestMode: true,
 	})

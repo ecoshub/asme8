@@ -12,6 +12,10 @@ type SystemLogPanel struct {
 	sysLogPanel *panel.Stack
 }
 
+func NewSystemLogPanelCLI() *SystemLogPanel {
+	return &SystemLogPanel{}
+}
+
 func NewSystemLogPanel(sysLogPanel *panel.Stack) *SystemLogPanel {
 	return &SystemLogPanel{
 		sysLogPanel: sysLogPanel,

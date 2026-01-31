@@ -121,10 +121,6 @@ func (c *Computer) IsRunning() bool {
 	return c.running
 }
 
-func (c *Computer) SetDebug(enable bool) {
-	c.Config.EnableDebug = enable
-}
-
 func (c *Computer) SetDelay(delay time.Duration) {
 	c.Config.Delay = delay
 }
@@ -217,9 +213,10 @@ func (c *Computer) Run() {
 		return
 	}
 
-	if c.Config.IsHeadless {
+	if c.Config.Headless {
 		c.SetPause(false)
-		c.SetDebug(true)
+		c.run()
+		return
 	} else {
 		c.SetPause(true)
 	}
@@ -231,9 +228,6 @@ func (c *Computer) Run() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
 
-	if !c.Config.IsHeadless {
-		terminal.ResetScreen()
-	}
 }
 
 func (c *Computer) Stop() {

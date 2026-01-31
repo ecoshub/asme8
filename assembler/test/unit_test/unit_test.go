@@ -598,6 +598,205 @@ ADDR=0xabcd
 				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP,
 			},
 		},
+		{
+			Name: "directive .byte",
+			Code: `
+.byte 0x41, 0x42, 0x43
+
+`,
+			Expected: []byte{
+				0x41, 0x42, 0x43,
+			},
+		},
+		{
+			Name: "directive .word",
+			Code: `
+.word 0x1000, 0x2000
+
+`,
+			Expected: []byte{
+				0x00, 0x10, 0x00, 0x20,
+			},
+		},
+		{
+			Name: "directive .resb",
+			Code: `
+.resb 3
+
+start:
+    mov a, 0x10
+
+`,
+			Expected: []byte{
+				0x00, 0x00, 0x00,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+			},
+		},
+		{
+			Name: "directive .asciiz",
+			Code: `
+.asciiz "Hi"
+
+`,
+			Expected: []byte{
+				'H', 'i', 0x00,
+			},
+		},
+		{
+			Name: "directive .ascii",
+			Code: `
+.ascii "OK"
+
+`,
+			Expected: []byte{
+				'O', 'K',
+			},
+		},
+		{
+			Name: "variable simple",
+			Code: `
+CONST=0x42
+
+start:
+    mov a, CONST
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x42,
+			},
+		},
+		{
+			Name: "label reference in jump",
+			Code: `
+start:
+    mov a, 0x05
+    cmp a, 0x00
+    jz done
+    mov a, 0x01
+
+done:
+    brk
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x05,
+				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x00,
+				instruction.INST_JZ_IMPL_IMM16, 0x0c, 0x00,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
+				instruction.INST_BRK_IMPL,
+			},
+		},
+		{
+			Name: "label with code sections",
+			Code: `
+code_start:
+    mov a, 0x11
+
+code_end:
+    mov a, 0x22
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x11,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x22,
+			},
+		},
+		{
+			Name: "directives with variables",
+			Code: `
+INIT=0xAA
+
+.resb 2
+.byte INIT, INIT
+
+start:
+    mov a, INIT
+
+`,
+			Expected: []byte{
+				0x00, 0x00,
+				0xAA, 0xAA,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xAA,
+			},
+		},
+		{
+			Name: "directive in middle of code",
+			Code: `
+start:
+    mov a, 0x10
+    mov b, 0x20
+
+.byte 0x99, 0x88
+
+end:
+    brk
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
+				0x99, 0x88,
+				instruction.INST_BRK_IMPL,
+			},
+		},
+		{
+			Name: "resb at end of code block",
+			Code: `
+start:
+    mov a, 0x01
+    mov b, 0x02
+
+.resb 4
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
+				0x00, 0x00, 0x00, 0x00,
+			},
+		},
+		{
+			Name: "multiple directives interleaved with code",
+			Code: `
+CODE=0x01
+DATA=0xAA
+
+start:
+    mov a, CODE
+
+.byte DATA
+
+    mov b, CODE
+
+.word 0x1234
+
+end:
+    brk
+
+`,
+			Expected: []byte{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
+				0xAA,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x01,
+				0x34, 0x12,
+				instruction.INST_BRK_IMPL,
+			},
+		},
+		{
+			Name: "directive after label",
+			Code: `
+data_section:
+.byte 0x11, 0x22, 0x33
+
+code_section:
+    mov a, 0x44
+
+`,
+			Expected: []byte{
+				0x11, 0x22, 0x33,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x44,
+			},
+		},
 	}
 )
 

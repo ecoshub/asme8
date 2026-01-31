@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	EnableDebug bool
+	Headless    bool
 }
 
 type Emulator struct {
@@ -26,6 +27,16 @@ type Emulator struct {
 }
 
 func New(computer *computer.Computer, conf *Config) *Emulator {
+	if conf.Headless {
+		return &Emulator{
+			conf:              conf,
+			computer:          computer,
+			breakpointManager: breakpoint.NewManager(),
+			statePanel:        panel.NewStatePanel(computer, nil),
+			sysLogPanel:       panel.NewSystemLogPanelCLI(),
+			codePanel:         &panel.CodePanel{},
+		}
+	}
 	terminal := computer.GetTerminal()
 	devices := computer.GetDevices()
 	return &Emulator{
@@ -42,6 +53,10 @@ func New(computer *computer.Computer, conf *Config) *Emulator {
 }
 
 func (e *Emulator) CreateCodePanel(codeLines map[uint16]string, hasSymbols bool) {
+	if e.conf.Headless {
+		e.sysLogPanel.Log("# Headless emulator is running")
+		return
+	}
 	e.codePanel = panel.NewCodePanel(codeLines, e.breakpointManager, e.terminal.Components.CodePanel, e.terminal.Components.CodeRulerPanel)
 	if !hasSymbols {
 		e.sysLogPanel.Log("- Symbol file not found. Can not render code panel.")
@@ -63,13 +78,17 @@ func (e *Emulator) renderPanels() {
 func (e *Emulator) Run() {
 	e.computer.AttachTickEventHandle(e.tickHandle)
 	e.computer.AttachBreakEventHandle(e.breakHandle)
-	e.terminal.Components.Screen.CommandPalette.Config.AllowEnterNullString = true
-	e.terminal.Components.Screen.CommandPalette.ListenKeyEventEnter(e.handleCommand)
-	e.terminal.Keyboard.AttachPipeChange(e.pipeChangeHandler)
-	e.computer.GetInputBus().AttachBusChange(e.busChangeHandle)
-	e.renderPanels()
-	e.commandHelp("")
-	go e.terminal.Run()
+	if e.conf.Headless {
+		e.statePanel.PrintStateHeader()
+	} else {
+		e.terminal.Components.Screen.CommandPalette.Config.AllowEnterNullString = true
+		e.terminal.Components.Screen.CommandPalette.ListenKeyEventEnter(e.handleCommand)
+		e.terminal.Keyboard.AttachPipeChange(e.pipeChangeHandler)
+		e.computer.GetInputBus().AttachBusChange(e.busChangeHandle)
+		e.commandHelp("")
+		e.renderPanels()
+		go e.terminal.Run()
+	}
 	e.computer.Run()
 }
 
@@ -82,11 +101,14 @@ func (e *Emulator) pipeChangeHandler(pipeInput bool) {
 }
 
 func (e *Emulator) breakHandle(pc uint16) {
-	e.sysLogPanel.Log(" # code hit the 'break' computer halted")
+	e.sysLogPanel.LogWithStyle("# code hit the 'break' computer halted", panel.WarningStyle)
 	e.setTrackExecution(true)
 }
 
 func (e *Emulator) tickHandle(pc uint16, step uint8) {
+	if !e.computer.IsRunning() {
+		return
+	}
 	e.statePanel.Render()
 	e.CheckBreakPoint(pc)
 	if step == 0 {

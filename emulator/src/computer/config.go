@@ -10,6 +10,6 @@ type Config struct {
 	MemoryConfig   *config.MemoryConfig
 	EnableDebug    bool
 	EnableTestMode bool
-	IsHeadless     bool
+	Headless       bool
 	Delay          time.Duration
 }

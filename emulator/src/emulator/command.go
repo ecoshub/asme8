@@ -107,6 +107,9 @@ func (e *Emulator) commandToggleCodeTracking(_ string) {
 }
 
 func (e *Emulator) setTrackExecution(tracking bool) {
+	if e.conf.Headless {
+		return
+	}
 	if e.codePanel.GetTrackExecution() == tracking {
 		return
 	}
@@ -363,11 +366,11 @@ func (e *Emulator) commandStartStop(_ string) {
 		return
 	}
 	if e.computer.IsPause() {
-		e.sysLogPanel.LogWithStyle("Running", panel.WarningStyle)
+		e.sysLogPanel.LogWithStyle("Running", style.DefaultStyleInfo)
 		e.computer.SetPause(false)
 		return
 	}
-	e.sysLogPanel.LogWithStyle("Pause", panel.WarningStyle)
+	e.sysLogPanel.LogWithStyle("Pause", style.DefaultStyleInfo)
 	e.computer.SetPause(true)
 }
 

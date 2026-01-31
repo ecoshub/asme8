@@ -66,7 +66,7 @@ func (c *Computer) CreateDevices() error {
 			}
 		}
 		if strings.HasPrefix(mc.Name, "SERIAL") {
-			if c.Config.IsHeadless {
+			if c.Config.Headless {
 				continue
 			}
 			term, err = terminal.New(int(mc.Size.Value), true)

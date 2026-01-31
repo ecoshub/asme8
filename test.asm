@@ -1,6 +1,4 @@
 start:
-    mov a, 0x01
-    mov b, 0x02
-    mov c, 0x03
-    mov d, 0x04
+    mov a, 0x10
+    mov b, 0x11
     brk

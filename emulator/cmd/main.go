@@ -42,7 +42,7 @@ func main() {
 
 	c, err := computer.New(&computer.Config{
 		MemoryConfig: conf.MemoryConfig,
-		IsHeadless:   *flagHeadless,
+		Headless:     *flagHeadless,
 		Program:      program,
 		Delay:        *flagDelay,
 	})
@@ -62,7 +62,9 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	e := emulator.New(c, &emulator.Config{})
+	e := emulator.New(c, &emulator.Config{
+		Headless: *flagHeadless,
+	})
 	e.CreateCodePanel(codeLines, hasSymbols)
 	e.Run()
 }

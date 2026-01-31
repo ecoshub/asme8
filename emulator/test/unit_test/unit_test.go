@@ -1659,8 +1659,6 @@ func TestCore(t *testing.T) {
 	// Run only test cases with debug flag
 	for _, tc := range Tests {
 		if tc.Debug {
-			c := test.GetComp()
-			c.SetDebug(true)
 			test.RunCase(t, tc)
 			return
 		}

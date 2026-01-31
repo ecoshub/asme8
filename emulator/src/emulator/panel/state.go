@@ -22,6 +22,7 @@ func NewStatePanel(computer *computer.Computer, statePanel *panel.Stack) *StateP
 }
 
 func (sp *StatePanel) Render() {
+
 	ir := sp.computer.GetInstructionRegister()
 	pc := sp.computer.GetProgramCounter()
 	step := sp.computer.GetStep()
@@ -54,6 +55,15 @@ func (sp *StatePanel) Render() {
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_IPL])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPH])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPL])
+
+	if sp.statePanel == nil {
+		be := 0
+		if bridgeEnable {
+			be = 1
+		}
+		fmt.Printf("# %04x    %01d       %02x   %02x   %02x   %04x  %04x    %02x          %02x    %02x       %d   %x        %08b        %s\n", pc, step, ir, operandRegister, memoryDataRegister, memoryAddressRegister, addrBus, inputBus, aluBus, outputBus, rw, be, status.Flag(), registerStatus)
+		return
+	}
 
 	// NOTE: can not try to convert for 'multi write'. do not try it please...
 	sp.logfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
@@ -88,4 +98,8 @@ func (sp *StatePanel) logfFlagIndexWithStyle(index int, sty *style.Style, format
 		return
 	}
 	sp.statePanel.Write(index, fmt.Sprintf(format, a...), sty)
+}
+
+func (sp *StatePanel) PrintStateHeader() {
+	fmt.Printf("# pc      step    ir   or   mdr  mar   addr  input_bus  alu_bus  out_bus  rw  be flags(xxIOCPSZ)  regs(A  B  C  D  E  IH IL BH BL)\n")
 }

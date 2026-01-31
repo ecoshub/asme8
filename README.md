@@ -171,6 +171,8 @@ Each instruction consists of an opcode and optional operands, depending on the i
 ### **Example Code and Addressing Modes**  
 Below are code snippets demonstrating the E8 ISA's addressing modes and instruction types:
 
+And also you can find detailed assembly documentation from [here](ASSEMBLER_KEYWORDS.md)
+
 #### **1. Basic Data Movement**  
 ```asm
 ; Immediate addressing
@@ -501,18 +503,18 @@ The E8 computer is designed with expandability in mind, allowing for future soft
 # 7. Fast Start
 
 ## 1. Run single `.asm` file
-Use test file in the root directory. (`test.asm`)
+Use test file in the root directory. (`examples/print.asm`)
 
 ```sh
 # if you have go installed
-go run emulator/cmd/main.go --config default_config --load-asm test.asm
+go run emulator/cmd/main.go --config default_config --load-asm examples/print.asm
 
 #if you have the binary file
-bin/emu_asme8 --config default_config --load-asm debug.asm
+bin/emu_asme8 --config default_config --load-asm examples/print.asm
 ```
 
 #### What the hell is `default_config`?
-It is a bios configuration file. it contains a default memory map. something like that 
+It is a bios configuration file. it contains a default memory map. something like this: 
 
 ```
 MEMORY {

@@ -3,6 +3,7 @@ package assembler
 import (
 	"asme8/assembler/src/error_listener"
 	"asme8/assembler/src/parser"
+	"asme8/assembler/src/types"
 	"errors"
 	"fmt"
 
@@ -18,7 +19,12 @@ type Options struct {
 	SegmentAddr    uint16
 }
 
-func AssembleFile(options *Options) ([]byte, string, int, error) {
+type VariablePair struct {
+	Key string
+	Val uint16
+}
+
+func AssembleFile(options *Options, variables ...*VariablePair) ([]byte, string, int, error) {
 	if options == nil {
 		return nil, "", 0, errors.New("must provide at least file path with option")
 	}
@@ -45,6 +51,12 @@ func AssembleFile(options *Options) ([]byte, string, int, error) {
 
 	assembler := New(options.Mode)
 	assembler.AttachErrorListener(el)
+
+	for _, v := range variables {
+		val := types.NewValue(int64(v.Val))
+		assembler.ParseVariable(v.Key, val)
+	}
+
 	antlr.ParseTreeWalkerDefault.Walk(assembler, tree)
 
 	err = el.GetError()

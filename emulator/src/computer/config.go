@@ -6,10 +6,10 @@ import (
 )
 
 type Config struct {
-	Program        []byte
-	MemoryConfig   *config.MemoryConfig
-	EnableDebug    bool
-	EnableTestMode bool
-	Headless       bool
-	Delay          time.Duration
+	Program      []byte
+	MemoryConfig *config.MemoryConfig
+	Debug        bool
+	TestMode     bool
+	Headless     bool
+	Delay        time.Duration
 }

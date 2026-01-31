@@ -195,7 +195,6 @@ func (l *Linker) resolveSymbols() error {
 				if s.IsShare(object.SYMBOL_SHARE_STATUS_GLOBAL) {
 					return fmt.Errorf("symbol declared as 'global' but it is not found. segment: %s, symbol: '%s'", segment, sym)
 				}
-				// l.missing[segment] = s
 				pushSymbol(segment, s, l.missing)
 			}
 		}

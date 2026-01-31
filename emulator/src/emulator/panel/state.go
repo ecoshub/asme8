@@ -22,7 +22,6 @@ func NewStatePanel(computer *computer.Computer, statePanel *panel.Stack) *StateP
 }
 
 func (sp *StatePanel) Render() {
-
 	ir := sp.computer.GetInstructionRegister()
 	pc := sp.computer.GetProgramCounter()
 	step := sp.computer.GetStep()

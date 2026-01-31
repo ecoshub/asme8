@@ -44,9 +44,9 @@ func GetComp() *computer.Computer {
 				{Name: "RAM", Size: config.NewNullable(0xdfff), Type: "rw"},
 			},
 		},
-		Headless:       true,
-		Delay:          time.Nanosecond,
-		EnableTestMode: true,
+		Headless: true,
+		Delay:    time.Nanosecond,
+		TestMode: true,
 	})
 	if err != nil {
 		if err.Error() != "program not found" {

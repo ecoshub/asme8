@@ -207,7 +207,7 @@ func (c *Computer) Tick() {
 
 func (c *Computer) Run() {
 
-	if c.Config.EnableTestMode {
+	if c.Config.TestMode {
 		c.SetPause(false)
 		c.run()
 		return
@@ -298,6 +298,16 @@ func (c *Computer) tick() bool {
 func (c *Computer) run() {
 	if c.running {
 		return
+	}
+
+	if c.Config.TestMode {
+		c.running = true
+		for {
+			keep := c.tick()
+			if !keep {
+				return
+			}
+		}
 	}
 
 	t := time.NewTicker(c.Config.Delay)

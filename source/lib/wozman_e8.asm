@@ -158,6 +158,13 @@ break_execute_write:
 
 execute_run:
     call __RETURN__                     ; print '\n' and jump to given address
+    mov a, [SEPARATOR_INDEX]            ; read separator index
+    mov ip, CHAR_BUFFER                 ; pass char buffer
+    call __STR_CONV_HEX__               ; execute str_to_hex subroutine 
+    cmp a, CHAR_NOT_VALID               ; if it returns with CHAR_NOT_VALID
+    jz operation_failed                 ; jump to operation failed
+    mov ipl, [CONVERTER_BUFFER]           ; read low byte from converter buffer
+    mov iph, [CONVERTER_BUFFER+1]         ; read high byte from converter buffer
     jmp ip
 
 execute_read_range:

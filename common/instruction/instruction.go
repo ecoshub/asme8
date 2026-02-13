@@ -3,74 +3,134 @@ package instruction
 type Type = uint8
 
 const (
-	INST_BRK_IMPL                       Type = iota // example: brk
-	INST_NOP_IMPL                                   // example: nop
-	INST_JMP_REG16                                  // example: jmp ip
-	INST_JMP_IMPL_IMM16                             // example: jmp 0x1234
-	INST_JS_IMPL_IMM16                              // example: js 0x1234
-	INST_JNS_IMPL_IMM16                             // example: jns 0x1234
-	INST_JZ_IMPL_IMM16                              // example: jz 0x1234
-	INST_JNZ_IMPL_IMM16                             // example: jnz 0x1234
-	INST_JC_IMPL_IMM16                              // example: jc 0x1234
-	INST_JNC_IMPL_IMM16                             // example: jnc 0x1234
-	INST_CMP_REG8_REG8                              // example: cmp a, b
-	INST_CMP_REG8_IMM8                              // example: cmp a, 0x10
-	INST_ADD_REG8_REG8                              // example: add a, b
-	INST_ADD_REG8_IMM8                              // example: add a, 0x10
-	INST_ADD_SP_IMM8                                // example: add sp, 0x10
-	INST_ADD_REG16_IMM8                             // example: add ip, 0x10		(not necessary, use 'add ipl, 0x10' and 'adc iph, 0')
-	INST_ADC_REG8_REG8                              // example: adc a, b
-	INST_ADC_REG8_IMM8                              // example: adc a, 0x10
-	INST_SUB_REG8_REG8                              // example: sub a, b
-	INST_SUB_REG8_IMM8                              // example: sub a, 0x10
-	INST_SUB_SP_IMM8                                // example: sub sp, 0x10
-	INST_SUB_REG16_IMM8                             // example: sub ip, 0x10		(not necessary, use 'sub ipl, 0x10' and 'sbb iph, 0')
-	INST_SBB_REG8_REG8                              // example: sbb a, b
-	INST_SBB_REG8_IMM8                              // example: sbb a, 0x10
-	INST_INC_REG8                                   // example: inc a 				(not necessary, use 'add a, 1')
-	INST_INC_REG16                                  // example: inc ip 				(not necessary, use 'add ipl, 1' and 'adc iph, 0')
-	INST_DEC_REG8                                   // example: dec a 				(not necessary, use 'sub a, 1')
-	INST_DEC_REG16                                  // example: dec ip 				(not necessary, use 'sub ipl, 1' and 'sbb iph, 0')
-	INST_MOV_REG8_REG8                              // example: mov a, b
-	INST_MOV_REG8_IMM8                              // example: mov a, 0x10
-	INST_MOV_MEM_TO_REG_DIRECT                      // example: mov a, [0x1234]
-	INST_MOV_REG_TO_MEM_DIRECT                      // example: mov [0x1234], a
-	INST_MOV_MEM_TO_REG_INDEXED                     // example: mov a, [0x1234+b]
-	INST_MOV_REG_TO_MEM_INDEXED                     // example: mov [0x1234+b], a
-	INST_MOV_REG16_IMM16                            // example: mov ip, 0x1234
-	INST_MOV_REG16_REG16                            // example: mov ip, bp 			(not necessary, use 'mov ipl, bpl' and 'mov iph, bph')
-	INST_MOV_REG16_SP                               // example: mov sp, ip
-	INST_MOV_SP_REG16                               // example: mov ip, sp
-	INST_MOV_REG_TO_MEM_INDIRECT                    // example: mov [ip], a
-	INST_MOV_MEM_TO_REG_INDIRECT                    // example: mov a, [ip]
-	INST_MOV_REG_TO_MEM_INDIRECT_OFFSET             // example: mov [ip+8], a
-	INST_MOV_MEM_TO_REG_INDIRECT_OFFSET             // example: mov a, [ip+8]
-	INST_MOV_REG_TO_MEM_REG16_INDEXED               // example: mov [ip+b], a
-	INST_MOV_MEM_TO_REG_REG16_INDEXED               // example: mov a, [ip+b]
-	INST_XOR_REG8_REG8                              // example: xor a, b
-	INST_XOR_REG8_IMM8                              // example: xor a, 0x10
-	INST_AND_REG8_REG8                              // example: and a, b
-	INST_AND_REG8_IMM8                              // example: and a, 0x10
-	INST_OR_REG8_REG8                               // example: or a, b
-	INST_OR_REG8_IMM8                               // example: or a, 0x10
-	INST_NOT_REG8                                   // example: not a 				(not necessary, use 'xor a, 0xff')
-	INST_SHL_REG8                                   // example: shl a
-	INST_SHR_REG8                                   // example: shr a
-	INST_ROL_REG8                                   // example: rol a
-	INST_ROR_REG8                                   // example: ror a
-	INST_CLC_IMPL                                   // example: clc
-	INST_PUSH_SP                                    // example: push sp
-	INST_PUSH_REG8                                  // example: push a
-	INST_PUSH_REG16                                 // example: push ip 			(not necessary, use 'push ipl' and 'push iph')
-	INST_PUSH_SR                                    // example: push sr
-	INST_POP_SP                                     // example: pop sp
-	INST_POP_REG8                                   // example: pop a
-	INST_POP_REG16                                  // example: pop ip				(not necessary, use 'pop iph' and 'pop ipl')
-	INST_POP_SR                                     // example: pop sr
-	INST_CALL_IMM16                                 // example: call 0x1234
-	INST_CALL_REG16                                 // example: call ip
-	INST_RET_IMPL                                   // example: ret
-	INST_RTI_IMPL                                   // example: rti
+	INST_BRK_IMPL                       Type = 0x00 // example: brk
+	INST_NOP_IMPL                       Type = 0x01 // example: nop
+	INST_JMP_REG16                      Type = 0x02 // example: jmp ip
+	INST_JMP_IMPL_IMM16                 Type = 0x03 // example: jmp 0x1234
+	INST_JS_IMPL_IMM16                  Type = 0x04 // example: js 0x1234
+	INST_JNS_IMPL_IMM16                 Type = 0x05 // example: jns 0x1234
+	INST_JZ_IMPL_IMM16                  Type = 0x06 // example: jz 0x1234
+	INST_JNZ_IMPL_IMM16                 Type = 0x07 // example: jnz 0x1234
+	INST_JC_IMPL_IMM16                  Type = 0x08 // example: jc 0x1234
+	INST_JNC_IMPL_IMM16                 Type = 0x09 // example: jnc 0x1234
+	INST_CMP_REG8_REG8                  Type = 0x0a // example: cmp a, b
+	INST_CMP_REG8_IMM8                  Type = 0x0b // example: cmp a, 0x10
+	INST_ADD_REG8_REG8                  Type = 0x0c // example: add a, b
+	INST_ADD_REG8_IMM8                  Type = 0x0d // example: add a, 0x10
+	INST_ADD_SP_IMM8                    Type = 0x0e // example: add sp, 0x10
+	INST_ADD_REG16_IMM8                 Type = 0x0f // example: add ip, 0x10		(not necessary, use 'add ipl, 0x10' and 'adc iph, 0')
+	INST_ADC_REG8_REG8                  Type = 0x10 // example: adc a, b
+	INST_ADC_REG8_IMM8                  Type = 0x11 // example: adc a, 0x10
+	INST_SUB_REG8_REG8                  Type = 0x12 // example: sub a, b
+	INST_SUB_REG8_IMM8                  Type = 0x13 // example: sub a, 0x10
+	INST_SUB_SP_IMM8                    Type = 0x14 // example: sub sp, 0x10
+	INST_SUB_REG16_IMM8                 Type = 0x15 // example: sub ip, 0x10		(not necessary, use 'sub ipl, 0x10' and 'sbb iph, 0')
+	INST_SBB_REG8_REG8                  Type = 0x16 // example: sbb a, b
+	INST_SBB_REG8_IMM8                  Type = 0x17 // example: sbb a, 0x10
+	INST_INC_REG8                       Type = 0x18 // example: inc a 				(not necessary, use 'add a, 1')
+	INST_INC_REG16                      Type = 0x19 // example: inc ip 				(not necessary, use 'add ipl, 1' and 'adc iph, 0')
+	INST_DEC_REG8                       Type = 0x1a // example: dec a 				(not necessary, use 'sub a, 1')
+	INST_DEC_REG16                      Type = 0x1b // example: dec ip 				(not necessary, use 'sub ipl, 1' and 'sbb iph, 0')
+	INST_MOV_REG8_REG8                  Type = 0x1c // example: mov a, b
+	INST_MOV_REG8_IMM8                  Type = 0x1d // example: mov a, 0x10
+	INST_MOV_MEM_TO_REG_DIRECT          Type = 0x1e // example: mov a, [0x1234]
+	INST_MOV_REG_TO_MEM_DIRECT          Type = 0x1f // example: mov [0x1234], a
+	INST_MOV_MEM_TO_REG_INDEXED         Type = 0x20 // example: mov a, [0x1234+b]
+	INST_MOV_REG_TO_MEM_INDEXED         Type = 0x21 // example: mov [0x1234+b], a
+	INST_MOV_REG16_IMM16                Type = 0x22 // example: mov ip, 0x1234
+	INST_MOV_REG16_REG16                Type = 0x23 // example: mov ip, bp 			(not necessary, use 'mov ipl, bpl' and 'mov iph, bph')
+	INST_MOV_REG16_SP                   Type = 0x24 // example: mov sp, ip
+	INST_MOV_SP_REG16                   Type = 0x25 // example: mov ip, sp
+	INST_MOV_REG_TO_MEM_INDIRECT        Type = 0x26 // example: mov [ip], a
+	INST_MOV_MEM_TO_REG_INDIRECT        Type = 0x27 // example: mov a, [ip]
+	INST_MOV_REG_TO_MEM_INDIRECT_OFFSET Type = 0x28 // example: mov [ip+8], a
+	INST_MOV_MEM_TO_REG_INDIRECT_OFFSET Type = 0x29 // example: mov a, [ip+8]
+	INST_MOV_REG_TO_MEM_REG16_INDEXED   Type = 0x2a // example: mov [ip+b], a
+	INST_MOV_MEM_TO_REG_REG16_INDEXED   Type = 0x2b // example: mov a, [ip+b]
+	INST_XOR_REG8_REG8                  Type = 0x2c // example: xor a, b
+	INST_XOR_REG8_IMM8                  Type = 0x2d // example: xor a, 0x10
+	INST_AND_REG8_REG8                  Type = 0x2e // example: and a, b
+	INST_AND_REG8_IMM8                  Type = 0x2f // example: and a, 0x10
+	INST_OR_REG8_REG8                   Type = 0x30 // example: or a, b
+	INST_OR_REG8_IMM8                   Type = 0x31 // example: or a, 0x10
+	INST_NOT_REG8                       Type = 0x32 // example: not a 				(not necessary, use 'xor a, 0xff')
+	INST_SHL_REG8                       Type = 0x33 // example: shl a
+	INST_SHR_REG8                       Type = 0x34 // example: shr a
+	INST_ROL_REG8                       Type = 0x35 // example: rol a
+	INST_ROR_REG8                       Type = 0x36 // example: ror a
+	INST_CLC_IMPL                       Type = 0x37 // example: clc
+	INST_PUSH_SP                        Type = 0x38 // example: push sp
+	INST_PUSH_REG8                      Type = 0x39 // example: push a
+	INST_PUSH_REG16                     Type = 0x3a // example: push ip 			(not necessary, use 'push ipl' and 'push iph')
+	INST_PUSH_SR                        Type = 0x3b // example: push sr
+	INST_POP_SP                         Type = 0x3c // example: pop sp
+	INST_POP_REG8                       Type = 0x3d // example: pop a
+	INST_POP_REG16                      Type = 0x3e // example: pop ip				(not necessary, use 'pop iph' and 'pop ipl')
+	INST_POP_SR                         Type = 0x3f // example: pop sr
+	INST_CALL_IMM16                     Type = 0x40 // example: call 0x1234
+	INST_CALL_REG16                     Type = 0x41 // example: call ip
+	INST_RET_IMPL                       Type = 0x42 // example: ret
+	INST_RTI_IMPL                       Type = 0x43 // example: rti
+	_                                   Type = 0x44
+	_                                   Type = 0x45
+	_                                   Type = 0x46
+	_                                   Type = 0x47
+	_                                   Type = 0x48
+	_                                   Type = 0x49
+	_                                   Type = 0x4a
+	_                                   Type = 0x4b
+	_                                   Type = 0x4c
+	_                                   Type = 0x4d
+	_                                   Type = 0x4e
+	_                                   Type = 0x4f
+	_                                   Type = 0x50
+	_                                   Type = 0x51
+	_                                   Type = 0x52
+	_                                   Type = 0x53
+	_                                   Type = 0x54
+	_                                   Type = 0x55
+	_                                   Type = 0x56
+	_                                   Type = 0x57
+	_                                   Type = 0x58
+	_                                   Type = 0x59
+	_                                   Type = 0x5a
+	_                                   Type = 0x5b
+	_                                   Type = 0x5c
+	_                                   Type = 0x5d
+	_                                   Type = 0x5e
+	_                                   Type = 0x5f
+	_                                   Type = 0x60
+	_                                   Type = 0x61
+	_                                   Type = 0x62
+	_                                   Type = 0x63
+	_                                   Type = 0x64
+	_                                   Type = 0x65
+	_                                   Type = 0x66
+	_                                   Type = 0x67
+	_                                   Type = 0x68
+	_                                   Type = 0x69
+	_                                   Type = 0x6a
+	_                                   Type = 0x6b
+	_                                   Type = 0x6c
+	_                                   Type = 0x6d
+	_                                   Type = 0x6e
+	_                                   Type = 0x6f
+	_                                   Type = 0x70
+	_                                   Type = 0x71
+	_                                   Type = 0x72
+	_                                   Type = 0x73
+	_                                   Type = 0x74
+	_                                   Type = 0x75
+	_                                   Type = 0x76
+	_                                   Type = 0x77
+	_                                   Type = 0x78
+	_                                   Type = 0x79
+	_                                   Type = 0x7a
+	_                                   Type = 0x7b
+	_                                   Type = 0x7c
+	_                                   Type = 0x7d
+	_                                   Type = 0x7e
+	_                                   Type = 0x7f
 )
 
 /*

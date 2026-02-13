@@ -35,13 +35,11 @@ start:
     mov [ADDR_PUT_CHAR], a
 ```
 
-**Note:** No spaces around `=` — syntax is `NAME=VALUE`.
-
 ---
 
 ### Variable with Offset
 
-`<name>=<reference>+<offset>`
+`<name>=<reference>+/-<offset>`
 
 Variables can reference other variables or labels with addition, allowing relative address calculations.
 
@@ -163,7 +161,7 @@ label:
     .byte 0x01, 0x02
 ```
 
-**Placement Flexibility:** Directives can appear at any point in your code — at the beginning, middle, or end of code blocks. They are assembled in order with adjacent instructions:
+**Placement Flexibility:** Directives can appear at any point in your code - at the beginning, middle, or end of code blocks. They are assembled in order with adjacent instructions:
 
 ```asm
 start:
@@ -206,7 +204,7 @@ Declares an external label defined in another module.
 
 ### Data Movement
 
-**`mov <dest>, <src>`** — Move data between registers and memory.
+**`mov <dest>, <src>`** - Move data between registers and memory.
 
 ```asm
     mov a, 0x10
@@ -219,12 +217,12 @@ Declares an external label defined in another module.
 
 ### Arithmetic
 
-**`add <reg>, <value>`** — Add (with carry).
-**`adc <reg>, <value>`** — Add with carry flag.
-**`sub <reg>, <value>`** — Subtract.
-**`sbb <reg>, <value>`** — Subtract with borrow.
-**`inc <reg>`** — Increment by 1.
-**`dec <reg>`** — Decrement by 1.
+**`add <reg>, <value>`** - Add (with carry).
+**`adc <reg>, <value>`** - Add with carry flag.
+**`sub <reg>, <value>`** - Subtract.
+**`sbb <reg>, <value>`** - Subtract with borrow.
+**`inc <reg>`** - Increment by 1.
+**`dec <reg>`** - Decrement by 1.
 
 ```asm
     add a, 0x10
@@ -237,14 +235,14 @@ Declares an external label defined in another module.
 
 ### Bitwise Operations
 
-**`and <reg>, <value>`** — Bitwise AND.
-**`or <reg>, <value>`** — Bitwise OR.
-**`xor <reg>, <value>`** — Bitwise XOR.
-**`not <reg>`** — Bitwise NOT.
-**`shl <reg>`** — Shift left.
-**`shr <reg>`** — Shift right.
-**`rol <reg>`** — Rotate left.
-**`ror <reg>`** — Rotate right.
+**`and <reg>, <value>`** - Bitwise AND.
+**`or <reg>, <value>`** - Bitwise OR.
+**`xor <reg>, <value>`** - Bitwise XOR.
+**`not <reg>`** - Bitwise NOT.
+**`shl <reg>`** - Shift left.
+**`shr <reg>`** - Shift right.
+**`rol <reg>`** - Rotate left.
+**`ror <reg>`** - Rotate right.
 
 ```asm
     and a, 0x0f
@@ -257,8 +255,8 @@ Declares an external label defined in another module.
 
 ### Comparison & Flags
 
-**`cmp <reg>, <value>`** — Compare (sets flags).
-**`clc`** — Clear carry flag.
+**`cmp <reg>, <value>`** - Compare (sets flags).
+**`clc`** - Clear carry flag.
 
 ```asm
     cmp a, b
@@ -270,13 +268,13 @@ Declares an external label defined in another module.
 
 ### Control Flow
 
-**`jmp <label>`** — Unconditional jump.
-**`jz <label>`** — Jump if zero.
-**`jnz <label>`** — Jump if not zero.
-**`js <label>`** — Jump if sign.
-**`jns <label>`** — Jump if not sign.
-**`jc <label>`** — Jump if carry.
-**`jnc <label>`** — Jump if not carry.
+**`jmp <label>`** - Unconditional jump.
+**`jz <label>`** - Jump if zero.
+**`jnz <label>`** - Jump if not zero.
+**`js <label>`** - Jump if sign.
+**`jns <label>`** - Jump if not sign.
+**`jc <label>`** - Jump if carry.
+**`jnc <label>`** - Jump if not carry.
 
 ```asm
     cmp a, 0
@@ -291,8 +289,8 @@ done:
 
 ### Subroutines
 
-**`call <label>`** — Call subroutine (push return address).
-**`ret`** — Return from subroutine (pop return address).
+**`call <label>`** - Call subroutine (push return address).
+**`ret`** - Return from subroutine (pop return address).
 
 ```asm
     call print_value
@@ -307,8 +305,8 @@ print_value:
 
 ### Stack Operations
 
-**`push <value>`** — Push onto stack.
-**`pop <reg>`** — Pop from stack.
+**`push <value>`** - Push onto stack.
+**`pop <reg>`** - Pop from stack.
 
 ```asm
     push a
@@ -320,9 +318,9 @@ print_value:
 
 ### System
 
-**`brk`** — Break (halt execution).
-**`nop`** — No operation.
-**`rti`** — Return from interrupt.
+**`brk`** - Break (halt execution).
+**`nop`** - No operation.
+**`rti`** - Return from interrupt.
 
 ```asm
     mov a, 10

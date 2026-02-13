@@ -19,7 +19,6 @@ const (
 	MI_MAR_L_IN
 	MI_MAR_H_IN
 	MI_MDR_IN
-	MI_MDR_OUT
 	MI_MDR_OUT_ALU
 	MI_ALU_OUT
 	MI_ALU_ADD
@@ -61,51 +60,6 @@ const (
 	MI_STATUS_IN
 )
 
-var (
-	MI_NAME_MAP map[uint64]string = map[uint64]string{
-		MI_BRK:                "BRK",
-		MI_BRIDGE_ENABLE:      "BRIDGE_ENABLE",
-		MI_PC_IN_ADDR:         "PC_IN_ADDR",
-		MI_PC_OUT_ADDR:        "PC_OUT_ADDR",
-		MI_PC_L_OUT:           "PC_L_OUT",
-		MI_PC_H_OUT:           "PC_H_OUT",
-		MI_PC_INC:             "PC_INC",
-		MI_SP_OUT_ADDR:        "SP_OUT_ADDR",
-		MI_SP_L_OUT:           "SP_L_OUT",
-		MI_SP_H_OUT:           "SP_H_OUT",
-		MI_SP_L_IN:            "SP_L_IN",
-		MI_SP_H_IN:            "SP_H_IN",
-		MI_MAR_OUT_ADDR:       "MAR_OUT_ADDR",
-		MI_MAR_L_IN:           "MAR_L_IN",
-		MI_MAR_H_IN:           "MAR_H_IN",
-		MI_MDR_IN:             "MDR_IN",
-		MI_MDR_OUT:            "MDR_OUT",
-		MI_ALU_OUT:            "ALU_OUT",
-		MI_ALU_ADD:            "ALU_ADD",
-		MI_ALU_ADC:            "ALU_ADC",
-		MI_ALU_SUB:            "ALU_SUB",
-		MI_ALU_SBB:            "ALU_SBB",
-		MI_ALU_AND:            "ALU_AND",
-		MI_ALU_OR:             "ALU_OR",
-		MI_ALU_NOT:            "ALU_NOT",
-		MI_ALU_SHL:            "ALU_SHL",
-		MI_ALU_SHR:            "ALU_SHR",
-		MI_ALU_ROL:            "ALU_ROL",
-		MI_ALU_ROR:            "ALU_ROR",
-		MI_ALU_CMP:            "ALU_CMP",
-		MI_ONES_OUT_ALU:       "ONES_OUT_ALU",
-		MI_ONES_OUT:           "ONES_OUT",
-		MI_IO_READ:            "IO_READ",
-		MI_IO_WRITE:           "IO_WRITE",
-		MI_INSTRUCTION_REG_IN: "INST_REG_IN",
-		MI_OPERAND_REG_IN:     "OP_REG_IN",
-		MI_STEP_INC:           "STEP_INC",
-		MI_STEP_CLR:           "STEP_CLR",
-		MI_JMP_CTRL:           "JMP_CTRL",
-		MI_CLC:                "MI_CLC",
-	}
-)
-
 type miFunc func(c *Computer, command uint64)
 
 var (
@@ -128,7 +82,6 @@ var (
 		MI_MAR_L_IN:              mInstMemoryAddressRegisterLowIn,
 		MI_MAR_H_IN:              mInstMemoryAddressRegisterHighIn,
 		MI_MDR_IN:                mInstMemoryDataRegisterIn,
-		MI_MDR_OUT:               mInstMemoryDataRegisterOut,
 		MI_MDR_OUT_ALU:           mInstMemoryDataRegisterOutAlu,
 		MI_ALU_OUT:               mInstAluOut,
 		MI_ALU_ADD:               mInstAluAdd,

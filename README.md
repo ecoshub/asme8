@@ -10,7 +10,7 @@ This project is a fully custom-designed 8-bit computer, including its own instru
 - [4. Getting Started Guide](#4-getting-started-guide)  
 - [5. Hardware Specs (Planned)](#5-hardware-specs-planned)  
 - [6. Future Enhancements (Planned)](#6-future-enhancements-planned)  
-- [7. Fast Start](#7-how-to-run)
+- [7. Fast Start](#7-fast-start)
 
 <br>
 <br>

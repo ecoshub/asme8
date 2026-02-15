@@ -797,6 +797,21 @@ code_section:
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x44,
 			},
 		},
+		{
+			Name: "interrupt",
+			Code: `
+start:
+    sti
+    cli
+	int 0xfffe
+
+`,
+			Expected: []byte{
+				instruction.INST_STI_IMPL,
+				instruction.INST_CLI_IMPL,
+				instruction.INST_INT_IMM16, 0xfe, 0xff,
+			},
+		},
 	}
 )
 

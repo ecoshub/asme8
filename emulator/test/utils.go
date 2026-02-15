@@ -14,6 +14,7 @@ var (
 	MainTestComputer *computer.Computer
 	MainROM          *rom.Rom
 	MainRAM          *ram.Ram
+	SecondaryRAM     *ram.Ram
 )
 
 func RegTest(t *testing.T, index uint8, inm uint8) {
@@ -41,7 +42,9 @@ func GetComp() *computer.Computer {
 		MemoryConfig: &config.MemoryConfig{
 			Configs: []*config.Memory{
 				{Name: "ROM", Size: config.NewNullable(0x2000), Type: "ro"},
-				{Name: "RAM", Size: config.NewNullable(0xdfff), Type: "rw"},
+				{Name: "RAM", Size: config.NewNullable(0xdfed), Type: "rw"},
+				{Name: "SERIAL", Size: config.NewNullable(0x3), Type: "rw"},
+				{Name: "RAM_2", Size: config.NewNullable(0x10), Type: "rw"},
 			},
 		},
 		Headless: true,
@@ -55,5 +58,11 @@ func GetComp() *computer.Computer {
 	}
 	MainROM, _ = MainTestComputer.GetRom()
 	MainRAM, _ = MainTestComputer.GetRam()
+	dev, _ := MainTestComputer.GetDevice("RAM_2")
+	var ok bool
+	SecondaryRAM, ok = dev.(*ram.Ram)
+	if !ok {
+		panic("secondary ram part not found")
+	}
 	return MainTestComputer
 }

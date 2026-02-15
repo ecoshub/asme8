@@ -56,6 +56,9 @@ const (
 	MI_STEP_CLR
 	MI_JMP_CTRL
 	MI_CLC
+	MI_CLI
+	MI_STI
+	MI_CIRQ
 	MI_STATUS_OUT
 	MI_STATUS_IN
 )
@@ -119,6 +122,9 @@ var (
 		MI_STEP_CLR:              mInstStepClr,
 		MI_JMP_CTRL:              mInstStatusControl,
 		MI_CLC:                   mInstClearCarryFlag,
+		MI_CLI:                   mInstClearInterruptEnableFlag,
+		MI_STI:                   mInstSetInterruptEnableFlag,
+		MI_CIRQ:                  func(c *Computer, command uint64) { c.irq = false },
 		MI_STATUS_OUT:            mInstStatusRegisterOut,
 		MI_STATUS_IN:             mInstStatusRegisterIn,
 	}

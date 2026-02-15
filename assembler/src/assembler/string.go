@@ -4,141 +4,182 @@ import (
 	"asme8/assembler/src/types"
 	"asme8/emulator/utils"
 	"fmt"
+	"strings"
 )
 
-func (a *Assembler) CreatePrintable() string {
-	buffer := "\n"
+func (a *Assembler) CreateSymbolsPrint() string {
+	builder := strings.Builder{}
+	builder.WriteString("Assemble Completed Successfully\n\n")
+
 	if len(a.labels) > 0 {
-		buffer += "<0000> ; symbols:\n"
-		buffer += "<0000> -----------------\n"
+		builder.WriteString(" Symbols:\n----------------------------\n")
 		for k, v := range a.labels {
-			buffer += fmt.Sprintf("<0000> ; %-18s <%04x>\n", k, v.Offset)
+			builder.WriteString(fmt.Sprintf(" %-18s <%04x>\n", k, v.Offset))
 		}
-		buffer += "<0000> \n"
+		builder.WriteString("\n")
 	}
+
 	if len(a.variables) > 0 {
-		buffer += "<0000> ; symbols (variables):\n"
-		buffer += "<0000> -----------------\n"
+		builder.WriteString(" Variables:\n----------------------------\n")
 		for k, v := range a.variables {
-			buffer += fmt.Sprintf("<0000> %s=0x%02x\n", k, v.Val.GetValue())
+			builder.WriteString(fmt.Sprintf(" %s=0x%02x\n", k, v.Val.GetValue()))
 		}
-		buffer += "<0000> \n"
+		builder.WriteString("\n")
 	}
-	ops := ""
-	for i, c := range a.out {
-		if !isSkip(i, a.Coder.skip) {
-			ops += fmt.Sprintf("%02x", c)
-			ops += " "
-		}
-		ok, label := isLabel(i, a.labels)
-		if ok {
-			if !label.DisablePrint {
-				buffer += fmt.Sprintf("<%04x>  %s:\n", i, label.Text)
-			}
-		}
-		ok, directive := isDirective(i, a.directives)
-		if ok {
-			switch directive.Type {
-			case ".org":
-				buffer += fmt.Sprintf("<%04x> %-40s ; (location: %04x)\n", i, directive.Raw, directive.Values[0].GetValue())
-			case ".resb":
-				buffer += fmt.Sprintf("<%04x> %-40s ; 00 ... (%d bytes)\n", i, directive.Raw, directive.Values[0].GetValue())
-			case ".ascii":
-				fallthrough
-			case ".asciiz":
-				fallthrough
-			case ".byte":
-				arr := ToHexArray_1byte(directive.Values, true)
-				buffer += fmt.Sprintf("<%04x> %-40s ; %v\n", i, directive.Raw, arr)
-			case ".word":
-				arr := ToHexArray_2byte(directive.Values, true)
-				buffer += fmt.Sprintf("<%04x> %-40s ; %v\n", i, directive.Raw, arr)
-			}
-			ops = ""
-		}
-		ok, li := isLineEnd(i, a.Coder.linesEndings)
-		if ok {
-			buffer += fmt.Sprintf("<%04x>     %-36s ; %s\n", i, a.Coder.instructions[li], ops)
-			ops = ""
-		}
-		ok = isBlank(i, a.Coder.blanksLines)
-		if ok {
-			buffer += fmt.Sprintf("<%04x> \n", i)
-		}
-	}
-	return buffer
+
+	builder.WriteString("\n")
+	return builder.String()
 }
 
+// emulator uses this format so do not change output model
 func (a *Assembler) CodeString() string {
-	buffer := ""
-	ops := ""
+	directiveOffsets := a.buildDirectivesOffsetMap()
+
+	builder := strings.Builder{}
 	index := 0
-	lastIndex := 0
-	for i, c := range a.out {
-		if !isSkip(i, a.Coder.skip) {
-			ops += fmt.Sprintf("%02x", c)
-			ops += " "
-			index++
-		}
-		ok, label := isLabel(i, a.labels)
+	op := strings.Builder{}
+	for i := 0; i < len(a.out); i++ {
+		code, ok := a.machineCode[uint16(i)]
 		if ok {
-			if !label.DisablePrint {
-				buffer += fmt.Sprintf("<%04x> %s:\n", lastIndex, label.Text)
-			}
+			op.WriteString(fmt.Sprintf("%02x ", code))
 		}
-		ok, directive := isDirective(i, a.directives)
-		if ok {
+		isLabel, label := findLabelByIndex(i, a.labels)
+		if isLabel {
+			builder.WriteString(fmt.Sprintf("<%04x> %s:\n", index, label.Text))
+		}
+		isDirective, directive := isDirective(i, a.directives)
+		if isDirective {
+			oldIndex := index
+			s := ""
 			switch directive.Type {
-			case ".org":
-				buffer += fmt.Sprintf("<%04x> %-40s; (location: %04x)\n", lastIndex, directive.Raw, directive.Values[0].GetValue())
-			case ".resb":
-				buffer += fmt.Sprintf("<%04x> %-40s; 00 ... (%d bytes)\n", lastIndex, directive.Raw, directive.Values[0].GetValue())
-			case ".ascii":
+			case DirectiveOrg:
+				val := directive.Values[0].GetValue()
+				index = int(val)
+			case DirectiveReserveByte:
+				val := directive.Values[0].GetValue()
+				index += int(val)
+				if val > 8 {
+					s = fmt.Sprintf("00 .. .. .. .. .. .. 00 (%d)", val)
+				} else {
+					for i := 0; i < int(val); i++ {
+						s += "00 "
+					}
+				}
+			case DirectiveASCII:
 				fallthrough
-			case ".asciiz":
+			case DirectiveASCIIZ:
 				fallthrough
-			case ".byte":
+			case DirectiveByte:
+				index += totalOffset(directive.Values)
 				arr := ToHexArray_1byte(directive.Values, true)
-				buffer += fmt.Sprintf("<%04x> %-40s; %v\n", lastIndex, directive.Raw, arr)
-			case ".word":
+				s = arr
+			case DirectiveWord:
+				index += totalOffset(directive.Values)
 				arr := ToHexArray_2byte(directive.Values, true)
-				buffer += fmt.Sprintf("<%04x> %-40s; %v\n", lastIndex, directive.Raw, arr)
+				s = arr
 			}
-			ops = ""
+			// raw := directive.Raw
+			// if len(directive.Raw) > 32 {
+			// 	raw = directive.Raw[:29] + "..."
+			// }
+			builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
 		}
-		ok, li := isLineEnd(i, a.Coder.linesEndings)
-		if ok {
-			buffer += fmt.Sprintf("<%04x>    %-36s; %s\n", lastIndex, a.Coder.instructions[li], ops)
-			ops = ""
-			lastIndex = index
+		// isBlankLine := isBlank(i, a.Coder.blanksLines)
+		isBeginning, _ := isLineBegin(i, a.Coder.lineBeginnings)
+		if isBeginning {
+			builder.WriteString(fmt.Sprintf("<%04x> ", index))
 		}
-		ok = isBlank(i, a.Coder.blanksLines)
+		_, isDirectiveByte := directiveOffsets[uint16(i)]
+		if !isDirectiveByte {
+			index++
+		} else {
+			op.Reset()
+		}
+		ok, le := isLineEnding(i, a.Coder.lineEndings)
 		if ok {
-			buffer += "\n"
+			line := a.Coder.instructions[le]
+			builder.WriteString(fmt.Sprintf("    %-30s; %s\n", line, op.String()))
+			op.Reset()
 		}
 	}
-	return buffer
+	return builder.String()
+}
+
+func (a *Assembler) buildDirectivesOffsetMap() map[uint16]struct{} {
+	directiveOffsets := make(map[uint16]struct{})
+	for i := 0; i < len(a.out); i++ {
+		isDirective, directive := isDirective(i, a.directives)
+		if !isDirective {
+			continue
+		}
+		switch directive.Type {
+		case DirectiveOrg:
+			val := directive.Values[0].GetValue()
+			i = int(val)
+			continue
+		case DirectiveReserveByte:
+			offset := directive.Values[0].GetValue()
+			for j := 0; j < int(offset); j++ {
+				directiveOffsets[uint16(i+j)] = struct{}{}
+			}
+			i += int(offset)
+			i--
+			continue
+		case DirectiveASCII:
+			fallthrough
+		case DirectiveASCIIZ:
+			fallthrough
+		case DirectiveByte:
+			fallthrough
+		case DirectiveWord:
+			offset := totalOffset(directive.Values)
+			for j := 0; j < int(offset); j++ {
+				directiveOffsets[uint16(i+j)] = struct{}{}
+			}
+			i += int(offset)
+			i--
+			continue
+		}
+	}
+	return directiveOffsets
+}
+
+func totalOffset(values []*types.Value) int {
+	offset := 0
+	for _, v := range values {
+		offset += v.GetSize() / 8
+	}
+	return offset
 }
 
 func isBlank(index int, blanks []uint16) bool {
 	for _, le := range blanks {
-		if int(le-1) == index {
+		if int(le)-1 == index {
 			return true
 		}
 	}
 	return false
 }
 
-func isLineEnd(index int, linesEndings []uint16) (bool, int) {
-	for li, le := range linesEndings {
-		if int(le-1) == index {
+func isLineBegin(index int, lineBeginnings []uint16) (bool, int) {
+	for li, le := range lineBeginnings {
+		if int(le) == index {
 			return true, li
 		}
 	}
 	return false, 0
 }
 
-func isLabel(index int, labels map[string]*types.Label) (bool, *types.Label) {
+func isLineEnding(index int, lineEndings []uint16) (bool, int) {
+	for li, le := range lineEndings {
+		if int(le)-1 == index {
+			return true, li
+		}
+	}
+	return false, 0
+}
+
+func findLabelByIndex(index int, labels map[string]*types.Label) (bool, *types.Label) {
 	for _, l := range labels {
 		if int(l.Offset) == index {
 			return true, l
@@ -154,15 +195,6 @@ func isDirective(index int, directives map[uint16]*types.Directive) (bool, *type
 		}
 	}
 	return false, nil
-}
-
-func isSkip(index int, skip []uint16) bool {
-	for i := 0; i < len(skip); i++ {
-		if uint16(index) == skip[i] {
-			return true
-		}
-	}
-	return false
 }
 
 func ToHexArray_2byte(arr []*types.Value, noParenthesis ...bool) string {

@@ -40,8 +40,8 @@ func (mp *MemoryPanel) Render() {
 	buffer := make([]uint8, 0x10000)
 	for _, dev := range mp.devices {
 		start, end := dev.GetRange()
-		for i := start; i < end; i++ {
-			buffer[i] = dev.Read(i)
+		for i := uint32(start); i < uint32(end)+1; i++ {
+			buffer[i] = dev.Read(uint16(i))
 		}
 	}
 	height := mp.memoryPanel.Config.Height

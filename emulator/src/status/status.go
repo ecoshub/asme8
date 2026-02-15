@@ -3,10 +3,8 @@ package status
 const (
 	STATUS_FLAG_ZERO uint8 = 1 << iota
 	STATUS_FLAG_SIGN
-	STATUS_FLAG_PARITY
 	STATUS_FLAG_CARRY
-	STATUS_FLAG_OVERFLOW
-	STATUS_FLAG_INTERRUPT
+	STATUS_FLAG_INTERRUPT_ENABLE
 )
 
 type StatusRegister struct {
@@ -26,39 +24,33 @@ func (s *StatusRegister) Clear() { s.flag = 0 }
 func (s *StatusRegister) SetZeroFlag() {
 	s.flag |= STATUS_FLAG_ZERO
 }
+
 func (s *StatusRegister) SetSignFlag() {
 	s.flag |= STATUS_FLAG_SIGN
 }
-func (s *StatusRegister) SetParityFlag() {
-	s.flag |= STATUS_FLAG_PARITY
-}
+
 func (s *StatusRegister) SetCarryFlag() {
 	s.flag |= STATUS_FLAG_CARRY
 }
-func (s *StatusRegister) SetOverflowFlag() {
-	s.flag |= STATUS_FLAG_OVERFLOW
-}
-func (s *StatusRegister) SetInterruptFlag() {
-	s.flag |= STATUS_FLAG_INTERRUPT
+
+func (s *StatusRegister) SetInterruptEnableFlag() {
+	s.flag |= STATUS_FLAG_INTERRUPT_ENABLE
 }
 
 func (s *StatusRegister) ClearZeroFlag() {
 	s.flag &= ^STATUS_FLAG_ZERO
 }
+
 func (s *StatusRegister) ClearSignFlag() {
 	s.flag &= ^STATUS_FLAG_SIGN
 }
-func (s *StatusRegister) ClearParityFlag() {
-	s.flag &= ^STATUS_FLAG_PARITY
-}
+
 func (s *StatusRegister) ClearCarryFlag() {
 	s.flag &= ^STATUS_FLAG_CARRY
 }
-func (s *StatusRegister) ClearOverflowFlag() {
-	s.flag &= ^STATUS_FLAG_OVERFLOW
-}
-func (s *StatusRegister) ClearInterruptFlag() {
-	s.flag &= ^STATUS_FLAG_INTERRUPT
+
+func (s *StatusRegister) ClearInterruptEnableFlag() {
+	s.flag &= ^STATUS_FLAG_INTERRUPT_ENABLE
 }
 
 func (s *StatusRegister) IsSet(mask uint8) bool {
@@ -68,9 +60,10 @@ func (s *StatusRegister) IsSet(mask uint8) bool {
 func (s *StatusRegister) Flag() uint8 {
 	return s.flag
 }
+
 func (s *StatusRegister) String() string {
 	out := ""
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 4; i++ {
 		bit := s.flag & (1 << i) >> i
 		out += string(48 + bit)
 		if i != 7 {

@@ -1,6 +1,7 @@
 build: build-assembler build-linker build-emulator
 
 test:
+	go clean -testcache
 	go test -v ./emulator/test/...
 	go test -v ./assembler/test/...
 
@@ -15,13 +16,17 @@ build-linker:
 build-emulator:
 	go build -o bin/emu_asme8 emulator/cmd/main.go
 
-build-tools-and-source: build build-source
+.PHONY: source
+source: build build-source
 
-build-source:
-	@cd source && make && cd ..
+build-source: clean-source
+	@cd source && make
 
 clean-source:
 	@rm -rf source/bin
 	@rm -rf source/elf
 
 .PHONY: build
+
+run:
+	go run emulator/cmd/main.go --config source/linker_config --load-bin source/bin/source.bin --symbol-file source/bin/source.sym --delay 1ns

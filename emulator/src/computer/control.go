@@ -349,6 +349,28 @@ var (
 			0: MI_CMD_FETCH_INST,
 			1: {MI_CLC, MI_STEP_CLR},
 		},
+		instruction.INST_CLI_IMPL: {
+			0: MI_CMD_FETCH_INST,
+			1: {MI_CLI, MI_STEP_CLR},
+		},
+		instruction.INST_STI_IMPL: {
+			0: MI_CMD_FETCH_INST,
+			1: {MI_STI, MI_STEP_CLR},
+		},
+		instruction.INST_IRQ_IMPL: {
+			0: MI_CMD_FETCH_INST,
+			// push pc
+			1: {MI_PC_L_OUT, MI_SP_OUT_ADDR, MI_IO_WRITE, MI_SP_DEC, MI_STEP_INC},
+			2: {MI_PC_H_OUT, MI_SP_OUT_ADDR, MI_IO_WRITE, MI_SP_DEC, MI_STEP_INC},
+			// push sr
+			3: {MI_STATUS_OUT, MI_SP_OUT_ADDR, MI_IO_WRITE, MI_SP_DEC, MI_STEP_CLR},
+			// read low byte from instruction
+			// 4: {MI_BRIDGE_ENABLE, MI_PC_OUT_ADDR, MI_IO_READ, MI_MAR_L_IN, MI_PC_INC, MI_STEP_INC},
+			// read high byte from instruction
+			// 5: {MI_BRIDGE_ENABLE, MI_PC_OUT_ADDR, MI_IO_READ, MI_MAR_H_IN, MI_PC_INC, MI_STEP_INC},
+			// // jump to address
+			// 6: {MI_MAR_OUT_ADDR, MI_PC_IN_ADDR, MI_STEP_CLR},
+		},
 		instruction.INST_CALL_IMM16: {
 			0: MI_CMD_FETCH_INST,
 			1: {MI_BRIDGE_ENABLE, MI_PC_OUT_ADDR, MI_IO_READ, MI_MAR_L_IN, MI_PC_INC, MI_STEP_INC},

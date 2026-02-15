@@ -1,16 +1,16 @@
 MEMORY {
-    ROM_1: size=0x2000, type=ro;
+    ROM: size=0x2000, type=ro;
     RAM: size=0xdfec, type=rw;
     SERIAL: size=0x3, type=rw;
-    ROM_2: start=0xffef, size=0x10, type=rw;
+    ROM_2: start=0xffef, size=0x10, type=ro;
 }
 
 SEGMENTS {
-    SEG_KERNEL: load=ROM_1, type=ro;
-    SEG_GET_CHAR: load=ROM_1, type=rw;
-    SEG_PUT_CHAR: load=ROM_1, type=rw;
-    SEG_ECHO: load=ROM_1, type=rw;
-    SEG_WOZ: load=ROM_1, type=rw;
-    SEG_CONV: load=ROM_1, type=rw;
+    SEG_KERNEL: load=ROM, type=ro;
+    SEG_GET_CHAR: load=ROM, type=rw;
+    SEG_PUT_CHAR: load=ROM, type=rw;
+    SEG_ECHO: load=ROM, type=rw;
+    SEG_WOZ: load=ROM, type=rw;
+    SEG_CONV: load=ROM, type=rw;
     INTERRUPT: load=ROM_2, type=ro;
 }

@@ -200,6 +200,18 @@ var (
 			// nop
 			ADDR_MODE_IMPL: INST_NOP_IMPL,
 		},
+		INST_MNEMONICS_INT: {
+			// int
+			ADDR_MODE_IMPL_IMM16: INST_INT_IMM16,
+		},
+		INST_MNEMONICS_STI: {
+			// sti
+			ADDR_MODE_IMPL: INST_STI_IMPL,
+		},
+		INST_MNEMONICS_CLI: {
+			// cli
+			ADDR_MODE_IMPL: INST_CLI_IMPL,
+		},
 	}
 )
 

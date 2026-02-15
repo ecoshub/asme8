@@ -74,7 +74,7 @@ func (r *Rom) GetName() string {
 }
 
 func (r *Rom) GetRange() (uint16, uint16) {
-	return r.addrStart, r.addrStart + r.addrSize
+	return r.addrStart, uint16(uint64(r.addrStart) + uint64(r.addrSize) - 1)
 }
 
 func (r *Rom) Clear() {

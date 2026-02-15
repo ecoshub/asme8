@@ -51,11 +51,12 @@ type Assembler struct {
 }
 
 type Coder struct {
-	linesEndings []uint16
-	skip         []uint16
-	blanksLines  []uint16
-	instructions []string
-	lastLine     string
+	lineBeginnings []uint16
+	lineEndings    []uint16
+	noMachineCode  []uint16
+	blanksLines    []uint16
+	instructions   []string
+	lastLine       string
 }
 
 func New(mode ASM_MODE) *Assembler {
@@ -71,10 +72,11 @@ func New(mode ASM_MODE) *Assembler {
 		directives:          make(map[uint16]*types.Directive),
 		symbolTracker:       object.NewTracker(),
 		Coder: &Coder{
-			linesEndings: make([]uint16, 0, 16),
-			blanksLines:  make([]uint16, 0, 16),
-			skip:         make([]uint16, 0, 16),
-			instructions: make([]string, 0, 16),
+			lineBeginnings: make([]uint16, 0, 16),
+			lineEndings:    make([]uint16, 0, 16),
+			blanksLines:    make([]uint16, 0, 16),
+			noMachineCode:  make([]uint16, 0, 16),
+			instructions:   make([]string, 0, 16),
 		},
 	}
 }
@@ -99,7 +101,7 @@ func (a *Assembler) Assemble() ([]uint8, int, error) {
 		if err != nil {
 			return nil, 0, err
 		}
-		return enc, len(out), nil
+		return enc, int(a.topAddress), nil
 	case ASM_MODE_EXE:
 		errs := a.ResolveReferenceVariables()
 		if len(errs) > 0 {
@@ -114,7 +116,7 @@ func (a *Assembler) Assemble() ([]uint8, int, error) {
 		if err != nil {
 			return nil, 0, err
 		}
-		return out, len(out), nil
+		return out, int(a.topAddress), nil
 	}
 	return nil, 0, errors.New("unknown assembly mode")
 }
@@ -127,7 +129,6 @@ func (a *Assembler) Reset() {
 	a.currentTag = nil
 	a.hasVirtualOffset = false
 	a.out = make([]uint8, 0, 32)
-	a.topAddress = 0
 	a.currentValueList = []*types.Value{}
 	a.currentRegisters = []*types.Register{}
 	a.labels = make(map[string]*types.Label)
@@ -138,10 +139,10 @@ func (a *Assembler) Reset() {
 	a.directives = make(map[uint16]*types.Directive)
 	a.symbolTracker = object.NewTracker()
 	a.Coder = &Coder{
-		linesEndings: make([]uint16, 0, 16),
-		blanksLines:  make([]uint16, 0, 16),
-		skip:         make([]uint16, 0, 16),
-		instructions: make([]string, 0, 16),
+		lineBeginnings: make([]uint16, 0, 16),
+		blanksLines:    make([]uint16, 0, 16),
+		noMachineCode:  make([]uint16, 0, 16),
+		instructions:   make([]string, 0, 16),
 	}
 }
 
@@ -150,28 +151,29 @@ func (a *Assembler) AttachErrorListener(errorListener *error_listener.CustomErro
 }
 
 func (a *Assembler) assemble() []uint8 {
-	topAddress := uint16(0)
+	topAddress := 0
 	for offset := range a.machineCode {
-		if offset >= topAddress {
-			topAddress = offset
+		if int(offset) >= topAddress {
+			topAddress = int(offset)
 		}
 	}
+
+	a.topAddress = uint16(topAddress)
 	if len(a.machineCode) == 0 {
 		a.out = []byte{}
-		a.topAddress = 0
 		return a.out
 	}
+
 	out := make([]uint8, topAddress+1)
-	for i := uint16(0); i < topAddress+1; i++ {
-		b, ok := a.machineCode[i]
+	for i := 0; i < topAddress+1; i++ {
+		b, ok := a.machineCode[uint16(i)]
 		if !ok {
-			a.Coder.skip = append(a.Coder.skip, i)
+			a.Coder.noMachineCode = append(a.Coder.noMachineCode, uint16(i))
 			out[i] = 0
 			continue
 		}
 		out[i] = b
 	}
-	a.topAddress = topAddress
 	a.out = out
 	return a.out
 }
@@ -395,9 +397,8 @@ func (a *Assembler) ParseImpliedTag(line, column int) {
 	a.ParseImpliedImm16(line, column)
 }
 
-func (a *Assembler) ParseLabel(text string, line, column int, disablePrint bool) {
+func (a *Assembler) ParseLabel(text string, line, column int) {
 	label := types.NewLabel(text, line, column, a.offset)
-	label.DisablePrint = disablePrint
 	a.labels[text] = label
 
 	a.symbolTracker.SetIndex(text, a.offset)
@@ -482,7 +483,7 @@ func (a *Assembler) ParseAscii(text string) {
 }
 
 func (a *Assembler) ParseDirective(text string, line, column int) {
-	if strings.HasPrefix(text, ".org") {
+	if strings.HasPrefix(text, DirectiveOrg) {
 		if len(a.currentValueList) == 0 {
 			msg := fmt.Sprintf("value is unknown. value: '%s'", text)
 			if a.errorListener == nil {
@@ -493,43 +494,43 @@ func (a *Assembler) ParseDirective(text string, line, column int) {
 			return
 		}
 		val := a.currentValueList[0]
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".org", Position: val.GetValue(), Offset: 0xffff, Values: a.currentValueList}
 		a.offset = val.GetValue()
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveOrg, Position: val.GetValue(), Offset: 0, Values: a.currentValueList}
 		return
 	}
-	if strings.HasPrefix(text, ".resb") {
+	if strings.HasPrefix(text, DirectiveReserveByte) {
 		val := a.currentValueList[0]
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".resb", Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveReserveByte, Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
 		for i := 0; i < int(val.GetValue()); i++ {
 			a.AppendMachineCode(0)
 		}
 		return
 	}
-	if strings.HasPrefix(text, ".byte") {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".byte", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+	if strings.HasPrefix(text, DirectiveByte) {
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveByte, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, ".word") {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".word", Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
+	if strings.HasPrefix(text, DirectiveWord) {
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveWord, Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 			a.AppendMachineCode(v.GetHighByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, ".asciiz") {
+	if strings.HasPrefix(text, DirectiveASCIIZ) {
 		a.currentValueList = append(a.currentValueList, types.NewValue(0))
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".asciiz", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveASCIIZ, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, ".ascii") {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: ".ascii", Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+	if strings.HasPrefix(text, DirectiveASCII) {
+		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveASCII, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}

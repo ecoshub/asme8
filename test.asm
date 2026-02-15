@@ -1,7 +1,16 @@
+
+    global __SERIAL_START__
+
+ADDR_PUT_CHAR=__SERIAL_START__
+
+    jmp start
+
 start:
-    mov ip, 0x2200      ; set stack start to ip
-    mov sp, ip          ; copy its value to sp
-    mov a, 0x10         ; store 0x10 in reg a
-    push a              ; push a to stack
-    mov b, [0x2200]     ; move 0x2200 value to b to see if its equal to a
-    
+    mov a, 'a'
+    call char_out
+    brk
+
+char_out:
+    mov [ADDR_PUT_CHAR], a
+    ret
+

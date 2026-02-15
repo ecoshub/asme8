@@ -59,20 +59,20 @@ const (
 	INST_ROL_REG8                       Type = 0x35 // example: rol a
 	INST_ROR_REG8                       Type = 0x36 // example: ror a
 	INST_CLC_IMPL                       Type = 0x37 // example: clc
-	INST_PUSH_SP                        Type = 0x38 // example: push sp
-	INST_PUSH_REG8                      Type = 0x39 // example: push a
-	INST_PUSH_REG16                     Type = 0x3a // example: push ip 			(not necessary, use 'push ipl' and 'push iph')
-	INST_PUSH_SR                        Type = 0x3b // example: push sr
-	INST_POP_SP                         Type = 0x3c // example: pop sp
-	INST_POP_REG8                       Type = 0x3d // example: pop a
-	INST_POP_REG16                      Type = 0x3e // example: pop ip				(not necessary, use 'pop iph' and 'pop ipl')
-	INST_POP_SR                         Type = 0x3f // example: pop sr
-	INST_CALL_IMM16                     Type = 0x40 // example: call 0x1234
-	INST_CALL_REG16                     Type = 0x41 // example: call ip
-	INST_RET_IMPL                       Type = 0x42 // example: ret
-	INST_RTI_IMPL                       Type = 0x43 // example: rti
-	_                                   Type = 0x44
-	_                                   Type = 0x45
+	INST_CLI_IMPL                       Type = 0x38 // example: cli
+	INST_STI_IMPL                       Type = 0x39 // example: sti
+	INST_PUSH_SP                        Type = 0x3a // example: push sp
+	INST_PUSH_REG8                      Type = 0x3b // example: push a
+	INST_PUSH_REG16                     Type = 0x3c // example: push ip 			(not necessary, use 'push ipl' and 'push iph')
+	INST_PUSH_SR                        Type = 0x3d // example: push sr
+	INST_POP_SP                         Type = 0x3e // example: pop sp
+	INST_POP_REG8                       Type = 0x3f // example: pop a
+	INST_POP_REG16                      Type = 0x40 // example: pop ip				(not necessary, use 'pop iph' and 'pop ipl')
+	INST_POP_SR                         Type = 0x41 // example: pop sr
+	INST_CALL_IMM16                     Type = 0x42 // example: call 0x1234
+	INST_CALL_REG16                     Type = 0x43 // example: call ip
+	INST_RET_IMPL                       Type = 0x44 // example: ret
+	INST_RTI_IMPL                       Type = 0x45 // example: rti
 	_                                   Type = 0x46
 	_                                   Type = 0x47
 	_                                   Type = 0x48
@@ -129,8 +129,8 @@ const (
 	_                                   Type = 0x7b
 	_                                   Type = 0x7c
 	_                                   Type = 0x7d
-	_                                   Type = 0x7e
-	_                                   Type = 0x7f
+	INST_IRQ_IMPL                       Type = 0x7e
+	INST_INT_IMM16                      Type = 0x7f
 )
 
 /*
@@ -167,7 +167,10 @@ const (
 	INST_MNEMONICS_AND  string = "and"
 	INST_MNEMONICS_BRK  string = "brk"
 	INST_MNEMONICS_CALL string = "call"
+	INST_MNEMONICS_INT  string = "int"
 	INST_MNEMONICS_CLC  string = "clc"
+	INST_MNEMONICS_CLI  string = "cli"
+	INST_MNEMONICS_STI  string = "sti"
 	INST_MNEMONICS_CMP  string = "cmp"
 	INST_MNEMONICS_DEC  string = "dec"
 	INST_MNEMONICS_INC  string = "inc"
@@ -253,6 +256,8 @@ var (
 		INST_ROL_REG8:                       "ROL_R8",
 		INST_ROR_REG8:                       "ROR_R8",
 		INST_CLC_IMPL:                       "CLC_IMPL",
+		INST_CLI_IMPL:                       "CLI_IMPL",
+		INST_STI_IMPL:                       "STI_IMPL",
 		INST_PUSH_SP:                        "PUSH_SP",
 		INST_PUSH_REG8:                      "PUSH_R8",
 		INST_PUSH_REG16:                     "PUSH_R16",
@@ -263,6 +268,7 @@ var (
 		INST_POP_SR:                         "POP_SR",
 		INST_CALL_IMM16:                     "CALL_IMM16",
 		INST_CALL_REG16:                     "CALL_R16",
+		INST_INT_IMM16:                      "INT_IMPL_IMM16",
 		INST_RET_IMPL:                       "RET_IMPL",
 		INST_RTI_IMPL:                       "RTI_IMPL",
 	}

@@ -37,6 +37,7 @@ type Computer struct {
 	aluOut       bool
 	bridgeEnable bool
 
+	irq        bool
 	aluBus     *bus.Bus
 	outputBus  *bus.Bus
 	inputBus   *bus.Bus
@@ -282,6 +283,14 @@ func (c *Computer) tick() bool {
 		keep := c.execute(mi)
 		if !keep {
 			break
+		}
+		// hardware interrupt logic
+		if mi == MI_INSTRUCTION_REG_IN {
+			if c.status.IsSet(status.STATUS_FLAG_INTERRUPT_ENABLE) {
+				if c.irq {
+					c.instructionRegister = instruction.Type(instruction.INST_IRQ_IMPL)
+				}
+			}
 		}
 	}
 

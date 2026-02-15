@@ -1,6 +1,6 @@
 MEMORY {
     ROM: size=0x2000, type=ro;
-    RAM: size=0xdfec, type=rw;
+    RAM: size=0xdfed, type=rw;
     SERIAL: size=0x3, type=rw;
-    INT: start=0xffef, size=0x10, type=rw;
+    RAM_1: size=0x10, type=rw;
 }

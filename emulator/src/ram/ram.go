@@ -75,7 +75,7 @@ func (r *Ram) GetName() string {
 }
 
 func (r *Ram) GetRange() (uint16, uint16) {
-	return r.addrStart, r.addrStart + r.addrSize
+	return r.addrStart, uint16(uint64(r.addrStart) + uint64(r.addrSize) - 1)
 }
 
 func (r *Ram) Read(addr uint16) uint8 {
@@ -83,7 +83,8 @@ func (r *Ram) Read(addr uint16) uint8 {
 		return 0
 	}
 	addr = addr - r.addrStart
-	return r.data[addr]
+	data := r.data[addr]
+	return data
 }
 
 func (r *Ram) Clear() {

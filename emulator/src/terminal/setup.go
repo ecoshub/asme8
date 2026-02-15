@@ -17,7 +17,7 @@ const (
 	FlagPanelWidth   = 31
 	MemoryPanelWidth = 31
 	sysPanelWidth    = 71
-	codePanelWidth   = 66
+	codePanelWidth   = 86
 )
 
 type Components struct {

@@ -95,6 +95,29 @@ var (
 			},
 		},
 		{
+			// mov a, 0xff
+			// mov [0xffff], a
+			// mov [0xfffe], a
+			// mov [0xfffd], a
+			Name: "mov reg data last bytes",
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0xff, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0xfe, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0xfd, 0xff,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0xff},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xffff, Data: 0xff},
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xfffe, Data: 0xff},
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xfffd, Data: 0xff},
+				},
+			},
+		},
+		{
 			// mov a, 0x90
 			// mov [0x9000], a
 			// mov a, 0x91
@@ -858,7 +881,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b01100110},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_PARITY,
+					Data: 0,
 				},
 			},
 		},
@@ -875,7 +898,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b01100110},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_PARITY,
+					Data: 0,
 				},
 			},
 		},
@@ -909,7 +932,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b01100110},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_PARITY,
+					Data: 0,
 				},
 			},
 		},
@@ -948,7 +971,7 @@ var (
 			},
 		},
 		{
-			Name: "rol zero carry",
+			Name: "rol zero parity",
 			// mov a, 0b00110011
 			// rol a,
 			Program: []uint8{
@@ -960,7 +983,7 @@ var (
 					{Index: instruction.REGISTER_OPCODE_A, Data: 0b01100110},
 				},
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_PARITY,
+					Data: 0,
 				},
 			},
 		},
@@ -1229,7 +1252,7 @@ var (
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x30,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x20,
 				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_IP,
-				instruction.INST_MOV_REG16_IMM16, 0x00, 0x40,
+				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x40,
 				instruction.INST_POP_REG16, instruction.REGISTER_OPCODE_IP,
 			},
 			Expect: &test.Expect{
@@ -1412,6 +1435,28 @@ var (
 				},
 				Data: []*test.ExpectData{
 					{Type: test.DEV_TYPE_RAM, Addr: 0x8000, Data: 0x30},
+				},
+			},
+		},
+		{
+			Name: "mov indirect reg last byte",
+			// mov a, 0x30
+			// mov [0xffff], a
+			// mov ip, 0xffff
+			// mov b, [ip]
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x30,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0xfe, 0xff,
+				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0xfe, 0xff,
+				instruction.INST_MOV_MEM_TO_REG_INDIRECT, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_IP,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x30},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x30},
+				},
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xfffe, Data: 0x30},
 				},
 			},
 		},
@@ -1649,6 +1694,92 @@ var (
 				},
 				Data: []*test.ExpectData{
 					{Type: test.DEV_TYPE_RAM, Addr: 0x3010, Data: 0xff},
+				},
+			},
+		},
+		{
+			Name: "ip set to last bytes",
+			// mov ip, 0x1020
+			// mov [0xfffe], ipl
+			// mov [0xffff], iph
+			Program: []uint8{
+				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x20, 0x10,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_IPL, 0xfe, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_IPH, 0xff, 0xff,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xfffe, Data: 0x20},
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xffff, Data: 0x10},
+				},
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+				Status: &test.ExpectStatusData{
+					Data: 0,
+				},
+			},
+		},
+		{
+			Name: "ip set to last bytes 2",
+			// mov ip, 0x1020
+			// mov [0xfffe], iph
+			// mov [0xffff], ipl
+			Program: []uint8{
+				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x20, 0x10,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_IPH, 0xfe, 0xff,
+				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_IPL, 0xff, 0xff,
+			},
+			Expect: &test.Expect{
+				Data: []*test.ExpectData{
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xfffe, Data: 0x10},
+					{Type: test.DEV_TYPE_RAM_2, Addr: 0xffff, Data: 0x20},
+				},
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x20},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+				},
+				Status: &test.ExpectStatusData{
+					Data: 0,
+				},
+			},
+		},
+		{
+			Name: "set interrupt enable",
+			// sti
+			Program: []uint8{
+				instruction.INST_STI_IMPL,
+			},
+			Expect: &test.Expect{
+				Status: &test.ExpectStatusData{
+					Data: 0 | status.STATUS_FLAG_INTERRUPT_ENABLE,
+				},
+			},
+		},
+		{
+			Name: "clear interrupt enable",
+			// sti
+			Program: []uint8{
+				instruction.INST_CLI_IMPL,
+			},
+			Expect: &test.Expect{
+				Status: &test.ExpectStatusData{
+					Data: 0,
+				},
+			},
+		},
+		{
+			Name: "set/clear interrupt enable",
+			// sti
+			// cli
+			Program: []uint8{
+				instruction.INST_STI_IMPL,
+				instruction.INST_CLI_IMPL,
+			},
+			Expect: &test.Expect{
+				Status: &test.ExpectStatusData{
+					Data: 0,
 				},
 			},
 		},

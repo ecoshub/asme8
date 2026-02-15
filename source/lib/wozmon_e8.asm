@@ -8,11 +8,11 @@
 ; ----------------------------------------------------------
 ; Subroutines:
 ; ----------------------------------------------------------
-;    Name........: WOZMAN
+;    Name........: WOZMON
 ;    Description.: Entry point for the WOZ monitor, handling 
 ;                  user input and executing commands.
 ;    Input.......: User input (via __GET_CHAR__), stored in 
-;                  WOZMAN_BUFFER.
+;                  WOZMON_BUFFER.
 ;    Output......: Executes memory read, write, or run commands.
 ;    Modified....: Registers A, B, C, D, IP
 ; ----------------------------------------------------------
@@ -23,11 +23,11 @@
     extern __PUT_CHAR__
     extern __RETURN__
     extern CONVERTER_BUFFER
-    extern WOZMAN_BUFFER
+    extern WOZMON_BUFFER
     extern __STR_CONV_HEX__
     extern __HEX_CONV_STR__
     extern CHAR_NOT_VALID
-    global WOZMAN
+    global WOZMON
 
 
 KEY_CODE_ENTER=0x0d
@@ -40,13 +40,13 @@ MODE_READ_RANGE=0x01
 MODE_WRITE=0x02
 MODE_RUN=0x03
 
-MODE=WOZMAN_BUFFER
-SEPARATOR_INDEX=WOZMAN_BUFFER+1
-RANGE_START=WOZMAN_BUFFER+2
-RANGE_END=WOZMAN_BUFFER+4
-CHAR_BUFFER=WOZMAN_BUFFER+6
+MODE=WOZMON_BUFFER
+SEPARATOR_INDEX=WOZMON_BUFFER+1
+RANGE_START=WOZMON_BUFFER+2
+RANGE_END=WOZMON_BUFFER+4
+CHAR_BUFFER=WOZMON_BUFFER+6
 
-WOZMAN:
+WOZMON:
     xor a, a                            ; clear all range values
     mov [RANGE_START], a
     mov [RANGE_START+1], a
@@ -154,7 +154,7 @@ write_loop:
 
 break_execute_write:
     call __RETURN__                     ; print '\n' and start over
-    jmp WOZMAN
+    jmp WOZMON
 
 execute_run:
     call __RETURN__                     ; print '\n' and jump to given address
@@ -196,7 +196,7 @@ execute_read_range:
 
     call _print_range                   ; print from range_start to range_end
 
-    jmp WOZMAN                          ; start over
+    jmp WOZMON                          ; start over
 
 _print_range:
     call __RETURN__                     ; print a carriage return
@@ -246,7 +246,7 @@ execute_read:
     mov iph, [CONVERTER_BUFFER+1]       ; get converted number high part from converter buffer
     call _print_byte                    ; print byte
     call __RETURN__                     ; print return char
-    jmp WOZMAN                          ; start over
+    jmp WOZMON                          ; start over
 
 _print_byte:
     mov a, [ip]                         ; value that ip point
@@ -261,4 +261,4 @@ operation_failed:                       ; print '?\n' and start over
     mov a, '?'
     call __PUT_CHAR__
     call __RETURN__
-    jmp WOZMAN
+    jmp WOZMON

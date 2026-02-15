@@ -38,7 +38,7 @@ Goals of the project include:
 - **source:**
   - source is containing the source code for e8 computer.
   - It will eventual be the source codes for all utilities for e8 computer.
-  - It has IO functions and wozman like shell program.
+  - It has IO functions and wozmon like shell program.
   - Has its own `Makefile`. run `make` to assemble and link all source files and create `link.bin`
   - All source section is in WIP.
 

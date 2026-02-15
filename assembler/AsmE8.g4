@@ -10,6 +10,7 @@ line:
 	variable_reference
 	| variable
 	| ('\t' | '    ' | '  ' ) inst
+	| inst
 	| segment
 	| access
 	| label ' ' directives
@@ -85,6 +86,9 @@ mnemonic:
 | 'brk'
 | 'call'
 | 'clc'
+| 'int'
+| 'sti'
+| 'cli'
 | 'cmp'
 | 'dec'
 | 'inc'

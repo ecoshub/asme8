@@ -1,9 +1,7 @@
 package config
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -28,54 +26,6 @@ func ResolveMemoryLayout(ml []*Memory) error {
 		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size.Value, m.Type)
 	}
 	return nil
-}
-
-func ParseMemoryConfig(filePath string) (*MemoryConfig, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	c := &MemoryConfig{
-		Configs: make([]*Memory, 0, 2),
-	}
-
-	scanner := bufio.NewScanner(file)
-	var section string
-
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-
-		if line == "}" {
-			section = ""
-			return c, nil
-		}
-
-		if strings.HasPrefix(line, "MEMORY") {
-			section = "MEMORY"
-			continue
-		}
-
-		if section != "MEMORY" {
-			return nil, fmt.Errorf("unexpected section. section: %s", section)
-		}
-
-		mem, err := parseMemory(line)
-		if err != nil {
-			return nil, err
-		}
-		c.Configs = append(c.Configs, mem)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return c, nil
 }
 
 func parseMemory(line string) (*Memory, error) {

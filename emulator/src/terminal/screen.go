@@ -35,7 +35,7 @@ func (s *Screen) GetName() string {
 }
 
 func (s *Screen) GetRange() (uint16, uint16) {
-	return s.addrStart, s.addrStart + s.addrSize
+	return s.addrStart, uint16(uint64(s.addrStart) + uint64(s.addrSize) - 1)
 }
 
 // Attach implements connectable.Connectable.

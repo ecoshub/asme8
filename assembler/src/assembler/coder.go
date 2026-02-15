@@ -6,9 +6,13 @@ import (
 	"os"
 )
 
+func (a *Assembler) CodeParseEnterInst(text string) {
+	a.Coder.lineBeginnings = append(a.Coder.lineBeginnings, a.offset)
+}
+
 func (a *Assembler) CodeParseExitInst(text string) {
-	a.Coder.linesEndings = append(a.Coder.linesEndings, a.offset)
 	a.Coder.instructions = append(a.Coder.instructions, text)
+	a.Coder.lineEndings = append(a.Coder.lineEndings, a.offset)
 }
 
 func (a *Assembler) CodeParseLastLine(text string) {

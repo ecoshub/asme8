@@ -2,6 +2,7 @@ package config
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -71,6 +72,23 @@ func ParseConfig(filePath string) (*Config, error) {
 			}
 			c.SegmentConfig.Configs = append(c.SegmentConfig.Configs, s)
 		}
+	}
+
+	totalMemory := int(0)
+	lastStart := int(0)
+	for _, mc := range c.MemoryConfig.Configs {
+		if mc.Size == nil && mc.Start == nil {
+			return nil, fmt.Errorf("malformed memory definition. memory: %s", mc.Name)
+		}
+		if mc.Size != nil {
+			totalMemory += int(mc.Size.Value)
+		} else {
+			totalMemory += (int(mc.Start.Value) - lastStart)
+			lastStart = int(mc.Start.Value)
+		}
+	}
+	if totalMemory > 0x10000 {
+		return nil, fmt.Errorf("total allocated memory exceeding 64k")
 	}
 
 	if err := scanner.Err(); err != nil {

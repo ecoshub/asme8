@@ -86,7 +86,10 @@ func (a *Assembler) EnterIndirect(c *parser.IndirectContext) {}
 
 func (a *Assembler) EnterIndirect_offset(c *parser.Indirect_offsetContext) {}
 
-func (a *Assembler) EnterInst(c *parser.InstContext) {}
+func (a *Assembler) EnterInst(c *parser.InstContext) {
+	text := c.GetText()
+	a.CodeParseEnterInst(text)
+}
 
 func (a *Assembler) EnterInstruction(c *parser.InstructionContext) {}
 
@@ -350,7 +353,7 @@ func (a *Assembler) ExitInstruction(c *parser.InstructionContext) {}
 func (a *Assembler) ExitLabel(c *parser.LabelContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseLabel(a.currentTag.Text, line, column, false)
+	a.ParseLabel(a.currentTag.Text, line, column)
 }
 
 func (a *Assembler) ExitLine(c *parser.LineContext) {

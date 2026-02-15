@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	DEV_TYPE_RAM uint8 = 1
-	DEV_TYPE_ROM uint8 = 2
+	DEV_TYPE_RAM   uint8 = 1
+	DEV_TYPE_ROM   uint8 = 2
+	DEV_TYPE_RAM_2 uint8 = 3
 )
 
 type TestCase struct {
@@ -57,6 +58,8 @@ func RunCase(t *testing.T, tc *TestCase) {
 			switch d.Type {
 			case DEV_TYPE_RAM:
 				dev = MainRAM
+			case DEV_TYPE_RAM_2:
+				dev = SecondaryRAM
 			case DEV_TYPE_ROM:
 				dev = MainROM
 			default:

@@ -113,9 +113,11 @@ func (t *Tracker) GetSymbolSize(symbol string, def uint8) uint8 {
 }
 
 func (t *Tracker) Print() {
-	fmt.Println("FILE SEGMENT:")
-	fmt.Println(t.segment)
-	fmt.Println()
+	if t.segment != "" {
+		fmt.Println("FILE SEGMENT:")
+		fmt.Println(t.segment)
+		fmt.Println()
+	}
 
 	sortedSymbols := SortSymbolMap(t.defined)
 	fmt.Println("SYMBOL TABLE:")
@@ -131,7 +133,11 @@ func (t *Tracker) Print() {
 	fmt.Println("OFFSET     SIZE     EXTRA   MISSING    SYMBOL ")
 	for _, key := range sortedHits {
 		e := t.positions[key]
-		fmt.Printf("%04x       %2d       %04x    %-5v      <%s>\n", e.offset, e.size, e.optionalOffset, e.missing, e.symbol)
+		missing := 0
+		if e.missing {
+			missing = 1
+		}
+		fmt.Printf("%04x       %2d       %04x    %-5d      <%s>\n", e.offset, e.size, e.optionalOffset, missing, e.symbol)
 	}
 	fmt.Println()
 

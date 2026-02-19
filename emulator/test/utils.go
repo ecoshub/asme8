@@ -17,6 +17,10 @@ var (
 	SecondaryRAM     *ram.Ram
 )
 
+const (
+	TEST_INTERRUPT_VEC_1_ADDR = 0x10
+)
+
 func RegTest(t *testing.T, index uint8, inm uint8) {
 	c := GetComp()
 	regVal := c.ReadRegister(index)
@@ -37,6 +41,7 @@ func GetComp() *computer.Computer {
 		return MainTestComputer
 	}
 
+	computer.InterruptVec1Addr = TEST_INTERRUPT_VEC_1_ADDR
 	var err error
 	MainTestComputer, err = computer.New(&computer.Config{
 		MemoryConfig: &config.MemoryConfig{

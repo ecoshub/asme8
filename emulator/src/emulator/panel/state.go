@@ -39,10 +39,6 @@ func (sp *StatePanel) Render() {
 	bridgeEnable := sp.computer.GetBridgeEnable()
 
 	stepLen := len(computer.CONTROL_SIGNALS[ir])
-	visualStep := stepLen
-	if stepLen != 0 {
-		visualStep = ((int(step) + stepLen - 1) % stepLen) + 1
-	}
 
 	registerStatus := ""
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_A])
@@ -60,7 +56,7 @@ func (sp *StatePanel) Render() {
 		if bridgeEnable {
 			be = 1
 		}
-		fmt.Printf("# %04x    %01d       %02x   %02x   %02x   %04x  %04x    %02x          %02x    %02x       %d   %x        %08b        %s\n", pc, step, ir, operandRegister, memoryDataRegister, memoryAddressRegister, addrBus, inputBus, aluBus, outputBus, rw, be, status.Flag(), registerStatus)
+		fmt.Printf("# %04x    %01d       %02x   %02x   %02x   %04x  %04x    %02x          %02x    %02x       %d   %x        %04b        %s\n", pc, step, ir, operandRegister, memoryDataRegister, memoryAddressRegister, addrBus, inputBus, aluBus, outputBus, rw, be, status.Flag(), registerStatus)
 		return
 	}
 
@@ -73,7 +69,7 @@ func (sp *StatePanel) Render() {
 	sp.logfFlagIndexWithStyle(5, DefaultStyle7, "%s", registerStatus)
 	sp.logfFlagIndexWithStyle(6, DefaultStyle7, "")
 	sp.logfFlagIndexWithStyle(7, DefaultStyle1, "IR   : %02x [%s]", ir, instruction.INST_HUMAN_READABLE[ir])
-	sp.logfFlagIndexWithStyle(8, DefaultStyle1, "STEP : %d/%d", visualStep, stepLen)
+	sp.logfFlagIndexWithStyle(8, DefaultStyle1, "STEP : %d/%d", step, stepLen)
 	sp.logfFlagIndexWithStyle(9, DefaultStyle1, "PC   : %04x", pc)
 	sp.logfFlagIndexWithStyle(10, DefaultStyle1, "SP   : %04x", stackPointer)
 	sp.logfFlagIndexWithStyle(11, DefaultStyle1, "MAR  : %02x", memoryAddressRegister)
@@ -100,5 +96,5 @@ func (sp *StatePanel) logfFlagIndexWithStyle(index int, sty *style.Style, format
 }
 
 func (sp *StatePanel) PrintStateHeader() {
-	fmt.Printf("# pc      step    ir   or   mdr  mar   addr  input_bus  alu_bus  out_bus  rw  be flags(xxIOCPSZ)  regs(A  B  C  D  E  IH IL BH BL)\n")
+	fmt.Printf("# pc      step    ir   or   mdr  mar   addr  input_bus  alu_bus  out_bus  rw  be flags(ICSZ)  regs(A  B  C  D  E  IH IL BH BL)\n")
 }

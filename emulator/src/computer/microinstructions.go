@@ -54,14 +54,14 @@ const (
 	MI_OPERAND_REG_IN
 	MI_STEP_INC
 	MI_STEP_CLR
-	MI_JMP_CTRL
-	MI_CLC
-	MI_CLI
+	MI_CL_C
+	MI_CL_IE
 	MI_STI
 	MI_CL_IRQ
 	MI_STATUS_OUT
 	MI_STATUS_IN
 	MI_VEC_1_OUT
+	TEST_MI_IRQ_HIGH
 )
 
 type miFunc func(c *Computer, command uint64)
@@ -121,15 +121,20 @@ var (
 		MI_OPERAND_REG_IN:        mInstOperandRegisterIn,
 		MI_STEP_INC:              mInstStepInc,
 		MI_STEP_CLR:              mInstStepClr,
-		MI_JMP_CTRL:              mInstStatusControl,
-		MI_CLC:                   mInstClearCarryFlag,
-		MI_CLI:                   mInstClearInterruptEnableFlag,
+		MI_CL_C:                  mInstClearCarryFlag,
+		MI_CL_IE:                 mInstClearInterruptEnableFlag,
 		MI_STI:                   mInstSetInterruptEnableFlag,
-		MI_CL_IRQ:                func(c *Computer, command uint64) { c.irq = false },
-		MI_STATUS_OUT:            mInstStatusRegisterOut,
-		MI_STATUS_IN:             mInstStatusRegisterIn,
+		MI_CL_IRQ: func(c *Computer, command uint64) {
+			c.irqLine = false
+			c.irqAckFlipFlop = false
+		},
+		MI_STATUS_OUT: mInstStatusRegisterOut,
+		MI_STATUS_IN:  mInstStatusRegisterIn,
 		MI_VEC_1_OUT: func(c *Computer, command uint64) {
-			c.addrBus.Write_16(0x1000)
+			c.addrBus.Write_16(InterruptVec1Addr)
+		},
+		TEST_MI_IRQ_HIGH: func(c *Computer, command uint64) {
+			c.irqLine = true
 		},
 	}
 )

@@ -14,7 +14,7 @@ var (
 var (
 	Tests = []*test.TestCase{
 		{
-			Name: "mov immediate reg a",
+			Name: "mov_immediate_reg_a",
 			// mov a, 0x10
 			Program: []uint8{instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10},
 			Expect: &test.Expect{
@@ -27,7 +27,7 @@ var (
 			},
 		},
 		{
-			Name: "mov immediate reg a",
+			Name: "mov_immediate_reg_a",
 			// mov a, 0xff
 			Program: []uint8{instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff},
 			Expect: &test.Expect{
@@ -42,7 +42,7 @@ var (
 		{
 			// mov a, 0xff
 			// mov b, a
-			Name: "mov reg reg",
+			Name: "mov_reg_reg",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_A<<1 | instruction.REGISTER_OPCODE_B,
@@ -61,7 +61,7 @@ var (
 			// mov b, a
 			// mov c, a
 			// mov d, a
-			Name: "mov reg reg",
+			Name: "mov_reg_reg",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_B,
@@ -80,7 +80,7 @@ var (
 		{
 			// mov a, 0xff
 			// mov [0x9000], a
-			Name: "mov reg data",
+			Name: "mov_reg_data",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
@@ -99,7 +99,7 @@ var (
 			// mov [0xffff], a
 			// mov [0xfffe], a
 			// mov [0xfffd], a
-			Name: "mov reg data last bytes",
+			Name: "mov_reg_data_last_bytes",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0xff, 0xff,
@@ -124,7 +124,7 @@ var (
 			// mov [0x9001], a
 			// mov a, 0x92
 			// mov [0x9002], a
-			Name: "mov reg mem",
+			Name: "mov_reg_mem",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x90,
 				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
@@ -145,7 +145,7 @@ var (
 			// mov a, 0x90
 			// mov [0x9000], a
 			// mov b, [0x9000]
-			Name: "mov reg mem",
+			Name: "mov_reg_mem",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x90,
 				instruction.INST_MOV_REG_TO_MEM_DIRECT, instruction.REGISTER_OPCODE_A, 0x00, 0x90,
@@ -165,7 +165,7 @@ var (
 			// mov b, 0x2
 			// mov [0x9002], a
 			// mov c, [0x9000+b]
-			Name: "mov mem reg data offset",
+			Name: "mov_mem_reg_data_offset",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
@@ -188,7 +188,7 @@ var (
 			// mov b, 0x2
 			// mov [0x9101], a
 			// mov c, [0x90ff+b]
-			Name: "mov mem reg data offset",
+			Name: "mov_mem_reg_data_offset",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
@@ -211,7 +211,7 @@ var (
 			// mov b, 0x2
 			// mov [0x90ff+b], a
 			// mov c, [0x90ff+b]
-			Name: "mov reg mem data offset",
+			Name: "mov_reg_mem_data_offset",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x2,
@@ -253,7 +253,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "jump imm",
+			Name: "jump_imm",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_JMP_IMPL_IMM16, 0x0a, 0x00,
@@ -276,7 +276,7 @@ var (
 			//    brk
 			// here:
 			//    mov a, 0x30
-			Name: "jump reg16",
+			Name: "jump_reg16",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x0f,
@@ -301,7 +301,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp and jz",
+			Name: "cmp_and_jz",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
@@ -325,7 +325,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp and jz no jump",
+			Name: "cmp_and_jz_no_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
@@ -349,7 +349,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "jnz jump",
+			Name: "jnz_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
@@ -373,7 +373,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "jnz no jump",
+			Name: "jnz_no_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
@@ -398,7 +398,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp rr and jz",
+			Name: "cmp_rr_and_jz",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x10,
@@ -424,7 +424,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp rr and jz no jump",
+			Name: "cmp_rr_and_jz_no_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
@@ -441,7 +441,7 @@ var (
 			},
 		},
 		{
-			Name: "add reg imm",
+			Name: "add_reg_imm",
 			// add a, 0x10
 			Program: []uint8{instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10},
 			Expect: &test.Expect{
@@ -451,7 +451,7 @@ var (
 			},
 		},
 		{
-			Name: "adc reg imm",
+			Name: "adc_reg_imm",
 			// mov a, 0xff
 			// mov b, 0x10
 			// add a, b
@@ -469,7 +469,7 @@ var (
 			},
 		},
 		{
-			Name: "add reg imm",
+			Name: "add_reg_imm",
 			// mov a, 0x20
 			// add a, 0x10
 			Program: []uint8{
@@ -483,7 +483,7 @@ var (
 			},
 		},
 		{
-			Name: "add reg imm",
+			Name: "add_reg_imm",
 			// mov a, 0xff
 			// add a, 0x01
 			Program: []uint8{
@@ -497,7 +497,7 @@ var (
 			},
 		},
 		{
-			Name: "add reg reg",
+			Name: "add_reg_reg",
 			// mov a, 0xff
 			// mov b, 0x11
 			// add a, b
@@ -514,7 +514,7 @@ var (
 			},
 		},
 		{
-			Name: "add reg reg",
+			Name: "add_reg_reg",
 			// mov a, 0xff
 			// mov b, 0x11
 			// add b, a
@@ -531,7 +531,7 @@ var (
 			},
 		},
 		{
-			Name: "sub reg imm",
+			Name: "sub_reg_imm",
 			// sub a, 0x10
 			Program: []uint8{instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10},
 			Expect: &test.Expect{
@@ -541,7 +541,7 @@ var (
 			},
 		},
 		{
-			Name: "sub reg imm",
+			Name: "sub_reg_imm",
 			// mov a, 0x20
 			// sub a, 0x10
 			Program: []uint8{
@@ -555,7 +555,7 @@ var (
 			},
 		},
 		{
-			Name: "sub reg imm",
+			Name: "sub_reg_imm",
 			// mov a, 0xff
 			// sub a, 0x01
 			Program: []uint8{
@@ -569,7 +569,7 @@ var (
 			},
 		},
 		{
-			Name: "sub reg reg",
+			Name: "sub_reg_reg",
 			// mov a, 0xff
 			// mov b, 0x11
 			// sub a, b
@@ -586,7 +586,7 @@ var (
 			},
 		},
 		{
-			Name: "sub reg reg",
+			Name: "sub_reg_reg",
 			// mov a, 0xff
 			// mov b, 0x11
 			// sub b, a
@@ -603,7 +603,7 @@ var (
 			},
 		},
 		{
-			Name: "push pop reg",
+			Name: "push_pop_reg",
 			// mov a, 0x10
 			// push a
 			// pop b
@@ -620,7 +620,7 @@ var (
 			},
 		},
 		{
-			Name: "inc reg",
+			Name: "inc_reg",
 			// mov a, 0x20
 			// inc a
 			Program: []uint8{
@@ -634,7 +634,7 @@ var (
 			},
 		},
 		{
-			Name: "inc reg",
+			Name: "inc_reg",
 			// mov a, 0xff
 			// inc a
 			Program: []uint8{
@@ -648,7 +648,7 @@ var (
 			},
 		},
 		{
-			Name: "dec reg",
+			Name: "dec_reg",
 			// mov a, 0x20
 			// dec a
 			Program: []uint8{
@@ -662,7 +662,7 @@ var (
 			},
 		},
 		{
-			Name: "dec reg",
+			Name: "dec_reg",
 			// mov a, 0x00
 			// dec a
 			Program: []uint8{
@@ -676,7 +676,7 @@ var (
 			},
 		},
 		{
-			Name: "call and ret",
+			Name: "call_and_ret",
 			// start:
 			//     call hello
 			//     mov a, 0x10
@@ -703,7 +703,7 @@ var (
 			},
 		},
 		{
-			Name: "call reg16 and ret",
+			Name: "call_reg16_and_ret",
 			// start:
 			//     mov ipl, 0x0c
 			//     mov iph, 0x00
@@ -731,7 +731,7 @@ var (
 			},
 		},
 		{
-			Name: "xor reg reg",
+			Name: "xor_reg_reg",
 			// mov a, 0b00001111
 			// mov b, 0b11001100
 			// xor b, a
@@ -748,7 +748,7 @@ var (
 			},
 		},
 		{
-			Name: "xor reg reg clear",
+			Name: "xor_reg_reg_clear",
 			// mov a, 0b00001111
 			// xor a, a
 			Program: []uint8{
@@ -762,7 +762,7 @@ var (
 			},
 		},
 		{
-			Name: "xor reg imm",
+			Name: "xor_reg_imm",
 			// mov a, 0b11001100
 			// xor a, 0b00001111
 			Program: []uint8{
@@ -776,7 +776,7 @@ var (
 			},
 		},
 		{
-			Name: "and reg reg",
+			Name: "and_reg_reg",
 			// mov a, 0b00001111
 			// mov b, 0b11001100
 			// and b, a
@@ -793,7 +793,7 @@ var (
 			},
 		},
 		{
-			Name: "and reg imm",
+			Name: "and_reg_imm",
 			// mov a, 0b11001100
 			// and a, 0b00001111
 			Program: []uint8{
@@ -807,7 +807,7 @@ var (
 			},
 		},
 		{
-			Name: "or reg reg",
+			Name: "or_reg_reg",
 			// mov a, 0b00001111
 			// mov b, 0b11001100
 			// or b, a
@@ -824,7 +824,7 @@ var (
 			},
 		},
 		{
-			Name: "or reg imm",
+			Name: "or_reg_imm",
 			// mov a, 0b11001100
 			// or a, 0b00001111
 			Program: []uint8{
@@ -838,7 +838,7 @@ var (
 			},
 		},
 		{
-			Name: "not reg",
+			Name: "not_reg",
 			// mov a, 0b11001100
 			// not a,
 			Program: []uint8{
@@ -852,7 +852,7 @@ var (
 			},
 		},
 		{
-			Name: "shl reg one",
+			Name: "shl_reg_one",
 			// mov a, 0b11001100
 			// shl a,
 			Program: []uint8{
@@ -869,7 +869,7 @@ var (
 			},
 		},
 		{
-			Name: "shl reg zero",
+			Name: "shl_reg_zero",
 			// mov a, 0b00110011
 			// shl a,
 			Program: []uint8{
@@ -886,7 +886,7 @@ var (
 			},
 		},
 		{
-			Name: "shr reg zero",
+			Name: "shr_reg_zero",
 			// mov a, 0b11001100
 			// shr a,
 			Program: []uint8{
@@ -903,7 +903,7 @@ var (
 			},
 		},
 		{
-			Name: "shr reg one",
+			Name: "shr_reg_one",
 			// mov a, 0b00110011
 			// shr a,
 			Program: []uint8{
@@ -920,7 +920,7 @@ var (
 			},
 		},
 		{
-			Name: "ror no carry",
+			Name: "ror_no_carry",
 			// mov a, 0b11001100
 			// ror a,
 			Program: []uint8{
@@ -937,7 +937,7 @@ var (
 			},
 		},
 		{
-			Name: "ror zero carry",
+			Name: "ror_zero_carry",
 			// mov a, 0b00110011
 			// ror a,
 			Program: []uint8{
@@ -954,7 +954,7 @@ var (
 			},
 		},
 		{
-			Name: "rol no carry",
+			Name: "rol_no_carry",
 			// mov a, 0b11001100
 			// rol a,
 			Program: []uint8{
@@ -971,7 +971,7 @@ var (
 			},
 		},
 		{
-			Name: "rol zero parity",
+			Name: "rol_zero_parity",
 			// mov a, 0b00110011
 			// rol a,
 			Program: []uint8{
@@ -1025,7 +1025,7 @@ var (
 			//     brk
 			// here:
 			//     mov c, 0x30
-			Name: "jc no jump",
+			Name: "jc_no_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
@@ -1054,7 +1054,7 @@ var (
 			//     brk
 			// here:
 			//     mov c, 0x30
-			Name: "jc with clear carry",
+			Name: "jc_with_clear_carry",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0xff,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x02,
@@ -1082,7 +1082,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp and js",
+			Name: "cmp_and_js",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
@@ -1106,7 +1106,7 @@ var (
 			//     brk
 			// here:
 			//     mov a, 0x30
-			Name: "cmp and js no jump",
+			Name: "cmp_and_js_no_jump",
 			Program: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x20,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
@@ -1122,7 +1122,7 @@ var (
 			},
 		},
 		{
-			Name: "push pop sp",
+			Name: "push_pop_sp",
 			// mov a, 0x20
 			// push a
 			// push sp
@@ -1139,7 +1139,7 @@ var (
 			},
 		},
 		{
-			Name: "add sp",
+			Name: "add_sp",
 			// add sp, 4
 			// mov a, 0x10
 			// push a
@@ -1155,7 +1155,7 @@ var (
 			},
 		},
 		{
-			Name: "sub sp",
+			Name: "sub_sp",
 			// sub sp, 4
 			// mov a, 0x10
 			// push a
@@ -1171,7 +1171,7 @@ var (
 			},
 		},
 		{
-			Name: "mov ipl iph imm",
+			Name: "mov_ipl_iph_imm",
 			// mov ipl, 0x10
 			// mov iph, 0x20
 			// push ip
@@ -1198,7 +1198,7 @@ var (
 			},
 		},
 		{
-			Name: "mov ipl iph reg",
+			Name: "mov_ipl_iph_reg",
 			// mov a, 0x10
 			// mov b, 0x20
 			// mov ipl, a
@@ -1225,7 +1225,7 @@ var (
 			},
 		},
 		{
-			Name: "push ip",
+			Name: "push_ip",
 			// mov ipl, 0x30
 			// mov iph, 0x20
 			// push ip
@@ -1242,7 +1242,7 @@ var (
 			},
 		},
 		{
-			Name: "push pop ip",
+			Name: "push_pop_ip",
 			// mov ipl, 0x30
 			// mov iph, 0x20
 			// push ip
@@ -1263,7 +1263,7 @@ var (
 			},
 		},
 		{
-			Name: "add ip",
+			Name: "add_ip",
 			// mov ipl, 0xff
 			// mov iph, 0x10
 			// add ip, 4
@@ -1280,7 +1280,7 @@ var (
 			},
 		},
 		{
-			Name: "add ip carry",
+			Name: "add_ip_carry",
 			// mov ipl, 0xff
 			// mov iph, 0x10
 			// add ip, 4
@@ -1299,7 +1299,7 @@ var (
 			},
 		},
 		{
-			Name: "sub ip",
+			Name: "sub_ip",
 			// mov ipl, 0x25
 			// mov iph, 0x10
 			// sub ip, 4
@@ -1318,7 +1318,7 @@ var (
 			},
 		},
 		{
-			Name: "sub ip borrow",
+			Name: "sub_ip_borrow",
 			// mov ipl, 0x20
 			// mov iph, 0x10
 			// sub ip, 4
@@ -1337,7 +1337,7 @@ var (
 			},
 		},
 		{
-			Name: "mov reg imm16",
+			Name: "mov_reg_imm16",
 			// mov ip, 0x1234
 			Program: []uint8{
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x34, 0x12,
@@ -1350,7 +1350,7 @@ var (
 			},
 		},
 		{
-			Name: "mov addr reg imm",
+			Name: "mov_addr_reg_imm",
 			// mov ipl, 0x34
 			// mov bpl, 0x34
 			// mov iph, 0x12
@@ -1371,7 +1371,7 @@ var (
 			},
 		},
 		{
-			Name: "mov addr reg reg",
+			Name: "mov_addr_reg_reg",
 			// mov a, 0x34
 			// mov ipl, a
 			// mov bpl, a
@@ -1396,7 +1396,7 @@ var (
 			},
 		},
 		{
-			Name: "mov addr reg addr reg",
+			Name: "mov_addr_reg_addr_reg",
 			// mov ip, 0x1234
 			// mov bp, ip
 			Program: []uint8{
@@ -1413,7 +1413,7 @@ var (
 			},
 		},
 		{
-			Name: "mov indirect reg",
+			Name: "mov_indirect_reg",
 			// mov a, 0x30
 			// mov [0x8000], a
 			// mov ip, 0x8000
@@ -1435,7 +1435,7 @@ var (
 			},
 		},
 		{
-			Name: "mov indirect reg last byte",
+			Name: "mov_indirect_reg_last_byte",
 			// mov a, 0x30
 			// mov [0xffff], a
 			// mov ip, 0xffff
@@ -1457,7 +1457,7 @@ var (
 			},
 		},
 		{
-			Name: "mov indirect offset reg",
+			Name: "mov_indirect_offset_reg",
 			// mov a, 0x30
 			// mov [0x8008], a
 			// mov ip, 0x8000
@@ -1479,7 +1479,7 @@ var (
 			},
 		},
 		{
-			Name: "mov indexed reg",
+			Name: "mov_indexed_reg",
 			// mov a, 0x30
 			// mov b, 0x08
 			// mov [0x8008], a
@@ -1504,7 +1504,7 @@ var (
 			},
 		},
 		{
-			Name: "mov reg indirect",
+			Name: "mov_reg_indirect",
 			// mov a, 0x30
 			// mov ip, 0x8000
 			// mov [ip], a
@@ -1525,7 +1525,7 @@ var (
 			},
 		},
 		{
-			Name: "mov reg indirect offset",
+			Name: "mov_reg_indirect_offset",
 			// mov a, 0x30
 			// mov bp, 0x8000
 			// mov [bp+8], a
@@ -1546,7 +1546,7 @@ var (
 			},
 		},
 		{
-			Name: "mov reg indexed",
+			Name: "mov_reg_indexed",
 			// mov a, 0x30
 			// mov b, 0x08
 			// mov bp, 0x8000
@@ -1570,7 +1570,7 @@ var (
 			},
 		},
 		{
-			Name: "mov sp address reg",
+			Name: "mov_sp_address_reg",
 			// mov bp, sp
 			// mov ip, sp
 			Program: []uint8{
@@ -1587,7 +1587,7 @@ var (
 			},
 		},
 		{
-			Name: "mov address reg sp",
+			Name: "mov_address_reg_sp",
 			// mov ip, 0x8000
 			// mov bp, 0x8000
 			// mov sp, bp
@@ -1608,7 +1608,7 @@ var (
 			},
 		},
 		{
-			Name: "add address register",
+			Name: "add_address_register",
 			// mov ip, 0x80ff
 			// add ip, 8
 			Program: []uint8{
@@ -1623,7 +1623,7 @@ var (
 			},
 		},
 		{
-			Name: "sub address register",
+			Name: "sub_address_register",
 			// mov bp, 0x8107
 			// sub bp, 0x08
 			Program: []uint8{
@@ -1638,7 +1638,7 @@ var (
 			},
 		},
 		{
-			Name: "inc address register",
+			Name: "inc_address_register",
 			// mov bp, 0x80ff
 			// inc bp
 			Program: []uint8{
@@ -1653,7 +1653,7 @@ var (
 			},
 		},
 		{
-			Name: "dec address register",
+			Name: "dec_address_register",
 			// mov bp, 0x8100
 			// dec bp
 			Program: []uint8{
@@ -1668,7 +1668,7 @@ var (
 			},
 		},
 		{
-			Name: "index pointer reconstruction",
+			Name: "index_pointer_reconstruction",
 			// mov a, 0xff
 			// mov [0x3010], a
 			// mov ipl, 0x10
@@ -1694,7 +1694,7 @@ var (
 			},
 		},
 		{
-			Name: "ip set to last bytes",
+			Name: "ip_set_to_last_bytes",
 			// mov ip, 0x1020
 			// mov [0xfffe], ipl
 			// mov [0xffff], iph
@@ -1718,7 +1718,7 @@ var (
 			},
 		},
 		{
-			Name: "ip set to last bytes 2",
+			Name: "ip_set_to_last_bytes_2",
 			// mov ip, 0x1020
 			// mov [0xfffe], iph
 			// mov [0xffff], ipl
@@ -1742,19 +1742,19 @@ var (
 			},
 		},
 		{
-			Name: "set interrupt enable",
+			Name: "set_interrupt_enable",
 			// sti
 			Program: []uint8{
 				instruction.INST_STI_IMPL,
 			},
 			Expect: &test.Expect{
 				Status: &test.ExpectStatusData{
-					Data: 0 | status.STATUS_FLAG_INTERRUPT_ENABLE,
+					Data: status.STATUS_FLAG_INTERRUPT_ENABLE,
 				},
 			},
 		},
 		{
-			Name: "clear interrupt enable",
+			Name: "clear_interrupt_enable",
 			// sti
 			Program: []uint8{
 				instruction.INST_CLI_IMPL,
@@ -1766,7 +1766,7 @@ var (
 			},
 		},
 		{
-			Name: "set/clear interrupt enable",
+			Name: "set/clear_interrupt_enable",
 			// sti
 			// cli
 			Program: []uint8{
@@ -1776,6 +1776,124 @@ var (
 			Expect: &test.Expect{
 				Status: &test.ExpectStatusData{
 					Data: 0,
+				},
+			},
+		},
+		{
+			Name: "interrupt_fail_stats_not_set",
+			// start:
+			//     mov a, 0x10
+			//     mov b, 0x11
+			//     brk
+
+			// .org 0x10
+			//     mov a, 0x31
+			//     mov b, 0x32
+			//     rti
+			Program: []uint8{
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x11,
+				instruction.TEST_INST_SET_IRQ,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x31,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x32,
+				instruction.INST_RTI_IMPL,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x11},
+				},
+				Status: &test.ExpectStatusData{
+					Data: 0,
+				},
+			},
+		},
+		{
+			Name: "interrupt_success",
+			//     sti
+			// start:
+			//     mov a, 0x10
+			//     mov b, 0x11
+			//     brk
+
+			// .org 0x10
+			//     mov a, 0x31
+			//     mov b, 0x32
+			//     rti
+			Program: []uint8{
+				instruction.INST_STI_IMPL,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x11,
+				instruction.TEST_INST_SET_IRQ,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x31,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x32,
+				instruction.INST_RTI_IMPL,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x31},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x32},
+				},
+				Status: &test.ExpectStatusData{
+					Data: status.STATUS_FLAG_INTERRUPT_ENABLE,
+				},
+			},
+		},
+		{
+			Name: "interrupt_success_2",
+			//     sti
+			// start:
+			//     mov a, 0x10
+			//     mov b, 0x11
+			//     brk
+
+			// .org 0x10
+			//     mov a, 0x31
+			//     mov b, 0x32
+			//     rti
+			Program: []uint8{
+				instruction.INST_STI_IMPL,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x11,
+				instruction.TEST_INST_SET_IRQ,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x12,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x13,
+				instruction.INST_RTI_IMPL,
+			},
+			Expect: &test.Expect{
+				Registers: []*test.ExpectRegister{
+					{Index: instruction.REGISTER_OPCODE_A, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_B, Data: 0x11},
+					{Index: instruction.REGISTER_OPCODE_C, Data: 0x12},
+					{Index: instruction.REGISTER_OPCODE_D, Data: 0x13},
+				},
+				Status: &test.ExpectStatusData{
+					Data: status.STATUS_FLAG_INTERRUPT_ENABLE,
 				},
 			},
 		},

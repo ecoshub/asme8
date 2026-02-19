@@ -129,8 +129,12 @@ const (
 	_                                   Type = 0x7b
 	_                                   Type = 0x7c
 	_                                   Type = 0x7d
-	INST_IRQ_IMPL                       Type = 0x7e
+	_                                   Type = 0x7e
 	INST_INT_IMM16                      Type = 0x7f
+)
+
+const (
+	TEST_INST_SET_IRQ Type = 0xff
 )
 
 /*
@@ -271,5 +275,6 @@ var (
 		INST_INT_IMM16:                      "INT_IMPL_IMM16",
 		INST_RET_IMPL:                       "RET_IMPL",
 		INST_RTI_IMPL:                       "RTI_IMPL",
+		TEST_INST_SET_IRQ:                   "TEST_IRQ",
 	}
 )

@@ -15,8 +15,9 @@ import (
 	"time"
 )
 
-const (
-	StackSize uint16 = 0xff
+var (
+	StackSize         uint16 = 0xff
+	InterruptVec1Addr uint16 = 0x1000
 )
 
 type Computer struct {
@@ -37,7 +38,9 @@ type Computer struct {
 	aluOut       bool
 	bridgeEnable bool
 
-	irq        bool
+	irqLine        bool
+	irqAckFlipFlop bool
+
 	aluBus     *bus.Bus
 	outputBus  *bus.Bus
 	inputBus   *bus.Bus
@@ -203,7 +206,7 @@ func (c *Computer) GetDevices() []connectable.Connectable {
 }
 
 func (c *Computer) InterruptRequest() {
-	c.irq = true
+	c.irqLine = true
 }
 
 func (c *Computer) Tick() {
@@ -276,25 +279,32 @@ func (c *Computer) Restart(startWithPause bool) {
 
 func (c *Computer) tick() bool {
 	defer c.clear()
-	defer func() {
-		if c.tickEventHandle != nil {
-			c.tickEventHandle(c.programCounter, c.step)
-		}
-	}()
 
-	microinstructions := CONTROL_SIGNALS[c.instructionRegister][c.step]
+	if c.tickEventHandle != nil {
+		c.tickEventHandle(c.programCounter, c.step)
+	}
+
+	irq := checkIrq(c.irqLine, c.status.Flag())
+	if irq && c.step == 0 {
+		c.irqAckFlipFlop = true
+	}
+	jmp := checkJmp(c.instructionRegister, c.status.Flag())
+	// fmt.Println("irq?", irq, "ir", c.instructionRegister)
+
+	var microinstructions []uint64
+	if c.irqAckFlipFlop && irq {
+		microinstructions = IRQ_MICRO_INSTRUCTIONS[c.step]
+	} else {
+		if jmp {
+			microinstructions = GENERIC_CONDITIONAL_JMP[c.step]
+		} else {
+			microinstructions = CONTROL_SIGNALS[c.instructionRegister][c.step]
+		}
+	}
 	for _, mi := range microinstructions {
 		keep := c.execute(mi)
 		if !keep {
 			break
-		}
-		// hardware interrupt logic
-		if mi == MI_INSTRUCTION_REG_IN {
-			if c.status.IsSet(status.STATUS_FLAG_INTERRUPT_ENABLE) {
-				if c.irq {
-					c.instructionRegister = instruction.Type(instruction.INST_IRQ_IMPL)
-				}
-			}
 		}
 	}
 
@@ -375,4 +385,44 @@ func (c *Computer) getDevice(namePrefix string) (connectable.Connectable, bool) 
 		}
 	}
 	return nil, false
+}
+
+func checkJmp(ir uint8, sf uint8) bool {
+	statusMask := uint8(0)
+	not := false
+	switch ir {
+	case instruction.INST_JZ_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_ZERO
+	case instruction.INST_JNZ_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_ZERO
+		not = true
+	case instruction.INST_JC_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_CARRY
+	case instruction.INST_JNC_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_CARRY
+		not = true
+	case instruction.INST_JS_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_SIGN
+	case instruction.INST_JNS_IMPL_IMM16:
+		statusMask = status.STATUS_FLAG_SIGN
+		not = true
+	default:
+		return false
+	}
+
+	if (sf&statusMask > 0) == !not {
+		return true
+	}
+
+	return false
+}
+
+func checkIrq(irq bool, sf uint8) bool {
+	if !irq {
+		return false
+	}
+	if (sf & status.STATUS_FLAG_INTERRUPT_ENABLE) == 0 {
+		return false
+	}
+	return true
 }

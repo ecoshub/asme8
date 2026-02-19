@@ -58,7 +58,8 @@ func (r *Rom) ReadRequest() {
 		return
 	}
 	addr := val - r.addrStart
-	r.dataBus.Write_8(r.data[addr])
+	data := r.data[addr]
+	r.dataBus.Write_8(data)
 }
 
 func (r *Rom) Read(addr uint16) uint8 {

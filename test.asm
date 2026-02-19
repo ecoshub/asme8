@@ -1,16 +1,10 @@
 
-    global __SERIAL_START__
-
-ADDR_PUT_CHAR=__SERIAL_START__
-
+    sti
+start:
+    mov a, 0x10
+    mov a, 0x01
     jmp start
 
-start:
-    mov a, 'a'
-    call char_out
-    brk
-
-char_out:
-    mov [ADDR_PUT_CHAR], a
-    ret
-
+.org 0x1000
+    mov b, 0x31
+    rti

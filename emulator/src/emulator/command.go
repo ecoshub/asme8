@@ -39,6 +39,7 @@ const (
 	CommandShortScrollCodePanelBot  string = ">>"
 	CommandToggleCodeTracking       string = "track"
 	CommandShortToggleCodeTracking  string = "tr"
+	CommandInterruptRequest         string = "irq"
 )
 
 func (e *Emulator) handleCommand(input string) {
@@ -91,6 +92,8 @@ func (e *Emulator) handleCommand(input string) {
 		e.commandScrollCodePanelBot(input)
 	case CommandShortToggleCodeTracking, CommandToggleCodeTracking:
 		e.commandToggleCodeTracking(input)
+	case CommandInterruptRequest:
+		e.commandInterruptRequest(input)
 	default:
 		e.sysLogPanel.LogWithStyle(fmt.Sprintf("command not found. command: '%s'", input), style.DefaultStyleError)
 	}
@@ -119,6 +122,11 @@ func (e *Emulator) setTrackExecution(tracking bool) {
 	} else {
 		e.sysLogPanel.LogWithStyle("tracking disabled", style.DefaultStyleInfo)
 	}
+}
+
+func (e *Emulator) commandInterruptRequest(_ string) {
+	e.computer.InterruptRequest()
+	e.sysLogPanel.LogWithStyle("-> IRQ sent", style.DefaultStyleInfo)
 }
 
 func (e *Emulator) commandScrollCodePanelDown(_ string) {

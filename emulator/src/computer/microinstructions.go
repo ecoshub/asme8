@@ -58,9 +58,10 @@ const (
 	MI_CLC
 	MI_CLI
 	MI_STI
-	MI_CIRQ
+	MI_CL_IRQ
 	MI_STATUS_OUT
 	MI_STATUS_IN
+	MI_VEC_1_OUT
 )
 
 type miFunc func(c *Computer, command uint64)
@@ -124,8 +125,11 @@ var (
 		MI_CLC:                   mInstClearCarryFlag,
 		MI_CLI:                   mInstClearInterruptEnableFlag,
 		MI_STI:                   mInstSetInterruptEnableFlag,
-		MI_CIRQ:                  func(c *Computer, command uint64) { c.irq = false },
+		MI_CL_IRQ:                func(c *Computer, command uint64) { c.irq = false },
 		MI_STATUS_OUT:            mInstStatusRegisterOut,
 		MI_STATUS_IN:             mInstStatusRegisterIn,
+		MI_VEC_1_OUT: func(c *Computer, command uint64) {
+			c.addrBus.Write_16(0x1000)
+		},
 	}
 )

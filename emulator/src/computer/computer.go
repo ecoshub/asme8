@@ -202,6 +202,10 @@ func (c *Computer) GetDevices() []connectable.Connectable {
 	return c.devices
 }
 
+func (c *Computer) InterruptRequest() {
+	c.irq = true
+}
+
 func (c *Computer) Tick() {
 	c.singleTicker <- struct{}{}
 }

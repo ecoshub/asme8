@@ -288,39 +288,39 @@ bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output 
 ```  
 **Output**:  
 ```
-<0000> ; symbols:
-<0000> -----------------
-<0000> ; print_char         <0015>
-<0000> ; done               <001a>
-<0000> ; message            <001b>
-<0000> ; start              <0000>
-<0000> ; loop               <0003>
-<0000>
-<0000> ; symbols (variables):
-<0000> -----------------
-<0000> ADDR_PUT_CHAR=0xffec
-<0000>
-<0000>  start:
-<0002>     mov b, 0                             ; 27 01 00
-<0003>  loop:
-<0006>     mov a, [message+b]                   ; 2a 01 1b 00
-<0009>     cmp a, 0                             ; 09 00 00
-<000c>     jz done                              ; 05 1a 00
-<000f>     call print_char                      ; 45 15 00
-<0011>     inc b                                ; 1c 01
-<0014>     jmp loop                             ; 02 03 00
-<0014>
-<0015>  print_char:
-<0018>     mov [ADDR_PUT_CHAR], a               ; 29 00 ec ff
-<0019>     ret                                  ; 46
-<0019>
-<001a>  done:
-<001a>     brk                                  ; 00
-<001a>
-<001b>  message:
-<001b> .asciiz "Hello, World!"                  ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
+Assemble Completed Successfully
 
-assemble success. 41 bytes assembled. output file: 'hello.bin'
+ Symbols:
+----------------------------
+ loop               <0003>
+ print_char         <0015>
+ done               <001a>
+ message            <001b>
+ start              <0000>
+
+ Variables:
+----------------------------
+ ADDR_PUT_CHAR=0xffec
+
+
+<0000> start:
+<0000>     mov b, 0                      ; 1d 01 00
+<0003> loop:
+<0003>     mov a, [message+b]            ; 20 01 1b 00
+<0007>     cmp a, 0                      ; 0b 00 00
+<000a>     jz done                       ; 06 1a 00
+<000d>     call print_char               ; 42 15 00
+<0010>     inc b                         ; 18 01
+<0012>     jmp loop                      ; 03 03 00
+<0015> print_char:
+<0015>     mov [ADDR_PUT_CHAR], a        ; 1f 00 ec ff
+<0019>     ret                           ; 44
+<001a> done:
+<001a>     brk                           ; 00
+<001b> message:
+<001b> .asciiz "Hello, World!"           ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
+
+assemble success. 40 bytes assembled. total file size: 41 bytes. output file: 'hello.bin'
 ```
 
 ---
@@ -356,27 +356,25 @@ OFFSET      ACCESS     TYPE     SYMBOL
 
 POSITIONS:
 OFFSET     SIZE     EXTRA   MISSING    SYMBOL
-0004       16       0000    false      <done>
-000a       16       0000    false      <to_upper>
-000d       16       0000    false      <to_upper>
-0010       16       0000    false      <done>
+0004       16       0000    0          <done>
+000a       16       0000    0          <to_upper>
+000d       16       0000    0          <to_upper>
+0010       16       0000    0          <done>
 
 <0000> upper:
-<0000>    cmp a, 'a'                          ; 09 00 61
-<0003>    js done                             ; 03 16 00
-<0006>    cmp a, 'z'                          ; 09 00 7a
-<0009>    js to_upper                         ; 03 12 00
-<000c>    jz to_upper                         ; 05 12 00
-<000f>    jmp done                            ; 02 16 00
-
+<0000>     cmp a, 'a'                    ; 0b 00 61
+<0003>     js done                       ; 04 16 00
+<0006>     cmp a, 'z'                    ; 0b 00 7a
+<0009>     js to_upper                   ; 04 12 00
+<000c>     jz to_upper                   ; 06 12 00
+<000f>     jmp done                      ; 03 16 00
 <0012> to_upper:
-<0012>    sub a, 0x20                         ; 19 00 20
-<0015>    ret                                 ; 46
-
+<0012>     sub a, 0x20                   ; 13 00 20
+<0015>     ret                           ; 44
 <0016> done:
-<0016>    ret                                 ; 46
+<0016>     ret                           ; 44
 
-assemble success. 756 bytes assembled. output file: 'upper.o'
+assemble success. 22 bytes assembled. total file size: 709 bytes. output file: 'upper.o'
 ```
 
 ```bash
@@ -398,6 +396,7 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 **output:**
 
 ```
+
 +------------------------------+
 |     GLOBAL LINKER SYMBOLS    |
 |------------------------------|
@@ -416,14 +415,9 @@ bin/ld --print --config linker/examples/basic/linker_config --output linked.bin 
 |-------------------------------------------------|
 |  SEGMENT   |  TYPE  |  INDEX  |  SYMBOL         |
 |------------+--------+---------+-----------------|
-|  main      |   10   |  0005   |  loop           |
-|  main      |   10   |  0018   |  done           |
-|  main      |   10   |  0019   |  message        |
-|  main      |   10   |  001f   |  put_char       |
-|  main      |   10   |  0024   |  upper          |
+|  main      |   10   |  0021   |  put_char       |
+|  main      |   10   |  0026   |  upper          |
 |  put_char  |   01   |  fffc   |  ADDR_PUT_CHAR  |
-|  upper     |   10   |  0036   |  to_upper       |
-|  upper     |   10   |  003a   |  done           |
 +------------+--------+---------+-----------------+
 
 link success. files: [upper.o put_char.o main.o], output file: linked.bin

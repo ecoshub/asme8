@@ -55,6 +55,7 @@ func (a *Assembler) CodeString() string {
 			case DirectiveOrg:
 				val := directive.Values[0].GetValue()
 				index = int(val)
+				builder.WriteString(fmt.Sprintf("<%04x> %s: \n", oldIndex, directive.Raw))
 			case DirectiveReserveByte:
 				val := directive.Values[0].GetValue()
 				index += int(val)
@@ -65,6 +66,7 @@ func (a *Assembler) CodeString() string {
 						s += "00 "
 					}
 				}
+				builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
 			case DirectiveASCII:
 				fallthrough
 			case DirectiveASCIIZ:
@@ -73,16 +75,13 @@ func (a *Assembler) CodeString() string {
 				index += totalOffset(directive.Values)
 				arr := ToHexArray_1byte(directive.Values, true)
 				s = arr
+				builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
 			case DirectiveWord:
 				index += totalOffset(directive.Values)
 				arr := ToHexArray_2byte(directive.Values, true)
 				s = arr
+				builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
 			}
-			// raw := directive.Raw
-			// if len(directive.Raw) > 32 {
-			// 	raw = directive.Raw[:29] + "..."
-			// }
-			builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
 		}
 		// isBlankLine := isBlank(i, a.Coder.blanksLines)
 		isBeginning, _ := isLineBegin(i, a.Coder.lineBeginnings)

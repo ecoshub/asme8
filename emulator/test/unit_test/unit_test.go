@@ -1264,22 +1264,18 @@ var (
 		},
 		{
 			Name: "add ip",
-			// mov ipl, 0x20
+			// mov ipl, 0xff
 			// mov iph, 0x10
 			// add ip, 4
-			// mov a, 0x10
-			// push a
 			Program: []uint8{
-				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0x20,
+				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPL, 0xff,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_IPH, 0x10,
 				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x04,
-				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
-				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_A,
 			},
 			Expect: &test.Expect{
 				Registers: []*test.ExpectRegister{
-					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x24},
-					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x10},
+					{Index: instruction.REGISTER_OPCODE_IPL, Data: 0x03},
+					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x11},
 				},
 			},
 		},

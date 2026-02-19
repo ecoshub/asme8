@@ -66,7 +66,7 @@ func (sp *StatePanel) Render() {
 
 	// NOTE: can not try to convert for 'multi write'. do not try it please...
 	sp.logfFlagIndexWithStyle(0, DefaultStyle6, "# Registers:")
-	sp.logfFlagIndexWithStyle(1, DefaultStyle6, "Z S P C O I X X")
+	sp.logfFlagIndexWithStyle(1, DefaultStyle6, "Z S C IE")
 	sp.logfFlagIndexWithStyle(2, DefaultStyle6, "%s", status)
 	sp.logfFlagIndexWithStyle(3, DefaultStyle6, "")
 	sp.logfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  E  IH IL BH BL")

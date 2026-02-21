@@ -11,7 +11,7 @@ type Terminal struct {
 	running    bool
 }
 
-func New(sizeBufferSize int, isSerial bool) (*Terminal, error) {
+func New(sizeBufferSize int, isSerial bool, interruptFunc func()) (*Terminal, error) {
 	components, err := NewSetup()
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func New(sizeBufferSize int, isSerial bool) (*Terminal, error) {
 		return nil, err
 	}
 	return &Terminal{
-		Keyboard:   NewKeyboard(components.Screen.CommandPalette),
+		Keyboard:   NewKeyboard(components.Screen.CommandPalette, interruptFunc),
 		Screen:     s,
 		Components: components,
 	}, nil

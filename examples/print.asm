@@ -1,6 +1,5 @@
-__SERIAL_START__=0xffec
+__SERIAL_START__=0xffed
 ADDR_PUT_CHAR=__SERIAL_START__
-
 
 start:
     mov a, 'e'          ; move char value of 'e' to register a

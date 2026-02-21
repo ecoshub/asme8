@@ -1,21 +1,38 @@
+__VEC_0_ADDR__=0x1000
 __SERIAL_START__=0xffed
 ADDR_PUT_CHAR=__SERIAL_START__
 ADDR_READY_CHAR=__SERIAL_START__+1
 ADDR_GET_CHAR=__SERIAL_START__+2
 
+    sti
 start:
-    mov c, 0                    ; char index for screen
-char_wait:
+    xor c, c                    ; clear screen index (char out)
+loop:
+    nop
+    nop
+    nop
+    jmp loop
+
+.org __VEC_0_ADDR__
+vec_0_start:
+    jmp echo
+int_done:
+    rti
+
+echo:
     mov a, [ADDR_READY_CHAR]    ; char ready addr
     cmp a, 1                    ; char ready mean 1
-    jz char_read                ; jump to read label if ready
-    jmp char_wait               ; jump to char wait
+    jnz done                    ; if its not ready finish execution
+    call char_read
+    call char_out
+done:
+    jmp int_done
 
 char_read:
     mov a, [ADDR_GET_CHAR]      ; read from char addr
-    jmp char_out                ; jump to char out routine
+    ret                         ; jump to char out routine
 
 char_out:
     mov [ADDR_PUT_CHAR], a      ; write content of a in to screen buffer with offset c
     inc c                       ; increment cursor index by 1
-    jmp char_wait               ; jump to char out
+    ret

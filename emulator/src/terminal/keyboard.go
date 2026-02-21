@@ -25,7 +25,7 @@ type Keyboard struct {
 	scrollEvent      func(c uint16)
 }
 
-func NewKeyboard(cp *palette.Palette) *Keyboard {
+func NewKeyboard(cp *palette.Palette, interruptFunc func()) *Keyboard {
 	k := &Keyboard{
 		name:      "KEYBOARD",
 		cp:        cp,
@@ -55,6 +55,9 @@ func NewKeyboard(cp *palette.Palette) *Keyboard {
 		}
 		k.input = uint8(input)
 		k.ready = true
+		if interruptFunc != nil {
+			interruptFunc()
+		}
 	})
 	return k
 }

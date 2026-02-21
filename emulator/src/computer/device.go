@@ -69,7 +69,7 @@ func (c *Computer) CreateDevices() error {
 			if c.Config.Headless {
 				continue
 			}
-			term, err = terminal.New(int(mc.Size.Value), true)
+			term, err = terminal.New(int(mc.Size.Value), true, c.InterruptRequest)
 			if err != nil {
 				return err
 			}

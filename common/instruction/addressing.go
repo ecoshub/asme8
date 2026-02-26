@@ -15,15 +15,11 @@ const (
 	ADDR_MODE_MEM_TO_REG_REG16_INDEXED         // <inst> a, [ip+b]
 	ADDR_MODE_MEM_TO_REG_INDIRECT              // <inst> a, [ip]
 	ADDR_MODE_REG8_REG8                        // <inst> a, b
-	ADDR_MODE_IMPL                             // <inst> brk
+	ADDR_MODE_IMPL                             // <inst> hlt
 	ADDR_MODE_IMPL_IMM16                       // <inst> jmp 0x1234
 	ADDR_MODE_IMPL_REG16                       // <inst> ip
 	ADDR_MODE_REG16_IMM8                       // <inst> ip, 0x10
 	ADDR_MODE_REG16_IMM16                      // <inst> ip, 0x1234
 	ADDR_MODE_REG16_REG16                      // <inst> ip, bp
-	ADDR_MODE_REG16_STACK                      // <inst> ip, sp
-	ADDR_MODE_IMPL_STACK                       // <inst> sp
-	ADDR_MODE_STACK_IMM8                       // <inst> sp, 0x10
-	ADDR_MODE_STACK_REG16                      // <inst> sp, ip
 	ADDR_MODE_IMPL_STATUS_REG                  // <inst> sr
 )

@@ -1,0 +1,12 @@
+.segment "SEG_INIT"
+
+    extern __START__
+    global ADDR_PUT_CHAR
+    global ADDR_GET_CHAR
+    global ADDR_READY_CHAR
+
+ADDR_PUT_CHAR=__SERIAL_START__
+ADDR_READY_CHAR=__SERIAL_START__+1
+ADDR_GET_CHAR=__SERIAL_START__+2
+
+    jmp __START__

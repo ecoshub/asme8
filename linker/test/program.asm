@@ -1,7 +1,9 @@
-__SERIAL_START__=0xffed
-ADDR_PUT_CHAR=__SERIAL_START__
+.segment "SEG_PRG"
 
-start:
+    global __START__
+    extern ADDR_PUT_CHAR
+
+__START__:
     mov b, 0
 loop:
     mov a, [message+b]
@@ -14,7 +16,6 @@ loop:
 print_char:
     mov [ADDR_PUT_CHAR], a
     ret
-
 done:
     hlt
 

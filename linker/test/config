@@ -10,10 +10,6 @@ MEMORY {
 SEGMENTS {
     SEG_INIT: load=INIT;
     SEG_VEC: load=VEC;
-    SEG_VEC_REG: load=ROM;
+    SEG_PRG: load=ROM;
     SEG_GET_CHAR: load=ROM;
-    SEG_PUT_CHAR: load=ROM;
-    SEG_ECHO: load=ROM;
-    SEG_WOZ: load=ROM;
-    SEG_CONV: load=ROM;
 }

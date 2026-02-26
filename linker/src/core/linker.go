@@ -108,7 +108,7 @@ func (l *Linker) putLinkerGlobals() {
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
 		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size.Value)
+		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
@@ -119,11 +119,8 @@ func ResolveMemoryLayout(ml []*config.Memory) error {
 	offset := uint16(0)
 	for _, m := range ml {
 		if m.Start == nil {
-			if m.Size == nil {
-				return fmt.Errorf("malformed memory definition. memory: %s", m.Name)
-			}
 			m.Start = &config.NullableValue{Value: offset}
-			offset += m.Size.Value
+			offset += m.Size
 		}
 	}
 	return nil
@@ -131,6 +128,17 @@ func ResolveMemoryLayout(ml []*config.Memory) error {
 
 func (l *Linker) putSegments() error {
 	for _, s := range l.config.SegmentConfig.Configs {
+		if s.Start == nil {
+			continue
+		}
+		m, _ := l.config.MemoryConfig.GetMemoryConfig(s.Load)
+		o, _ := findObjectFile(s.Name, l.objects)
+		l.putImplicitSegments(o, m, s)
+	}
+	for _, s := range l.config.SegmentConfig.Configs {
+		if s.Start != nil {
+			continue
+		}
 		m, ok := l.config.MemoryConfig.GetMemoryConfig(s.Load)
 		if !ok {
 			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
@@ -139,18 +147,7 @@ func (l *Linker) putSegments() error {
 		if !ok {
 			return fmt.Errorf("segment not found in given object files. segment: '%s'", s.Name)
 		}
-		if s.Start != nil {
-			continue
-		}
 		l.putExplicitSegment(o, m, s)
-	}
-	for _, s := range l.config.SegmentConfig.Configs {
-		m, _ := l.config.MemoryConfig.GetMemoryConfig(s.Load)
-		o, _ := findObjectFile(s.Name, l.objects)
-		if s.Start == nil {
-			continue
-		}
-		l.putImplicitSegments(o, m, s)
 	}
 	return nil
 }
@@ -158,10 +155,11 @@ func (l *Linker) putSegments() error {
 func (l *Linker) putImplicitSegments(o *object.ELF, m *config.Memory, s *config.Segment) error {
 	bin := o.Tracker.GetBin()
 	length := uint16(len(bin))
-	position := s.Start.Value
-	if position+length > m.Start.Value+m.Size.Value {
+	position := m.Start.Value + s.Start.Value
+	if position+length > m.Start.Value+m.Size {
 		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
 	}
+	l.segmentOffsets[s.Name] = position
 	copy(l.memory[position:position+length], bin[:length])
 	return nil
 }
@@ -172,7 +170,7 @@ func (l *Linker) putExplicitSegment(o *object.ELF, m *config.Memory, s *config.S
 	offset := l.memoryLastSegmentOffset[m.Name]
 	position := m.Start.Value + offset
 	l.segmentOffsets[s.Name] = position
-	if position+length > m.Start.Value+m.Size.Value {
+	if position+length > m.Start.Value+m.Size {
 		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
 	}
 	copy(l.memory[position:position+length], bin[:length])
@@ -257,7 +255,7 @@ func (l *Linker) resolveReference() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
+		sc, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}
@@ -269,7 +267,7 @@ func (l *Linker) linkSymbols() error {
 			index := uint16(0)
 			sym := p.GetSymbol()
 			segmentOffset := l.segmentOffsets[segment]
-			offset = segmentOffset + p.GetOffset()
+			offset = segmentOffset + sc.Start.Get() + p.GetOffset()
 			globalSegmentOffset := uint16(0)
 			_type := uint8(0)
 			if p.IsMissing() {

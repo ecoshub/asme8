@@ -33,8 +33,11 @@ func OperandOperation(command uint8) func(c *Computer, _ uint64) {
 				reg = instruction.REGISTER_OPCODE_BPL
 				addr = true
 			}
+			if reg == instruction.REGISTER_OPCODE_SP {
+				reg = instruction.REGISTER_OPCODE_SPL
+				addr = true
+			}
 		}
-
 		if command&OP_HIGH > 0 {
 			if reg == instruction.REGISTER_OPCODE_IP {
 				reg = instruction.REGISTER_OPCODE_IPH
@@ -42,6 +45,10 @@ func OperandOperation(command uint8) func(c *Computer, _ uint64) {
 			}
 			if reg == instruction.REGISTER_OPCODE_BP {
 				reg = instruction.REGISTER_OPCODE_BPH
+				addr = true
+			}
+			if reg == instruction.REGISTER_OPCODE_SP {
+				reg = instruction.REGISTER_OPCODE_SPH
 				addr = true
 			}
 		}

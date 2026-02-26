@@ -12,4 +12,4 @@ loop:
     nop
 
 end:
-    brk
+    hlt

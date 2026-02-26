@@ -1,7 +1,7 @@
 package computer
 
 const (
-	MI_BRK uint64 = iota
+	MI_HLT uint64 = iota
 	MI_BRIDGE_ENABLE
 	MI_PC_IN_ADDR
 	MI_PC_OUT_ADDR
@@ -60,7 +60,10 @@ const (
 	MI_CL_IRQ
 	MI_STATUS_OUT
 	MI_STATUS_IN
+	MI_VEC_0_OUT
 	MI_VEC_1_OUT
+	MI_VEC_2_OUT
+	MI_VEC_3_OUT
 	TEST_MI_IRQ_HIGH
 )
 
@@ -68,7 +71,7 @@ type miFunc func(c *Computer, command uint64)
 
 var (
 	microinstructionFunctions map[uint64]miFunc = map[uint64]miFunc{
-		MI_BRK:                   mInstBreak,
+		MI_HLT:                   mInstHalt,
 		MI_BRIDGE_ENABLE:         mInstBridgeEnable,
 		MI_PC_IN_ADDR:            mInstProgramCounterInAddr,
 		MI_PC_OUT_ADDR:           mInstProgramCounterOutAddr,
@@ -130,9 +133,10 @@ var (
 		},
 		MI_STATUS_OUT: mInstStatusRegisterOut,
 		MI_STATUS_IN:  mInstStatusRegisterIn,
-		MI_VEC_1_OUT: func(c *Computer, command uint64) {
-			c.addrBus.Write_16(InterruptVec1Addr)
-		},
+		MI_VEC_0_OUT:  mInstVec0Out,
+		MI_VEC_1_OUT:  mInstVec1Out,
+		MI_VEC_2_OUT:  mInstVec2Out,
+		MI_VEC_3_OUT:  mInstVec3Out,
 		TEST_MI_IRQ_HIGH: func(c *Computer, command uint64) {
 			c.irqLine = true
 		},

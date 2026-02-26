@@ -362,7 +362,7 @@ func (e *Emulator) commandClear(_ string) {
 
 func (e *Emulator) commandTick(_ string) {
 	if !e.computer.IsRunning() {
-		e.sysLogPanel.LogWithStyle("# program is in break state. try restart using 'r'", panel.WarningStyle)
+		e.sysLogPanel.LogWithStyle("# computer is in halt state. try restart using 'r'", panel.WarningStyle)
 		return
 	}
 	e.computer.Tick()

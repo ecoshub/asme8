@@ -34,11 +34,11 @@ func asme8ParserInit() {
 	staticData := &AsmE8ParserStaticData
 	staticData.LiteralNames = []string{
 		"", "'\\t'", "'    '", "'  '", "' '", "'\\n'", "':'", "', '", "'adc'",
-		"'add'", "'and'", "'brk'", "'call'", "'clc'", "'int'", "'sti'", "'cli'",
+		"'add'", "'and'", "'htl'", "'call'", "'clc'", "'int'", "'sti'", "'cli'",
 		"'cmp'", "'dec'", "'inc'", "'jc'", "'jmp'", "'jnc'", "'jns'", "'jnz'",
-		"'js'", "'jz'", "'mov'", "'nop'", "'not'", "'or'", "'pop'", "'push'",
-		"'ret'", "'rol'", "'ror'", "'rti'", "'sbb'", "'shl'", "'shr'", "'sub'",
-		"'xor'", "'a'", "'b'", "'c'", "'d'", "'e'", "'ipl'", "'iph'", "'bpl'",
+		"'js'", "'jz'", "'mov'", "'nop'", "'or'", "'pop'", "'push'", "'ret'",
+		"'rol'", "'ror'", "'rti'", "'sbb'", "'shl'", "'shr'", "'sub'", "'xor'",
+		"'hlt'", "'a'", "'b'", "'c'", "'d'", "'e'", "'ipl'", "'iph'", "'bpl'",
 		"'bph'", "'ip'", "'bp'", "'sp'", "'sr'", "'['", "']'", "'+'", "'-'",
 		"'='", "'.asciiz '", "'.ascii '", "'.byte '", "'.word '", "'.resb '",
 		"'.org '", "'.segment '", "'global '", "'extern '",

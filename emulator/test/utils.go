@@ -18,7 +18,9 @@ var (
 )
 
 const (
-	TEST_INTERRUPT_VEC_1_ADDR = 0x10
+	TEST_INTERRUPT_VEC_1_ADDR_LOW         = 0x10
+	TEST_INTERRUPT_VEC_1_ADDR_HIGH        = 0x11
+	TEST_STACK_START               uint16 = 0x20ff
 )
 
 func RegTest(t *testing.T, index uint8, inm uint8) {
@@ -41,15 +43,16 @@ func GetComp() *computer.Computer {
 		return MainTestComputer
 	}
 
-	computer.InterruptVec1Addr = TEST_INTERRUPT_VEC_1_ADDR
+	computer.IntVec0AddrLow = TEST_INTERRUPT_VEC_1_ADDR_LOW
+	computer.IntVec1AddrLow = TEST_INTERRUPT_VEC_1_ADDR_HIGH
 	var err error
 	MainTestComputer, err = computer.New(&computer.Config{
 		MemoryConfig: &config.MemoryConfig{
 			Configs: []*config.Memory{
-				{Name: "ROM", Size: config.NewNullable(0x2000), Type: "ro"},
-				{Name: "RAM", Size: config.NewNullable(0xdfed), Type: "rw"},
-				{Name: "SERIAL", Size: config.NewNullable(0x3), Type: "rw"},
-				{Name: "RAM_2", Size: config.NewNullable(0x10), Type: "rw"},
+				{Name: "ROM", Size: 0x2000, Type: config.MemoryTypeReadOnly},
+				{Name: "RAM", Size: 0xdfed, Type: config.MemoryTypeReadWrite},
+				{Name: "SERIAL", Size: 0x3, Type: config.MemoryTypeReadWrite},
+				{Name: "RAM_2", Size: 0x10, Type: config.MemoryTypeReadWrite},
 			},
 		},
 		Headless: true,
@@ -61,6 +64,7 @@ func GetComp() *computer.Computer {
 			panic(err)
 		}
 	}
+	MainTestComputer.SetStackStart(TEST_STACK_START)
 	MainROM, _ = MainTestComputer.GetRom()
 	MainRAM, _ = MainTestComputer.GetRam()
 	dev, _ := MainTestComputer.GetDevice("RAM_2")

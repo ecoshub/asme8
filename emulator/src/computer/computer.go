@@ -16,8 +16,13 @@ import (
 )
 
 var (
-	StackSize         uint16 = 0xff
-	InterruptVec1Addr uint16 = 0x1000
+	// set by device
+	StackStart uint16 = 0
+	// interrupt high bytes are always zero
+	IntVec0AddrLow uint8 = 0x20
+	IntVec1AddrLow uint8 = 0x22
+	IntVec2AddrLow uint8 = 0x24
+	IntVec3AddrLow uint8 = 0x26
 )
 
 type Computer struct {
@@ -32,8 +37,8 @@ type Computer struct {
 
 	programCounter        uint16
 	memoryAddressRegister uint16
-	stackPointer          uint16
-	memoryDataRegister    uint8
+	// stackPointer          uint16
+	memoryDataRegister uint8
 
 	aluOut       bool
 	bridgeEnable bool
@@ -50,14 +55,14 @@ type Computer struct {
 	stackStart uint16
 	ramStart   uint16
 
-	terminal         *terminal.Terminal
-	tickEventHandle  func(pc uint16, step uint8)
-	breakEventHandle func(pc uint16)
-	singleTicker     chan struct{}
-	stopChan         chan struct{}
-	running          bool
-	pause            bool
-	programLoaded    bool
+	terminal        *terminal.Terminal
+	tickEventHandle func(pc uint16, step uint8)
+	haltEventHandle func(pc uint16)
+	singleTicker    chan struct{}
+	stopChan        chan struct{}
+	running         bool
+	pause           bool
+	programLoaded   bool
 }
 
 func New(conf *Config) (*Computer, error) {
@@ -93,7 +98,7 @@ func (c *Computer) AttachTickEventHandle(f func(pc uint16, step uint8)) {
 }
 
 func (c *Computer) AttachBreakEventHandle(f func(pc uint16)) {
-	c.breakEventHandle = f
+	c.haltEventHandle = f
 }
 
 func (c *Computer) GetTerminal() *terminal.Terminal {
@@ -110,7 +115,8 @@ func (c *Computer) IsProgramLoaded() bool {
 
 func (c *Computer) SetStackStart(start uint16) {
 	c.stackStart = start
-	c.stackPointer = start
+	c.registers.Write(instruction.REGISTER_OPCODE_SPL, uint8(start))
+	c.registers.Write(instruction.REGISTER_OPCODE_SPH, uint8(start>>8))
 }
 
 func (c *Computer) SetPause(enable bool) {
@@ -154,7 +160,16 @@ func (c *Computer) GetProgramCounter() uint16 {
 }
 
 func (c *Computer) GetStackPointer() uint16 {
-	return c.stackPointer
+	stack := uint16(0)
+	stack += uint16(c.registers.Read_8(instruction.REGISTER_OPCODE_SPH))
+	stack = (stack << 8)
+	stack += uint16(c.registers.Read_8(instruction.REGISTER_OPCODE_SPL))
+	return stack
+}
+
+func (c *Computer) SetStackPointer(val uint16) {
+	c.registers.Write(instruction.REGISTER_OPCODE_SPL, uint8(val))
+	c.registers.Write(instruction.REGISTER_OPCODE_SPH, uint8(val>>8))
 }
 
 func (c *Computer) GetStartOfStack() uint16 {
@@ -262,7 +277,7 @@ func (c *Computer) Reset(excludeROM bool, startWithPause bool) {
 	c.instructionRegister = 0
 	c.operandRegister = 0
 	c.programCounter = 0
-	c.stackPointer = c.stackStart
+	c.SetStackStart(StackStart)
 	c.memoryAddressRegister = 0
 	c.memoryAddressRegister = 0
 	c.rw = utils.IO_READ
@@ -289,7 +304,6 @@ func (c *Computer) tick() bool {
 		c.irqAckFlipFlop = true
 	}
 	jmp := checkJmp(c.instructionRegister, c.status.Flag())
-	// fmt.Println("irq?", irq, "ir", c.instructionRegister)
 
 	var microinstructions []uint64
 	if c.irqAckFlipFlop && irq {
@@ -308,9 +322,9 @@ func (c *Computer) tick() bool {
 		}
 	}
 
-	if len(microinstructions) == 0 || c.instructionRegister == instruction.Type(MI_BRK) {
-		if c.breakEventHandle != nil {
-			c.breakEventHandle(c.programCounter)
+	if len(microinstructions) == 0 || c.instructionRegister == instruction.INST_HLT_IMPL {
+		if c.haltEventHandle != nil {
+			c.haltEventHandle(c.programCounter)
 		}
 		c.running = false
 		return false
@@ -391,19 +405,19 @@ func checkJmp(ir uint8, sf uint8) bool {
 	statusMask := uint8(0)
 	not := false
 	switch ir {
-	case instruction.INST_JZ_IMPL_IMM16:
+	case instruction.INST_JZ_IMM16:
 		statusMask = status.STATUS_FLAG_ZERO
-	case instruction.INST_JNZ_IMPL_IMM16:
+	case instruction.INST_JNZ_IMM16:
 		statusMask = status.STATUS_FLAG_ZERO
 		not = true
-	case instruction.INST_JC_IMPL_IMM16:
+	case instruction.INST_JC_IMM16:
 		statusMask = status.STATUS_FLAG_CARRY
-	case instruction.INST_JNC_IMPL_IMM16:
+	case instruction.INST_JNC_IMM16:
 		statusMask = status.STATUS_FLAG_CARRY
 		not = true
-	case instruction.INST_JS_IMPL_IMM16:
+	case instruction.INST_JS_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
-	case instruction.INST_JNS_IMPL_IMM16:
+	case instruction.INST_JNS_IMM16:
 		statusMask = status.STATUS_FLAG_SIGN
 		not = true
 	default:

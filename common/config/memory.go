@@ -6,10 +6,15 @@ import (
 	"strings"
 )
 
+const (
+	MemoryTypeReadOnly  string = "ro"
+	MemoryTypeReadWrite string = "rw"
+)
+
 type Memory struct {
 	Name  string
 	Start *NullableValue
-	Size  *NullableValue
+	Size  uint16
 	Type  string
 }
 
@@ -17,11 +22,8 @@ func ResolveMemoryLayout(ml []*Memory) error {
 	offset := uint16(0)
 	for _, m := range ml {
 		if m.Start == nil {
-			if m.Size == nil {
-				return fmt.Errorf("malformed memory definition. memory: %s", m.Name)
-			}
 			m.Start = &NullableValue{Value: offset}
-			offset += m.Size.Value
+			offset += m.Size
 		}
 		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size.Value, m.Type)
 	}
@@ -62,7 +64,7 @@ func parseMemory(line string) (*Memory, error) {
 			if err != nil {
 				return nil, err
 			}
-			memory.Size = &NullableValue{Value: uint16(size)}
+			memory.Size = uint16(size)
 		case "type":
 			memory.Type = value
 		default:

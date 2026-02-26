@@ -5,5 +5,5 @@ start:
     mov [RESULT], a
     mov a, 0xaa
     mov [RESULT+1], a
-    brk
+    hlt
 

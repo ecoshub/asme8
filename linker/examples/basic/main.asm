@@ -16,7 +16,7 @@ loop:
     jmp loop
 
 done:
-    brk
+    hlt
 
 message:
 .asciiz "hello"

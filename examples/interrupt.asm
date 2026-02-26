@@ -15,18 +15,14 @@ loop:
 
 .org __VEC_0_ADDR__
 vec_0_start:
-    jmp echo
-int_done:
-    rti
-
-echo:
+; check keyboard interrupt
     mov a, [ADDR_READY_CHAR]    ; char ready addr
     cmp a, 1                    ; char ready mean 1
     jnz done                    ; if its not ready finish execution
     call char_read
     call char_out
 done:
-    jmp int_done
+    rti
 
 char_read:
     mov a, [ADDR_GET_CHAR]      ; read from char addr

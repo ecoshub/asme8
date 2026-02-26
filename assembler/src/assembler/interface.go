@@ -172,7 +172,7 @@ func (a *Assembler) ExitAddr_mode_implied_reg8(c *parser.Addr_mode_implied_reg8C
 func (a *Assembler) ExitAddr_mode_implied_stack(c *parser.Addr_mode_implied_stackContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseImpliedStack(line, column)
+	a.ParseImpliedReg16(line, column)
 }
 
 func (a *Assembler) ExitAddr_mode_mem_to_reg_direct(c *parser.Addr_mode_mem_to_reg_directContext) {
@@ -227,7 +227,7 @@ func (a *Assembler) ExitAddr_mode_reg16_reg16(c *parser.Addr_mode_reg16_reg16Con
 func (a *Assembler) ExitAddr_mode_reg16_stack(c *parser.Addr_mode_reg16_stackContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseReg16Stack(line, column)
+	a.ParseReg16Reg16(line, column)
 }
 
 func (a *Assembler) ExitAddr_mode_reg8_imm8(c *parser.Addr_mode_reg8_imm8Context) {
@@ -282,20 +282,20 @@ func (a *Assembler) ExitAddr_mode_reg_to_mem_reg16_indexed(c *parser.Addr_mode_r
 func (a *Assembler) ExitAddr_mode_stack_imm8(c *parser.Addr_mode_stack_imm8Context) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseStackImm8(line, column)
+	a.ParseReg16Imm(line, column)
 }
 
 func (a *Assembler) ExitAddr_mode_stack_imm8_tag(c *parser.Addr_mode_stack_imm8_tagContext) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
 	a.GetVariableOrTagMissing(2, 8)
-	a.ParseStackImm8(line, column)
+	a.ParseReg16Imm(line, column)
 }
 
 func (a *Assembler) ExitAddr_mode_stack_reg16(c *parser.Addr_mode_stack_reg16Context) {
 	line := c.GetStart().GetLine()
 	column := c.RuleIndex
-	a.ParseStackReg16(line, column)
+	a.ParseReg16Reg16(line, column)
 }
 
 func (a *Assembler) ExitAscii(c *parser.AsciiContext) {

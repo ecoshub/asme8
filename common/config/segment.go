@@ -12,7 +12,6 @@ type Segment struct {
 	Name  string
 	Load  string
 	Start *NullableValue
-	Type  string
 }
 
 func ParseSegmentConfig(filePath string) (*SegmentConfig, error) {
@@ -94,8 +93,6 @@ func parseSegment(line string) (*Segment, error) {
 				return nil, err
 			}
 			segment.Start = &NullableValue{Value: uint16(start)}
-		case "type":
-			segment.Type = value
 		default:
 			return nil, fmt.Errorf("unknown segment parameter: %s", key)
 		}

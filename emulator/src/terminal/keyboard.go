@@ -125,6 +125,8 @@ func (k *Keyboard) ReadRequest() {
 
 func (k *Keyboard) WriteRequest() {}
 
+func (k *Keyboard) Load(offset int, data []byte) {}
+
 func (k *Keyboard) AttachPipeChange(f func(pipeInput bool)) {
 	if f == nil {
 		return

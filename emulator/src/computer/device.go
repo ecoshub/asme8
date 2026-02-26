@@ -16,21 +16,25 @@ func (c *Computer) LoadProgram() error {
 		return errors.New("program not found")
 	}
 
-	buffer := make([]uint8, 0xffff)
-	copy(buffer[:], c.Config.Program[:])
+	for _, conf := range c.Config.MemoryConfig.Configs {
+		if conf.Type != config.MemoryTypeReadOnly {
+			continue
+		}
+		i, ok := c.GetDeviceInterface(conf.Name)
+		if !ok {
+			return fmt.Errorf("fatal error. device not found. dev: %s", conf.Name)
+		}
+		con, ok := i.(connectable.Connectable)
+		if !ok {
+			return fmt.Errorf("fatal error. device is not connectable. dev: %s", conf.Name)
+		}
+		start, end := con.GetRange()
 
-	cfg, ok := c.Config.MemoryConfig.GetMemoryConfig("ROM")
-	if !ok {
-		return errors.New("memory config not found")
+		buffer := make([]uint8, end-start)
+		copy(buffer[:], c.Config.Program[start:])
+		con.Load(0, buffer)
 	}
-	start := cfg.Start.Value
-	end := cfg.Start.Value + cfg.Size.Value
-	i, ok := c.GetDeviceInterface(cfg.Name)
-	if !ok {
-		return fmt.Errorf("fatal error. device not found. dev: %s", cfg.Name)
-	}
-	r := i.(*rom.Rom)
-	r.Load(0, buffer[start:end])
+
 	c.SetProgramLoaded()
 	return nil
 }
@@ -48,18 +52,20 @@ func (c *Computer) CreateDevices() error {
 	var ramStart uint16
 
 	for _, mc := range c.Config.MemoryConfig.Configs {
-		if strings.HasPrefix(mc.Name, "ROM") {
-			r := rom.New(mc.Size.Value)
+		if mc.Type == config.MemoryTypeReadOnly {
+			r := rom.New(mc.Size)
 			r.SetName(mc.Name)
-			c.ConnectDevice(r, mc.Start.Value, mc.Size.Value)
+			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
+			c.ConnectDevice(r, mc.Start.Value, mc.Size)
 			if deviceRom == nil {
 				deviceRom = r
 			}
 		}
 		if strings.HasPrefix(mc.Name, "RAM") {
-			r := ram.New(mc.Size.Value)
+			r := ram.New(mc.Size)
 			r.SetName(mc.Name)
-			c.ConnectDevice(r, mc.Start.Value, mc.Size.Value)
+			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
+			c.ConnectDevice(r, mc.Start.Value, mc.Size)
 			if deviceRam == nil {
 				ramStart = mc.Start.Value
 				deviceRam = r
@@ -69,10 +75,11 @@ func (c *Computer) CreateDevices() error {
 			if c.Config.Headless {
 				continue
 			}
-			term, err = terminal.New(int(mc.Size.Value), true, c.InterruptRequest)
+			term, err = terminal.New(int(mc.Size), true, c.InterruptRequest)
 			if err != nil {
 				return err
 			}
+			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
 			c.ConnectDevice(term.Screen, mc.Start.Value, 1)
 			c.ConnectDevice(term.Keyboard, mc.Start.Value+1, 2)
 			// screen components such as panels attaching to computer
@@ -89,7 +96,8 @@ func (c *Computer) CreateDevices() error {
 	}
 
 	c.ramStart = ramStart
-	c.SetStackStart(ramStart + StackSize)
+	StackStart = ramStart + 0xff
+	c.SetStackStart(StackStart)
 
 	return nil
 }

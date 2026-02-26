@@ -183,12 +183,6 @@ func (a *Assembler) AppendMachineCode(code uint8) {
 	a.offset++
 }
 
-func (a *Assembler) ParseStackImm8(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_STACK_IMM8, line, column)
-	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentValue.GetLowByte())
-}
-
 func (a *Assembler) ParseReg8Imm8(line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG8_IMM8, line, column)
 	a.AppendMachineCode(opcode)
@@ -340,26 +334,9 @@ func (a *Assembler) ParseImpliedReg16(line, column int) {
 	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
-func (a *Assembler) ParseImpliedStack(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_STACK, line, column)
-	a.AppendMachineCode(opcode)
-}
-
 func (a *Assembler) ParseImpliedStatusRegister(line, column int) {
 	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_IMPL_STATUS_REG, line, column)
 	a.AppendMachineCode(opcode)
-}
-
-func (a *Assembler) ParseStackReg16(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_STACK_REG16, line, column)
-	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentRegisters[1].GetCode())
-}
-
-func (a *Assembler) ParseReg16Stack(line, column int) {
-	opcode := a.GetOrFailOpCode(a.currentInstruction, instruction.ADDR_MODE_REG16_STACK, line, column)
-	a.AppendMachineCode(opcode)
-	a.AppendMachineCode(a.currentRegisters[0].GetCode())
 }
 
 func (a *Assembler) ParseImplied(line, column int) {

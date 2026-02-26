@@ -11,6 +11,7 @@ type Connectable interface {
 	Read(addr uint16) uint8
 	Clear()
 	GetRange() (uint16, uint16)
+	Load(offset int, data []byte)
 }
 
 func IsMyRange(from, size, addr uint16) bool {

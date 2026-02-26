@@ -12,7 +12,7 @@ start:
     jmp done
 
 done:
-    brk
+    hlt
 ```
 
 ---
@@ -144,7 +144,7 @@ label:
 ```asm
 .org 0x6000
     mov a, 10
-    brk
+    hlt
 ```
 
 ---
@@ -282,7 +282,7 @@ Declares an external label defined in another module.
     jnz loop
 
 done:
-    brk
+    hlt
 ```
 
 ---
@@ -294,7 +294,7 @@ done:
 
 ```asm
     call print_value
-    brk
+    hlt
 
 print_value:
     mov a, [buffer]
@@ -318,13 +318,13 @@ print_value:
 
 ### System
 
-**`brk`** - Break (halt execution).
+**`hlt`** - Break (halt execution).
 **`nop`** - No operation.
 **`rti`** - Return from interrupt.
 
 ```asm
     mov a, 10
-    brk         ; halt
+    hlt         ; halt
     nop         ; ignored
 ```
 

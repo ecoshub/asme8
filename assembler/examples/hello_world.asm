@@ -15,7 +15,7 @@ print_char:
     ret
 
 done:
-    brk
+    hlt
 
 message:
 .asciiz "Hello, World!"

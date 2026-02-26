@@ -244,7 +244,7 @@ pop a                 ; Pop top of stack into A
 
 #### **6. Special Instructions**  
 ```asm
-brk                   ; Halt execution (break)
+hlt                   ; Halt execution
 clc                   ; Clear carry flag
 rol a                 ; Rotate A left through carry
 ```
@@ -316,7 +316,7 @@ Assemble Completed Successfully
 <0015>     mov [ADDR_PUT_CHAR], a        ; 1f 00 ec ff
 <0019>     ret                           ; 44
 <001a> done:
-<001a>     brk                           ; 00
+<001a>     hlt                           ; 3f
 <001b> message:
 <001b> .asciiz "Hello, World!"           ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
 

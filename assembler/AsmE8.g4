@@ -83,7 +83,7 @@ mnemonic:
 'adc'
 | 'add'
 | 'and'
-| 'brk'
+| 'htl'
 | 'call'
 | 'clc'
 | 'int'
@@ -101,7 +101,6 @@ mnemonic:
 | 'jz'
 | 'mov'
 | 'nop'
-| 'not'
 | 'or'
 | 'pop'
 | 'push'
@@ -114,6 +113,7 @@ mnemonic:
 | 'shr'
 | 'sub'
 | 'xor'
+| 'hlt'
 	;
 
 reg8: 

@@ -15,7 +15,7 @@ type Screen struct {
 	addrStart  uint16
 	addrSize   uint16
 	buffer     *ScreenBuffer
-	dataBuffer []uint8
+	data       []uint8
 	components *Components
 	isSerial   bool
 }
@@ -24,7 +24,7 @@ func NewScreen(components *Components, size int, isSerial bool) (*Screen, error)
 	return &Screen{
 		name:       "SERIAL",
 		buffer:     NewScreenBuffer(size),
-		dataBuffer: make([]uint8, 8),
+		data:       make([]uint8, 8),
 		components: components,
 		isSerial:   isSerial,
 	}, nil
@@ -52,6 +52,8 @@ func (s *Screen) Tick(rw uint8) {
 		s.WriteRequest()
 	}
 }
+
+func (s *Screen) Load(offset int, data []byte) {}
 
 func (s *Screen) WriteRequest() {
 	addr := s.addressBus.Read_16()

@@ -12,7 +12,7 @@ start:
     call char_out       ; print value of register a
     mov a, 0x0d         ; move value (carriage return) to register a
     call char_out       ; print value of register a
-    brk
+    hlt
 
 char_out:
     mov [ADDR_PUT_CHAR], a      ; write content of a in to screen buffer with offset c

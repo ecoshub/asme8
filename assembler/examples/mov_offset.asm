@@ -11,4 +11,4 @@ loop:
     jmp loop
 
 done:
-    brk
+    hlt

@@ -15,94 +15,76 @@ var (
 	mov b, 0x20
 	mov c, 0x30
 	mov d, 0x40
-	mov e, 0x50
     add a, 0x10
 	add b, 0x20
 	add c, 0x30
 	add d, 0x40
-	add e, 0x50
     adc a, 0x10
 	adc b, 0x20
 	adc c, 0x30
 	adc d, 0x40
-	adc e, 0x50
     sub a, 0x10
 	sub b, 0x20
 	sub c, 0x30
 	sub d, 0x40
-	sub e, 0x50
     sbb a, 0x10
 	sbb b, 0x20
 	sbb c, 0x30
 	sbb d, 0x40
-	sbb e, 0x50
     cmp a, 0x10
 	cmp b, 0x20
 	cmp c, 0x30
 	cmp d, 0x40
-	cmp e, 0x50
     and a, 0x10
 	and b, 0x20
 	and c, 0x30
 	and d, 0x40
-	and e, 0x50
     xor a, 0x10
 	xor b, 0x20
 	xor c, 0x30
 	xor d, 0x40
-	xor e, 0x50
     or a, 0x10
 	or b, 0x20
 	or c, 0x30
 	or d, 0x40
-	or e, 0x50
 `,
 			Expected: []uint8{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_ADD_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_ADC_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_ADC_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_ADC_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_ADC_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_ADC_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_SUB_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_SBB_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_SBB_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_SBB_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_SBB_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_SBB_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_AND_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_AND_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_AND_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_AND_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_AND_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_XOR_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_XOR_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_XOR_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_XOR_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_XOR_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 				instruction.INST_OR_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_OR_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_OR_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_OR_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_OR_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 			},
 		},
 		{
@@ -112,20 +94,17 @@ VALUE_1=0x10
 VALUE_2=0x20
 VALUE_3=0x30
 VALUE_4=0x40
-VALUE_5=0x50
 
     mov a, VALUE_1
     mov b, VALUE_2
     mov c, VALUE_3
     mov d, VALUE_4
-    mov e, VALUE_5
 `,
 			Expected: []byte{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_C, 0x30,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_D, 0x40,
-				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_E, 0x50,
 			},
 		},
 		{
@@ -140,13 +119,13 @@ VALUE_5=0x50
     jnc 0x1234
 `,
 			Expected: []byte{
-				instruction.INST_JMP_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JZ_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNZ_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JS_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNS_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JC_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNC_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JMP_IMM16, 0x34, 0x12,
+				instruction.INST_JZ_IMM16, 0x34, 0x12,
+				instruction.INST_JNZ_IMM16, 0x34, 0x12,
+				instruction.INST_JS_IMM16, 0x34, 0x12,
+				instruction.INST_JNS_IMM16, 0x34, 0x12,
+				instruction.INST_JC_IMM16, 0x34, 0x12,
+				instruction.INST_JNC_IMM16, 0x34, 0x12,
 			},
 		},
 		{
@@ -165,24 +144,22 @@ ADDR=0x1234
 
 `,
 			Expected: []byte{
-				instruction.INST_JMP_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JZ_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNZ_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JS_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNS_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JC_IMPL_IMM16, 0x34, 0x12,
-				instruction.INST_JNC_IMPL_IMM16, 0x34, 0x12,
+				instruction.INST_JMP_IMM16, 0x34, 0x12,
+				instruction.INST_JZ_IMM16, 0x34, 0x12,
+				instruction.INST_JNZ_IMM16, 0x34, 0x12,
+				instruction.INST_JS_IMM16, 0x34, 0x12,
+				instruction.INST_JNS_IMM16, 0x34, 0x12,
+				instruction.INST_JC_IMM16, 0x34, 0x12,
+				instruction.INST_JNC_IMM16, 0x34, 0x12,
 			},
 		},
 		{
 			Name: "impl reg8",
 			Code: `
 
-    not a
 	shl b
 	shr c
 	rol d
-	ror e
 	inc a
 	dec b
 	push c
@@ -190,11 +167,9 @@ ADDR=0x1234
 
 `,
 			Expected: []byte{
-				instruction.INST_NOT_REG8, instruction.REGISTER_OPCODE_A,
 				instruction.INST_SHL_REG8, instruction.REGISTER_OPCODE_B,
 				instruction.INST_SHR_REG8, instruction.REGISTER_OPCODE_C,
 				instruction.INST_ROL_REG8, instruction.REGISTER_OPCODE_D,
-				instruction.INST_ROR_REG8, instruction.REGISTER_OPCODE_E,
 				instruction.INST_INC_REG8, instruction.REGISTER_OPCODE_A,
 				instruction.INST_DEC_REG8, instruction.REGISTER_OPCODE_B,
 				instruction.INST_PUSH_REG8, instruction.REGISTER_OPCODE_C,
@@ -236,48 +211,30 @@ ADDR=0x1234
     mov a, b
 	mov b, c
 	mov c, d
-	mov d, e
-	mov e, a
     add a, b
 	add b, c
 	add c, d
-	add d, e
-	add e, a
     adc a, b
 	adc b, c
 	adc c, d
-	adc d, e
-	adc e, a
     sub a, b
 	sub b, c
 	sub c, d
-	sub d, e
-	sub e, a
     sbb a, b
 	sbb b, c
 	sbb c, d
-	sbb d, e
-	sbb e, a
     cmp a, b
 	cmp b, c
 	cmp c, d
-	cmp d, e
-	cmp e, a
     and a, b
 	and b, c
 	and c, d
-	and d, e
-	and e, a
     xor a, b
 	xor b, c
 	xor c, d
-	xor d, e
-	xor e, a
     or a, b
 	or b, c
 	or c, d
-	or d, e
-	or e, a
 	mov ip, bp
 	mov bp, ip
 
@@ -286,48 +243,30 @@ ADDR=0x1234
 				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_MOV_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_ADD_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_ADC_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_ADC_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_ADC_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_ADC_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_ADC_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_SUB_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_SUB_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_SUB_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_SUB_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_SUB_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_SBB_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_SBB_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_SBB_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_SBB_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_SBB_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_CMP_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_AND_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_AND_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_AND_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_AND_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_AND_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_XOR_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_XOR_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_XOR_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_XOR_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_XOR_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_OR_REG8_REG8, instruction.REGISTER_OPCODE_B<<4 | instruction.REGISTER_OPCODE_A,
 				instruction.INST_OR_REG8_REG8, instruction.REGISTER_OPCODE_C<<4 | instruction.REGISTER_OPCODE_B,
 				instruction.INST_OR_REG8_REG8, instruction.REGISTER_OPCODE_D<<4 | instruction.REGISTER_OPCODE_C,
-				instruction.INST_OR_REG8_REG8, instruction.REGISTER_OPCODE_E<<4 | instruction.REGISTER_OPCODE_D,
-				instruction.INST_OR_REG8_REG8, instruction.REGISTER_OPCODE_A<<4 | instruction.REGISTER_OPCODE_E,
 				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_IP,
 				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_BP,
 			},
@@ -338,7 +277,7 @@ ADDR=0x1234
 	ret
 	rti
 	clc
-	brk
+	hlt
 	nop
 
 `,
@@ -346,7 +285,7 @@ ADDR=0x1234
 				instruction.INST_RET_IMPL,
 				instruction.INST_RTI_IMPL,
 				instruction.INST_CLC_IMPL,
-				instruction.INST_BRK_IMPL,
+				instruction.INST_HLT_IMPL,
 				instruction.INST_NOP_IMPL,
 			},
 		},
@@ -356,15 +295,19 @@ ADDR=0x1234
 
 	add ip, 0x10
 	add bp, 0x20
-	sub ip, 0x30
-	sub bp, 0x40
+	add sp, 0x30
+	sub ip, 0x40
+	sub bp, 0x50
+	sub sp, 0x60
 
 `,
 			Expected: []byte{
 				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x10,
 				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_BP, 0x20,
-				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x30,
-				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_BP, 0x40,
+				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x30,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_IP, 0x40,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_BP, 0x50,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x60,
 			},
 		},
 		{
@@ -426,8 +369,8 @@ ADDR=0x1234
 
 `,
 			Expected: []byte{
-				instruction.INST_PUSH_SP,
-				instruction.INST_POP_SP,
+				instruction.INST_PUSH_REG16, instruction.REGISTER_OPCODE_SP,
+				instruction.INST_POP_REG16, instruction.REGISTER_OPCODE_SP,
 			},
 		},
 		{
@@ -440,8 +383,8 @@ ADDR=0x1234
 
 `,
 			Expected: []byte{
-				instruction.INST_ADD_SP_IMM8, 0x10,
-				instruction.INST_SUB_SP_IMM8, 0x10,
+				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x10,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x10,
 			},
 		},
 		{
@@ -456,8 +399,8 @@ VALUE=0x10
 
 `,
 			Expected: []byte{
-				instruction.INST_ADD_SP_IMM8, 0x10,
-				instruction.INST_SUB_SP_IMM8, 0x10,
+				instruction.INST_ADD_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x10,
+				instruction.INST_SUB_REG16_IMM8, instruction.REGISTER_OPCODE_SP, 0x10,
 			},
 		},
 		{
@@ -471,10 +414,10 @@ VALUE=0x10
 
 `,
 			Expected: []byte{
-				instruction.INST_MOV_REG16_SP, instruction.REGISTER_OPCODE_IP,
-				instruction.INST_MOV_REG16_SP, instruction.REGISTER_OPCODE_BP,
-				instruction.INST_MOV_SP_REG16, instruction.REGISTER_OPCODE_IP,
-				instruction.INST_MOV_SP_REG16, instruction.REGISTER_OPCODE_BP,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_SP | instruction.REGISTER_OPCODE_IP<<4,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_SP | instruction.REGISTER_OPCODE_BP<<4,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_IP | instruction.REGISTER_OPCODE_SP<<4,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP | instruction.REGISTER_OPCODE_SP<<4,
 			},
 		},
 		{
@@ -675,15 +618,15 @@ start:
     mov a, 0x01
 
 done:
-    brk
+    hlt
 
 `,
 			Expected: []byte{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x05,
 				instruction.INST_CMP_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x00,
-				instruction.INST_JZ_IMPL_IMM16, 0x0c, 0x00,
+				instruction.INST_JZ_IMM16, 0x0c, 0x00,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x01,
-				instruction.INST_BRK_IMPL,
+				instruction.INST_HLT_IMPL,
 			},
 		},
 		{
@@ -729,14 +672,14 @@ start:
 .byte 0x99, 0x88
 
 end:
-    brk
+    hlt
 
 `,
 			Expected: []byte{
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x10,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x20,
 				0x99, 0x88,
-				instruction.INST_BRK_IMPL,
+				instruction.INST_HLT_IMPL,
 			},
 		},
 		{
@@ -771,7 +714,7 @@ start:
 .word 0x1234
 
 end:
-    brk
+    hlt
 
 `,
 			Expected: []byte{
@@ -779,7 +722,7 @@ end:
 				0xAA,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_B, 0x01,
 				0x34, 0x12,
-				instruction.INST_BRK_IMPL,
+				instruction.INST_HLT_IMPL,
 			},
 		},
 		{
@@ -795,21 +738,6 @@ code_section:
 			Expected: []byte{
 				0x11, 0x22, 0x33,
 				instruction.INST_MOV_REG8_IMM8, instruction.REGISTER_OPCODE_A, 0x44,
-			},
-		},
-		{
-			Name: "interrupt",
-			Code: `
-start:
-    sti
-    cli
-	int 0xfffe
-
-`,
-			Expected: []byte{
-				instruction.INST_STI_IMPL,
-				instruction.INST_CLI_IMPL,
-				instruction.INST_INT_IMM16, 0xfe, 0xff,
 			},
 		},
 	}

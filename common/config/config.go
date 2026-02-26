@@ -75,17 +75,11 @@ func ParseConfig(filePath string) (*Config, error) {
 	}
 
 	totalMemory := int(0)
-	lastStart := int(0)
 	for _, mc := range c.MemoryConfig.Configs {
-		if mc.Size == nil && mc.Start == nil {
+		if mc.Size == 0 {
 			return nil, fmt.Errorf("malformed memory definition. memory: %s", mc.Name)
 		}
-		if mc.Size != nil {
-			totalMemory += int(mc.Size.Value)
-		} else {
-			totalMemory += (int(mc.Start.Value) - lastStart)
-			lastStart = int(mc.Start.Value)
-		}
+		totalMemory += int(mc.Size)
 	}
 	if totalMemory > 0x10000 {
 		return nil, fmt.Errorf("total allocated memory exceeding 64k")

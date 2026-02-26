@@ -14,5 +14,5 @@ l2:
     jmp end     ; 10 1a 00
 
 end:
-    brk         ; 00
+    hlt         ; 3f
 

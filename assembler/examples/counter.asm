@@ -5,4 +5,4 @@ loop:
     jz end
     jmp loop
 end:
-    brk
+    hlt

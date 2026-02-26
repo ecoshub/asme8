@@ -36,19 +36,20 @@ func ResolveCode(code string, offset uint16) ([]string, error) {
 	lines := make([]string, 0, 32)
 	tokens := strings.Split(code, "\n")
 	lastOffset := offset
+	// resolves code offset (<0000> part)
 	for _, t := range tokens {
 		newOffset := uint16(0)
 		l := ""
-		clean := strings.TrimSpace(t)
-		if len(clean) >= 6 {
-			number := clean[1:5]
-			v, err := strconv.ParseInt(number, 16, 32)
-			if err != nil {
-				return nil, fmt.Errorf("code resolve errors. machine code parse error. line: %s, code: %s, err: %s", clean, number, err)
-			}
+		t = strings.TrimSpace(t)
+		// offset representation char count ("<0000>" len 6)
+		v, ok, err := parseOffsetText(t)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
 			newOffset = uint16(v) + offset
 			lastOffset = newOffset
-			l = clean[6:]
+			l = t[6:]
 		} else {
 			newOffset = lastOffset
 			l = t
@@ -61,7 +62,6 @@ func ResolveCode(code string, offset uint16) ([]string, error) {
 
 func (l *Linker) CorrectDisassembly(lines []string) ([]string, error) {
 	corrected := make([]string, len(lines))
-	offset := 0
 	for i, line := range lines {
 		index := strings.Index(line, ";")
 		if index == -1 {
@@ -75,24 +75,44 @@ func (l *Linker) CorrectDisassembly(lines []string) ([]string, error) {
 				continue
 			}
 		}
-		machineCode := line[index+2:]
-		machineCode = strings.TrimSpace(machineCode)
-		codes := strings.Split(machineCode, " ")
-		n, err := stringHexArrayToNumber(codes)
+		var mainOffset int64
+		var err error
+		if len(line) > 6 {
+			mainOffsetText := line[:6]
+			mainOffset, _, err = parseOffsetText(mainOffsetText)
+			if err != nil {
+				return nil, err
+			}
+		}
+		machineCodePart := line[index+2:]
+		machineCodePart = strings.TrimSpace(machineCodePart)
+		machineCodesArray := strings.Split(machineCodePart, " ")
+		machineCodes, err := stringHexArrayToNumber(machineCodesArray)
 		if err != nil {
 			return nil, err
 		}
-		restored := make([]uint8, len(n))
-		for i := 0; i < len(n); i++ {
-			index := offset + i
+		restored := make([]uint8, len(machineCodes))
+		for i := 0; i < len(machineCodes); i++ {
+			index := int(mainOffset) + i
 			b := l.memory[index]
 			restored[i] = b
 		}
 		newLine := strings.Join(hexArrayToStringHex(restored), " ")
 		corrected[i] = line[:index] + "; " + newLine
-		offset += len(n)
 	}
 	return corrected, nil
+}
+
+func parseOffsetText(text string) (int64, bool, error) {
+	if len(text) < 6 {
+		return 0, false, nil
+	}
+	number := text[1:5]
+	v, err := strconv.ParseInt(number, 16, 32)
+	if err != nil {
+		return 0, false, fmt.Errorf("code resolve errors. machine code parse error. line: %s, code: %s, err: %s", text, number, err)
+	}
+	return v, true, nil
 }
 
 func hexArrayToStringHex(arr []uint8) []string {

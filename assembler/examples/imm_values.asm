@@ -5,4 +5,4 @@ start:
     mov a, 'A'
     mov b, "'"
     mov c, '*'
-    brk
+    hlt

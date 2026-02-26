@@ -45,11 +45,12 @@ func (sp *StatePanel) Render() {
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_B])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_C])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_D])
-	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_E])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_IPH])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_IPL])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPH])
 	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_BPL])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_SPH])
+	registerStatus += fmt.Sprintf("%02x ", registers[instruction.REGISTER_OPCODE_SPL])
 
 	if sp.statePanel == nil {
 		be := 0
@@ -65,14 +66,14 @@ func (sp *StatePanel) Render() {
 	sp.logfFlagIndexWithStyle(1, DefaultStyle6, "Z S C IE")
 	sp.logfFlagIndexWithStyle(2, DefaultStyle6, "%s", status)
 	sp.logfFlagIndexWithStyle(3, DefaultStyle6, "")
-	sp.logfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  E  IH IL BH BL")
+	sp.logfFlagIndexWithStyle(4, DefaultStyle7, "A  B  C  D  IH IL BH BL SH SL")
 	sp.logfFlagIndexWithStyle(5, DefaultStyle7, "%s", registerStatus)
 	sp.logfFlagIndexWithStyle(6, DefaultStyle7, "")
 	sp.logfFlagIndexWithStyle(7, DefaultStyle1, "IR   : %02x [%s]", ir, instruction.INST_HUMAN_READABLE[ir])
 	sp.logfFlagIndexWithStyle(8, DefaultStyle1, "STEP : %d/%d", step, stepLen)
 	sp.logfFlagIndexWithStyle(9, DefaultStyle1, "PC   : %04x", pc)
 	sp.logfFlagIndexWithStyle(10, DefaultStyle1, "SP   : %04x", stackPointer)
-	sp.logfFlagIndexWithStyle(11, DefaultStyle1, "MAR  : %02x", memoryAddressRegister)
+	sp.logfFlagIndexWithStyle(11, DefaultStyle1, "MAR  : %04x", memoryAddressRegister)
 	sp.logfFlagIndexWithStyle(12, DefaultStyle1, "MDR  : %02x", memoryDataRegister)
 	sp.logfFlagIndexWithStyle(13, DefaultStyle1, "OR   : %02x", operandRegister)
 	sp.logfFlagIndexWithStyle(14, DefaultStyle1, "")
@@ -96,5 +97,5 @@ func (sp *StatePanel) logfFlagIndexWithStyle(index int, sty *style.Style, format
 }
 
 func (sp *StatePanel) PrintStateHeader() {
-	fmt.Printf("# pc      step    ir   or   mdr  mar   addr  input_bus  alu_bus  out_bus  rw  be flags(ICSZ)  regs(A  B  C  D  E  IH IL BH BL)\n")
+	fmt.Printf("# pc      step    ir   or   mdr  mar   addr  input_bus  alu_bus  out_bus  rw  be flags(ICSZ)  regs(A  B  C  D  IH IL BH BL SH SL)\n")
 }

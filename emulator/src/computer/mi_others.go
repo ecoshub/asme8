@@ -1,3 +1,3 @@
 package computer
 
-func mInstBreak(c *Computer, _ uint64) {}
+func mInstHalt(c *Computer, _ uint64) {}

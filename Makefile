@@ -2,8 +2,8 @@ build: build-assembler build-linker build-emulator
 
 test:
 	go clean -testcache
-	go test -v ./emulator/test/...
 	go test -v ./assembler/test/...
+	go test -v ./emulator/test/...
 
 build-asm: build-assembler
 

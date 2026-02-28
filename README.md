@@ -87,7 +87,8 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 ### **Registers**
 
 - **General Purpose Registers (GPRs):** Four 8-bit registers (A, B, C, D) for general computation.
-- **Index Pointer (IP):** A 16-bit register used for indexed memory operations.
+- **Index Pointer (IP):** A 16-bit register general purpose register.
+- **Base Pointer (BP):** A 16-bit register general purpose register.
 - **Program Counter (PC):** Tracks the current instruction location.
 - **Stack Pointer (SP):** Manages the stack for function calls and local variables.
 - **Status Register (SR):** Holds condition flags like zero, carry, and overflow.
@@ -96,7 +97,7 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 ### **Arithmetic Logic Unit (ALU)**
 
 - Supports basic arithmetic operations (*add*, *sub*, etc.).
-- Logical operations (*and*, *or*, *xor*, *not*, etc.).
+- Logical operations (*and*, *or*, *xor*, etc.).
 - Shift and rotate operations (*shl*, *shr*, etc.).
 
 ### **Control Unit**
@@ -106,11 +107,13 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 
 ## Memory Map
 
-- **ROM:** 2KB reserved for various programs such as IO and utilities.
-- **RAM:** up to 60KB
-- **Video Buffer:** ~ 2KB screen char buffer (80x24 chars)
+- **ROM:** 8KB reserved for various programs such as IO and utilities.
+- **RAM:** up to 56KB
+- **Input Buffer:**  256 bytes terminal input buffer
 - **Keyboard Buffer:** 2 bytes for input char and char ready flag
 - **Interrupt Vectors:** 16 bytes of interrupt vectors.
+
+**NOTE:** full memory layout is [here](MEMORY_LAYOUT.md)
 
 ## I/O and Peripherals
 
@@ -128,8 +131,7 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 - **Debugger:** Step-through execution with breakpoints.
 - **Status Panel:** Displays register states.
 - **Code Panel:** Iterates through executed instructions.
-- **Sys Log Panel:** Responsible for displaying system messages and command line outputs
-
+- **System Log Panel:** Responsible for displaying system messages and command line outputs
 
 <br>
 <br>
@@ -143,6 +145,7 @@ The E8 CPU has a custom-designed ISA tailored for efficient execution in an 8-bi
 
 ## Instruction Formats
 
+There are 64 instructions. Instruction register is 6 bit.
 Each instruction consists of an opcode and optional operands, depending on the instruction type.
 
 ### **Basic Instruction Types**
@@ -162,8 +165,6 @@ Each instruction consists of an opcode and optional operands, depending on the i
 - Direct (Absolute)
 - Register Indirect
 - Indexed Absolute
-- Stack-Relative with Displacement
-- IP-Relative with Displacement
 - Base-plus-Index
 - Combined Modes
 
@@ -210,15 +211,12 @@ mov [ip+b], a         ; Store to (IP + B)
 ```asm
 ; Immediate operands
 add a, 4              ; A = A + 4
-adc [0x8000], 2       ; Add 2 (with carry) to memory at 0x8000
+sub b, 4              ; B = B - 4
 
 ; Register operands
 xor b, a              ; B = B XOR A
 sub b, a              ; B = B - A
 
-; Memory operands
-add a, [0x8000]       ; Add value at 0x8000 to A
-sbb [0x8000], a       ; Subtract A (with borrow) from memory at 0x8000
 ```
 
 #### **4. Control Flow**  
@@ -233,12 +231,12 @@ jnz 0x6000            ; Jump if zero flag not set
 ; Subroutine calls
 call                  ; Call subroutine (address inferred?)
 ret                   ; Return from subroutine
+rti                   ; Return from interrupt
 ```
 
 #### **5. Stack Operations**  
 ```asm
 push sp               ; Push SP onto the stack
-push 0x10             ; Push immediate value 0x10
 pop a                 ; Pop top of stack into A
 ```
 
@@ -246,6 +244,7 @@ pop a                 ; Pop top of stack into A
 ```asm
 hlt                   ; Halt execution
 clc                   ; Clear carry flag
+sti                   ; Set interrupt enable
 rol a                 ; Rotate A left through carry
 ```
 

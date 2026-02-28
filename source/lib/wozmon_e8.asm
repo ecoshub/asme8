@@ -27,6 +27,8 @@
     extern __STR_CONV_HEX__
     extern __HEX_CONV_STR__
     extern CHAR_NOT_VALID
+    extern INT_VEC_0_LOW
+    extern INT_VEC_0_HIGH
     global WOZMON
 
 
@@ -62,7 +64,18 @@ WOZMON:
     call __PUT_CHAR__
 
     xor d, d                            ; clear buffer index
+
+; register interrupt handler
+    mov ip, interrupt_handler
+    mov [INT_VEC_0_LOW], ipl
+    mov [INT_VEC_0_HIGH], iph
+
+    sti                                 ; enable hardware interrupts
 main_loop:
+    nop
+    jmp main_loop
+
+interrupt_handler:
     call __GET_CHAR__                   ; read char from stdin
     cmp a, KEY_CODE_ENTER               ; cmp it with key enter
     jz execute                          ; if it is enter jump execute
@@ -75,7 +88,7 @@ main_loop:
     jz set_mode_run                     ; set the mode MODE_RUN
     mov [CHAR_BUFFER+d], a              ; add char in to buffer
     inc d                               ; increment index
-    jmp main_loop                       ; start read next char
+    rti
 
 set_mode_write:
     mov a, MODE_WRITE                   ; set mode to MODE_WRITE

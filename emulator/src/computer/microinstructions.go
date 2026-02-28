@@ -60,10 +60,8 @@ const (
 	MI_CL_IRQ
 	MI_STATUS_OUT
 	MI_STATUS_IN
-	MI_VEC_0_OUT
-	MI_VEC_1_OUT
-	MI_VEC_2_OUT
-	MI_VEC_3_OUT
+	MI_VEC_0_LOW_OUT
+	MI_VEC_0_HIGH_OUT
 	TEST_MI_IRQ_HIGH
 )
 
@@ -131,12 +129,10 @@ var (
 			c.irqLine = false
 			c.irqAckFlipFlop = false
 		},
-		MI_STATUS_OUT: mInstStatusRegisterOut,
-		MI_STATUS_IN:  mInstStatusRegisterIn,
-		MI_VEC_0_OUT:  mInstVec0Out,
-		MI_VEC_1_OUT:  mInstVec1Out,
-		MI_VEC_2_OUT:  mInstVec2Out,
-		MI_VEC_3_OUT:  mInstVec3Out,
+		MI_STATUS_OUT:     mInstStatusRegisterOut,
+		MI_STATUS_IN:      mInstStatusRegisterIn,
+		MI_VEC_0_LOW_OUT:  mInstVec0OutLow,
+		MI_VEC_0_HIGH_OUT: mInstVec0OutHigh,
 		TEST_MI_IRQ_HIGH: func(c *Computer, command uint64) {
 			c.irqLine = true
 		},

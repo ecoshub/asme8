@@ -81,6 +81,7 @@ func ParseConfig(filePath string) (*Config, error) {
 		}
 		totalMemory += int(mc.Size)
 	}
+
 	if totalMemory > 0x10000 {
 		return nil, fmt.Errorf("total allocated memory exceeding 64k")
 	}

@@ -18,8 +18,8 @@ var (
 )
 
 const (
-	TEST_INTERRUPT_VEC_1_ADDR_LOW         = 0x10
-	TEST_INTERRUPT_VEC_1_ADDR_HIGH        = 0x11
+	TEST_INTERRUPT_VEC_1_ADDR_LOW         = 0xfffe
+	TEST_INTERRUPT_VEC_1_ADDR_HIGH        = 0xffff
 	TEST_STACK_START               uint16 = 0x20ff
 )
 
@@ -44,7 +44,7 @@ func GetComp() *computer.Computer {
 	}
 
 	computer.IntVec0AddrLow = TEST_INTERRUPT_VEC_1_ADDR_LOW
-	computer.IntVec1AddrLow = TEST_INTERRUPT_VEC_1_ADDR_HIGH
+	computer.IntVec0AddrHigh = TEST_INTERRUPT_VEC_1_ADDR_HIGH
 	var err error
 	MainTestComputer, err = computer.New(&computer.Config{
 		MemoryConfig: &config.MemoryConfig{

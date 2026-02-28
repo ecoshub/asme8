@@ -1,6 +1,11 @@
 MEMORY {
-    ROM: size=0x2000, type=ro;
-    RAM: size=0xdfed, type=rw;
-    SERIAL: size=0x3, type=rw;
-    RAM_1: size=0x10, type=rw;
+    ROM: start=0x0000, size=0x2000, type=ro;
+    RAM: start=0x2000, size=0xdfed, type=rw;
+    SERIAL: start=0xffed, size=0x3, type=rw;
+    RAM_1: start=0xfff0, size=0x10, type=rw;
+}
+
+SEGMENTS {
+    INIT: load=ROM;
+    TEST: load=ROM;
 }

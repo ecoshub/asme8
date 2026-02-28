@@ -55,7 +55,6 @@ func (c *Computer) CreateDevices() error {
 		if mc.Type == config.MemoryTypeReadOnly {
 			r := rom.New(mc.Size)
 			r.SetName(mc.Name)
-			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
 			if deviceRom == nil {
 				deviceRom = r
@@ -64,7 +63,6 @@ func (c *Computer) CreateDevices() error {
 		if strings.HasPrefix(mc.Name, "RAM") {
 			r := ram.New(mc.Size)
 			r.SetName(mc.Name)
-			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
 			if deviceRam == nil {
 				ramStart = mc.Start.Value
@@ -79,7 +77,6 @@ func (c *Computer) CreateDevices() error {
 			if err != nil {
 				return err
 			}
-			fmt.Println("ConnectDevice", mc.Name, mc.Start.Value, mc.Size)
 			c.ConnectDevice(term.Screen, mc.Start.Value, 1)
 			c.ConnectDevice(term.Keyboard, mc.Start.Value+1, 2)
 			// screen components such as panels attaching to computer

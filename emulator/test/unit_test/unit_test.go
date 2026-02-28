@@ -1538,7 +1538,7 @@ var (
 			// hlt
 			Program: []uint8{
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x34, 0x12,
-				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_IP,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP | instruction.REGISTER_OPCODE_IP<<4,
 				instruction.INST_HLT_IMPL,
 			},
 			Expect: &test.Expect{
@@ -1727,8 +1727,8 @@ var (
 			// mov ip, sp
 			// hlt
 			Program: []uint8{
-				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP<<4 | instruction.REGISTER_OPCODE_SP,
-				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_IP<<4 | instruction.REGISTER_OPCODE_SP,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_BP | instruction.REGISTER_OPCODE_SP<<4,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_IP | instruction.REGISTER_OPCODE_SP<<4,
 				instruction.INST_HLT_IMPL,
 			},
 			Expect: &test.Expect{
@@ -1742,16 +1742,14 @@ var (
 		},
 		{
 			Name: "mov_address_reg_sp",
-			// mov ip, 0x8000
 			// mov bp, 0x8000
-			// mov sp, bp
+			// mov ip, bp
 			// mov sp, ip
 			// hlt
 			Program: []uint8{
-				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_IP, 0x00, 0x80,
 				instruction.INST_MOV_REG16_IMM16, instruction.REGISTER_OPCODE_BP, 0x00, 0x80,
-				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_SP<<4 | instruction.REGISTER_OPCODE_BP,
-				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_SP<<4 | instruction.REGISTER_OPCODE_IP,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_IP | instruction.REGISTER_OPCODE_BP<<4,
+				instruction.INST_MOV_REG16_REG16, instruction.REGISTER_OPCODE_SP | instruction.REGISTER_OPCODE_IP<<4,
 				instruction.INST_HLT_IMPL,
 			},
 			Expect: &test.Expect{
@@ -1760,6 +1758,8 @@ var (
 					{Index: instruction.REGISTER_OPCODE_IPH, Data: 0x80},
 					{Index: instruction.REGISTER_OPCODE_BPL, Data: 0x00},
 					{Index: instruction.REGISTER_OPCODE_BPH, Data: 0x80},
+					{Index: instruction.REGISTER_OPCODE_SPL, Data: 0x00},
+					{Index: instruction.REGISTER_OPCODE_SPH, Data: 0x80},
 				},
 			},
 		},

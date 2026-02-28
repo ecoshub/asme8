@@ -1,10 +1,19 @@
-__VEC_0_ADDR__=0x1000
+VEC_0_LOW=0xfffe
+VEC_0_HIGH=0xffff
+
 __SERIAL_START__=0xffed
 ADDR_PUT_CHAR=__SERIAL_START__
 ADDR_READY_CHAR=__SERIAL_START__+1
 ADDR_GET_CHAR=__SERIAL_START__+2
 
+;register vector
+    mov ip, vec_0_handler
+    mov [VEC_0_LOW], ipl
+    mov [VEC_0_HIGH], iph
+
+; enable interrupts
     sti
+; start the program
 start:
     xor c, c                    ; clear screen index (char out)
 loop:
@@ -13,8 +22,7 @@ loop:
     nop
     jmp loop
 
-.org __VEC_0_ADDR__
-vec_0_start:
+vec_0_handler:
 ; check keyboard interrupt
     mov a, [ADDR_READY_CHAR]    ; char ready addr
     cmp a, 1                    ; char ready mean 1

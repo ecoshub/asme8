@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 
 	if *flagFile == "" {
-		fmt.Println("no input file given. --input <file_name>")
+		fmt.Println("no input file given. --file <file_name>")
 		return
 	}
 

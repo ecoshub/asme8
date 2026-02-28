@@ -1,6 +1,7 @@
 package core
 
 import (
+	"asme8/common/object"
 	"fmt"
 	"sort"
 
@@ -20,8 +21,8 @@ func (l *Linker) PrintSymbols(printCode bool) {
 	fmt.Println()
 
 	t := stable.New("GLOBAL LINKER SYMBOLS")
-	t.AddFieldWithOptions("INDEX", &stable.Options{
-		Format:          "%04x",
+	t.AddFieldWithOptions("ADDR", &stable.Options{
+		Format:          "$%04x",
 		Alignment:       stable.AlignmentLeft,
 		HeaderAlignment: stable.AlignmentLeft,
 	})
@@ -42,12 +43,12 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		HeaderAlignment: stable.AlignmentLeft,
 	})
 	t.AddFieldWithOptions("TYPE", &stable.Options{
-		Format:          "%02b",
+		Format:          "%s",
 		Alignment:       stable.AlignmentCenter,
 		HeaderAlignment: stable.AlignmentCenter,
 	})
-	t.AddFieldWithOptions("INDEX", &stable.Options{
-		Format:          "%04x",
+	t.AddFieldWithOptions("ADDR", &stable.Options{
+		Format:          "$%04x",
 		Alignment:       stable.AlignmentLeft,
 		HeaderAlignment: stable.AlignmentLeft,
 	})
@@ -69,14 +70,21 @@ func (l *Linker) PrintSymbols(printCode bool) {
 		sorted := SortSymbolMap(unique)
 		for _, us := range sorted {
 			us := unique[us]
-			t.Row(us.segment, us._type, us.index, us.symbol)
+			typ := "NON"
+			if us._type == object.SYMBOL_TYPE_VAR {
+				typ = "VAR"
+			}
+			if us._type == object.SYMBOL_TYPE_LABEL {
+				typ = "LAB"
+			}
+			t.Row(us.segment, typ, us.index, us.symbol)
 		}
 	}
 	fmt.Println(t)
 
 	if printCode {
 		t = stable.New("")
-		t.AddFieldWithOptions("OFFSET", &stable.Options{
+		t.AddFieldWithOptions("ADDR", &stable.Options{
 			Alignment:       stable.AlignmentLeft,
 			HeaderAlignment: stable.AlignmentLeft,
 		})
@@ -101,7 +109,7 @@ func SortSymbolMap(m map[string]*ResolvedSymbol) []string {
 	}
 
 	sort.Slice(keys, func(i, j int) bool {
-		return m[keys[i]].symbol < m[keys[j]].symbol
+		return m[keys[i]].index < m[keys[j]].index
 	})
 
 	return keys

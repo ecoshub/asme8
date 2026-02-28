@@ -24,13 +24,13 @@ func main() {
 
 	// Check if config path is provided
 	if *flagConfigPath == "" {
-		fmt.Println("Linker config path required")
+		fmt.Println("Linker config path required. use --config <config_path>")
 		return
 	}
 
 	conf, err := config.ParseConfig(*flagConfigPath)
 	if err != nil {
-		fmt.Printf("Memory config parse failed. err: %s", err.Error())
+		fmt.Printf("Config parse failed. err: %s\n", err.Error())
 		return
 	}
 
@@ -45,6 +45,11 @@ func main() {
 	err = l.Link()
 	if err != nil {
 		fmt.Println(err)
+		return
+	}
+
+	if l.IsMemoryClean() {
+		fmt.Println("Warning: The linker could not proceed because the 'SEGMENTS' configuration is missing or invalid.")
 		return
 	}
 
@@ -70,6 +75,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("link success. files: %v, output file: %s\n", objectFilePaths, *flagOutput)
+	fmt.Printf("Link success. files: %v, output file: %s\n", objectFilePaths, *flagOutput)
 
 }

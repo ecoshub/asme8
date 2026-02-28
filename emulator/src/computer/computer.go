@@ -18,11 +18,9 @@ import (
 var (
 	// set by device
 	StackStart uint16 = 0
-	// interrupt high bytes are always zero
-	IntVec0AddrLow uint8 = 0x20
-	IntVec1AddrLow uint8 = 0x22
-	IntVec2AddrLow uint8 = 0x24
-	IntVec3AddrLow uint8 = 0x26
+
+	IntVec0AddrLow  uint16 = 0xfffe
+	IntVec0AddrHigh uint16 = 0xffff
 )
 
 type Computer struct {

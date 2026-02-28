@@ -13,24 +13,37 @@
     global ADDR_GET_CHAR                ; char read address from keyboard interface
     global ADDR_READY_CHAR              ; char ready address from keyboard interface
     global CONVERTER_BUFFER             ; converter utils buffer
-    global INT_VEC_0                    ; interrupt vector 0 low address
-    global INT_VEC_1                    ; interrupt vector 1 low address
-    global INT_VEC_2                    ; interrupt vector 2 low address
-    global INT_VEC_3                    ; interrupt vector 3 low address
+    global WOZMON_BUFFER                ; wozmon screen buffer
+    global INT_VEC_0_LOW                ; interrupt vector 0 low address
+    global INT_VEC_0_HIGH               ; interrupt vector 0 high address
     extern __RAM_START__
     extern __SERIAL_START__
     extern WOZMON
 
+; serial area (3 byte)
 ADDR_PUT_CHAR=__SERIAL_START__
 ADDR_READY_CHAR=__SERIAL_START__+1
 ADDR_GET_CHAR=__SERIAL_START__+2
 
-INT_VEC_0=0x20
-INT_VEC_1=0x22
-INT_VEC_2=0x24
-INT_VEC_3=0x26
+; stack area (256 byte)
+STACK_START=__RAM_START__+0xff
 
-CONVERTER_BUFFER=__RAM_START__+0x100    ; converter utils buffer (16 bytes)
-WOZMON_BUFFER=__RAM_START__+0x110       ; wozmon ram area (256 bytes)
+; vector proxy area (64 byte)
+INT_VEC_0_LOW=0xfffe
+INT_VEC_0_HIGH=0xffff
+
+; shared converter buffer area (16 byte)
+CONVERTER_BUFFER=__RAM_START__+0x140
+
+; wozmon char buffer area (256 byte)
+WOZMON_BUFFER=__RAM_START__+0x150       ; wozmon ram area (256 bytes)
+
+; set stack
+    mov ip, STACK_START
+    mov sp, ip
+
+; clear index pointer
+    xor ipl, ipl
+    xor iph, iph
 
     jmp WOZMON                          ; start with wozmon

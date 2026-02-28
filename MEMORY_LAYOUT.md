@@ -1,67 +1,47 @@
-# Memory Layout
+## Memory Layout
 
-
-
-## Init (0x0000 - 0x000f)
-- Entry point Address (EP_LOW, EP_HIGH)
-```
-0x0000 = 0x03           ; INST_JMP_IMPL_IMM16
-0x0001 = EP_LOW
-0x0002 = EP_HIGH
-0x0003 = 0x3f           ; hlt
-0x0004 = 0x3f           ; hlt
-0x0005 = 0x3f           ; hlt
-0x0006 = 0x3f           ; hlt
-0x0007 = 0x3f           ; hlt
-0x0008 = 0x3f           ; hlt
-0x0009 = 0x3f           ; hlt
-0x000a = 0x3f           ; hlt
-0x000b = 0x3f           ; hlt
-0x000c = 0x3f           ; hlt
-0x000d = 0x3f           ; hlt
-0x000e = 0x3f           ; hlt
-0x000f = 0x3f           ; hlt
-```
-
-
-## Interrupt vectors (0x0010 - 0x001f)
+Total of **64k** *(65.536 bytes)*
 
 ```
-0x0010 = VEC_1_LOW
-0x0011 = VEC_1_HIGH
-0x0012 = VEC_2_LOW
-0x0013 = VEC_2_HIGH
-0x0014 = VEC_3_LOW
-0x0015 = VEC_3_HIGH
-0x0016 = VEC_4_LOW
-0x0017 = VEC_4_HIGH
-0x0018 = VEC_5_HIGH
-0x0019 = VEC_5_HIGH
-0x001a = VEC_6_HIGH
-0x001b = VEC_6_HIGH
-0x001c = VEC_7_HIGH
-0x001d = VEC_7_HIGH
-0x001e = VEC_8_HIGH
-0x001f = VEC_8_HIGH
+---------------------------------------------------
+|               ROM (8.196 bytes)                 |
+---------------------------------------------------
+| 0x0000 |  ROM   | init ( 32 bytes)              |
+|                    ...                          |
+| 0x001f |  ROM   | int end                       |
+---------------------------------------------------
+| 0x0020 |  ROM   | utility functions             |
+|                    ...                          |
+| 0x1fff |  ROM   | (last addr)                   |
+---------------------------------------------------
+|              RAM (57.343 bytes)                 |
+---------------------------------------------------
+| 0x2000 |  RAM   | stack end (256 bytes)         |
+|                    ...                          |
+| 0x20ff |  RAM   | stack start                   |
+---------------------------------------------------
+| 0x2100 |  RAM   | converter buffer (16 bytes)   |
+|                    ...                          |
+| 0x210f |  RAM   |                               |
+---------------------------------------------------
+| 0x2110 |  RAM   | char input buffer (256 bytes) |
+|                    ...                          |
+| 0x220f |  RAM   |                               |
+---------------------------------------------------
+| 0x2210 |  RAM   | free                          |
+| 0x2211 |  RAM   | free                          |
+|                    ...                          |
+| 0xffec |  RAM   | (last addr)                   |
+---------------------------------------------------
+| 0xffed | SERIAL | addr put char                 |
+| 0xffee | SERIAL | char ready                    |
+| 0xffef | SERIAL | get char                      |
+---------------------------------------------------
+| 0xfff0 |  RAM   | free  (14 bytes)              |
+|                    ...                          |
+| 0xfffd |  RAM   | free                          |
+---------------------------------------------------
+| 0xfffe |  VEC   | vector low addr               |
+| 0xffff |  VEC   | vector high addr              |
+---------------------------------------------------
 ```
-
-
-
-
-
-
-
-
-
-| Address              | Type |
-| :---------------- | :------: |
-| 0x0000 |  1   |
-| ... |
-| 0x000f |  1   |
-
-
-| Address              | Type |
-| :---------------- | :------: |
-| 0x0010 |  1   |
-| ... |
-| 0x001f |  1   |

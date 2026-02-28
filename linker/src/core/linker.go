@@ -21,13 +21,14 @@ type Linker struct {
 	externs                 map[string][]*object.Symbol
 	missing                 map[string][]*object.Symbol
 	resolvedSymbols         map[string][]*ResolvedSymbol
+	memoryClean             bool
 }
 
 func NewLinker(conf *config.Config, objects ...*object.ELF) *Linker {
 	return &Linker{
 		config:                  conf,
 		objects:                 objects,
-		memory:                  make([]byte, 0xffff),
+		memory:                  make([]byte, 0x10000),
 		memoryLastSegmentOffset: make(map[string]uint16),
 		segmentOffsets:          make(map[string]uint16),
 		linkerSymbols:           make([]*object.Symbol, 0, 4),
@@ -35,6 +36,7 @@ func NewLinker(conf *config.Config, objects ...*object.ELF) *Linker {
 		externs:                 make(map[string][]*object.Symbol),
 		missing:                 make(map[string][]*object.Symbol),
 		resolvedSymbols:         make(map[string][]*ResolvedSymbol),
+		memoryClean:             true,
 	}
 }
 
@@ -68,6 +70,10 @@ func (l *Linker) Link() error {
 	}
 
 	return nil
+}
+
+func (l *Linker) IsMemoryClean() bool {
+	return l.memoryClean
 }
 
 func (l *Linker) Out(path string) (int, error) {
@@ -161,6 +167,7 @@ func (l *Linker) putImplicitSegments(o *object.ELF, m *config.Memory, s *config.
 	}
 	l.segmentOffsets[s.Name] = position
 	copy(l.memory[position:position+length], bin[:length])
+	l.memoryClean = false
 	return nil
 }
 
@@ -175,6 +182,7 @@ func (l *Linker) putExplicitSegment(o *object.ELF, m *config.Memory, s *config.S
 	}
 	copy(l.memory[position:position+length], bin[:length])
 	l.memoryLastSegmentOffset[m.Name] += length
+	l.memoryClean = false
 	return nil
 }
 
@@ -308,6 +316,7 @@ func (l *Linker) linkSymbols() error {
 				size = 2
 			}
 			copy(l.memory[offset:offset+size], data)
+			l.memoryClean = false
 			if p.IsMissing() {
 				rs := &ResolvedSymbol{segment: segment, _type: _type, symbol: sym, index: index, optionalOffset: p.GetOptionalOffset()}
 				pushResolvedSymbol(segment, rs, l.resolvedSymbols)

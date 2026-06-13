@@ -4,13 +4,12 @@ This project is a fully custom-designed 8-bit computer, including its own instru
 
 ## Table of contents
 
-- [1. Project Overview](#1-project-overview)  
-- [2. Architecture Overview](#2-architecture-overview)  
-- [3. Instruction Set Architecture (ISA)](#3-instruction-set-architecture-isa)  
-- [4. Getting Started Guide](#4-getting-started-guide)  
-- [5. Hardware Specs (Planned)](#5-hardware-specs-planned)  
-- [6. Future Enhancements (Planned)](#6-future-enhancements-planned)  
-- [7. Fast Start](#7-fast-start)
+- [1. Project Overview](#1-project-overview)
+- [2. Architecture Overview](#2-architecture-overview)
+- [3. Instruction Set Architecture (ISA)](#3-instruction-set-architecture-isa)
+- [4. Hardware Specs (Planned)](#4-hardware-specs-planned)
+- [5. Try Emulator!](#5-try-emulator)
+- [6. Emulator Details](#6-emulation-details)
 
 <br>
 <br>
@@ -253,193 +252,7 @@ rol a                 ; Rotate A left through carry
 <br>
 <br>
 
-# 4. Getting Started Guide
-This guide walks through building the toolchain, and running some example programs on the E8 emulator.
-
----
-
-## **1. Build the Toolchain**  
-Use the provided `Makefile` to compile the assembler, linker, and emulator:  
-```bash
-# Build all tools
-make build
-
-# Alternatively, build individually:
-make build-assembler  # Assembler: bin/asme8
-make build-linker     # Linker: bin/ld
-make build-emulator   # Emulator: bin/emu_asme8
-```
-
----
-
-
-## **2. Running an .asm file directly**  
-```bash
-bin/emu_asme8 --config default_config --load-asm assembler/examples/hello_world.asm
-```
-
----
-
-## **3. Assemble Example Program**  
-Compile `assembler/examples/hello_world.asm` into an object file:  
-```bash
-bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output hello.bin
-```  
-**Output**:  
-```
-Assemble Completed Successfully
-
- Symbols:
-----------------------------
- loop               <0003>
- print_char         <0015>
- done               <001a>
- message            <001b>
- start              <0000>
-
- Variables:
-----------------------------
- ADDR_PUT_CHAR=0xffec
-
-
-<0000> start:
-<0000>     mov b, 0                      ; 1d 01 00
-<0003> loop:
-<0003>     mov a, [message+b]            ; 20 01 1b 00
-<0007>     cmp a, 0                      ; 0b 00 00
-<000a>     jz done                       ; 06 1a 00
-<000d>     call print_char               ; 42 15 00
-<0010>     inc b                         ; 18 01
-<0012>     jmp loop                      ; 03 03 00
-<0015> print_char:
-<0015>     mov [ADDR_PUT_CHAR], a        ; 1f 00 ec ff
-<0019>     ret                           ; 44
-<001a> done:
-<001a>     hlt                           ; 3f
-<001b> message:
-<001b> .asciiz "Hello, World!"           ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
-
-assemble success. 40 bytes assembled. total file size: 41 bytes. output file: 'hello.bin'
-```
-
----
-
-## **4. Run the Program in the Emulator**  
-```bash
-# use default memory config 'default_config'
-bin/emu_asme8 --config default_config --load-bin hello.bin
-```
-
----
-
-## **5. Linker Usage**  
-
-### **Creating object files:** 
-
-```bash
-# create object file (elf) for "upper.asm" using assembler.
-bin/asme8 --print --mode elf --file linker/examples/basic/upper.asm
-```
-
-#### Example output
-
-```
-FILE SEGMENT:
-upper
-
-SYMBOL TABLE:
-OFFSET      ACCESS     TYPE     SYMBOL
-0000        100        2        <upper>
-0012        001        2        <to_upper>
-0016        001        2        <done>
-
-POSITIONS:
-OFFSET     SIZE     EXTRA   MISSING    SYMBOL
-0004       16       0000    0          <done>
-000a       16       0000    0          <to_upper>
-000d       16       0000    0          <to_upper>
-0010       16       0000    0          <done>
-
-<0000> upper:
-<0000>     cmp a, 'a'                    ; 0b 00 61
-<0003>     js done                       ; 04 16 00
-<0006>     cmp a, 'z'                    ; 0b 00 7a
-<0009>     js to_upper                   ; 04 12 00
-<000c>     jz to_upper                   ; 06 12 00
-<000f>     jmp done                      ; 03 16 00
-<0012> to_upper:
-<0012>     sub a, 0x20                   ; 13 00 20
-<0015>     ret                           ; 44
-<0016> done:
-<0016>     ret                           ; 44
-
-assemble success. 22 bytes assembled. total file size: 709 bytes. output file: 'upper.o'
-```
-
-```bash
-# create object file (elf) for "put_char.asm" using assembler.
-bin/asme8 --print --mode elf --file linker/examples/basic/put_char.asm
-```
-
-```bash
-# create object file (elf) for "main.asm" using assembler.
-bin/asme8 --print --mode elf --file linker/examples/basic/main.asm
-```
-
-### **Linking object files** 
-
-```bash
-bin/ld --print --config linker/examples/basic/linker_config --output linked.bin upper.o put_char.o main.o
-```
-
-**output:**
-
-```
-
-+------------------------------+
-|     GLOBAL LINKER SYMBOLS    |
-|------------------------------|
-|  INDEX  |  SYMBOL            |
-|---------+--------------------|
-|  0000   |  __ROM_START__     |
-|  2000   |  __ROM_END__       |
-|  2000   |  __RAM_START__     |
-|  fffc   |  __RAM_END__       |
-|  fffc   |  __SERIAL_START__  |
-|  ffff   |  __SERIAL_END__    |
-+---------+--------------------+
-
-+-------------------------------------------------+
-|                 RESOLVED SYMBOLS                |
-|-------------------------------------------------|
-|  SEGMENT   |  TYPE  |  INDEX  |  SYMBOL         |
-|------------+--------+---------+-----------------|
-|  main      |   10   |  0021   |  put_char       |
-|  main      |   10   |  0026   |  upper          |
-|  put_char  |   01   |  fffc   |  ADDR_PUT_CHAR  |
-+------------+--------+---------+-----------------+
-
-link success. files: [upper.o put_char.o main.o], output file: linked.bin
-```
-
-### **Running the program** 
-
-```bash
-bin/emu_asme8 --config linker/examples/basic/linker_config --load-bin linked.bin
-
-# 'load-bin' is looking for a 'linked.sym' file in same directory in automatically resolves it
-# if you can separate symbol file you can link it using '--symbol-file' flag
-bin/emu_asme8 --config linker/examples/basic/linker_config --load-bin linked.bin --symbol-file linked.sym
-```
-
-![linker demo](linker_demo.png)
-
-
-<br>
-<br>
-
-
-# 5. Hardware Specs (Planned)
+# 4. Hardware Specs (Planned)
 The hardware design for the E8 computer is mostly complete, with detailed schematics and build instructions to be provided once finalized. The system will be built using TTL-based discrete logic chips and ROMs for combinational logic, ensuring a modular and flexible design.
 
 ## Key Specifications
@@ -465,7 +278,7 @@ The hardware design for the E8 computer is mostly complete, with detailed schema
 <br>
 
 
-# 6. Future Enhancements (Planned)
+# 4. Future Enhancements (Planned)
 The E8 computer is designed with expandability in mind, allowing for future software and hardware improvements. Here are some planned enhancements:
 
 ### 1. Simple Operating System (OS)
@@ -493,29 +306,204 @@ The E8 computer is designed with expandability in mind, allowing for future soft
   - **Shell**:  Provide a command-line interface (CLI) for executing programs and managing files.  
 
 
-# 7. Fast Start
+# 5. Try Emulator!
 
 ## 1. Run single `.asm` file
-Use test file in the root directory. (`examples/print.asm`)
+Run assembly files directly! from examples file or start experiment your own (`examples/print.asm`)
 
 ```sh
 # if you have go installed
-go run emulator/cmd/main.go --config default_config --load-asm examples/print.asm
-
-#if you have the binary file
-bin/emu_asme8 --config default_config --load-asm examples/print.asm
+go run emulator/cmd/main.go --load-asm examples/print.asm
 ```
 
-#### What the hell is `default_config`?
-It is a bios configuration file. it contains a default memory map. something like this: 
+
+# 6. Emulation Details
+This guide walks through building the toolchain, and running some example programs on the E8 emulator.
+
+---
+
+## **1. Build the Toolchain**  
+Use the provided `Makefile` to compile the assembler, linker, and emulator:  
+```bash
+# Build all tools
+make build
+
+# Alternatively, build individually:
+make build-assembler  # Assembler: bin/asme8
+make build-linker     # Linker: bin/ld
+make build-emulator   # Emulator: bin/emu_asme8
+```
+
+---
+
+
+## **2. Running an .asm file directly**  
+```bash
+bin/emu_asme8 --load-asm assembler/examples/hello_world.asm
+
+# or
+go run emulator/cmd/main.go --load-asm assembler/examples/hello_world.asm
+```
+
+---
+
+## **3. Assemble Programs**  
+Compile `assembler/examples/hello_world.asm` into an object file:  
+```bash
+bin/asme8 --print --mode exe --file assembler/examples/hello_world.asm --output hello_world.bin
+
+# or
+go run assembler/cmd/main.go --print --mode exe --file assembler/examples/hello_world.asm --output hello_world.bin
+```  
+**Output**:  
+```
+Assemble Completed Successfully
+
+ Symbols:
+----------------------------
+ start              <0000>
+ loop               <0003>
+ print_char         <0015>
+ done               <001a>
+ message            <001b>
+
+ Variables:
+----------------------------
+ ADDR_PUT_CHAR=0xffed
+
+
+<0000> start:
+<0000>     mov b, 0                      ; 1a 01 00
+<0003> loop:
+<0003>     mov a, [message+b]            ; 1d 01 1b 00
+<0007>     cmp a, 0                      ; 0a 00 00
+<000a>     jz done                       ; 05 1a 00
+<000d>     call print_char               ; 3b 15 00
+<0010>     inc b                         ; 15 01
+<0012>     jmp loop                      ; 02 03 00
+<0015> print_char:
+<0015>     mov [ADDR_PUT_CHAR], a        ; 1c 00 ed ff
+<0019>     ret                           ; 3d
+<001a> done:
+<001a>     hlt                           ; 3f
+<001b> message:
+<001b> .asciiz "Hello, World!"           ; 48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21 00
+
+assemble success. 40 bytes assembled. total file size: 41 bytes. output file: 'hello_world.bin'
+```
+
+---
+
+## **4. Run the Program in the Emulator**  
+```bash
+bin/emu_asme8 --load-bin hello_world.bin
+```
+
+---
+
+## **5. Linker Usage**  
+
+### **Creating object files:** 
+
+```bash
+# create object file (elf) for "upper.asm" using assembler.
+bin/asme8 --print --mode elf --file linker/examples/basic/upper.asm
+```
+
+#### Example output
 
 ```
-MEMORY {
-    ROM: size=0x2000, type=ro;
-    RAM: size=0xdfec, type=rw;
-    SERIAL: size=0x3, type=rw;
-    INT: start=0xffef, size=0x10, type=rw;
-}
+
+FILE SEGMENT:
+upper
+
+SYMBOL TABLE:
+OFFSET      ACCESS     TYPE     SYMBOL
+0000        100        2        <upper>
+0012        001        2        <to_upper>
+0016        001        2        <done>
+
+POSITIONS:
+OFFSET     SIZE     EXTRA   MISSING    SYMBOL
+0004       16       0000    0          <done>
+000a       16       0000    0          <to_upper>
+000d       16       0000    0          <to_upper>
+0010       16       0000    0          <done>
+
+<0000> upper:
+<0000>     cmp a, 'a'                    ; 0a 00 61
+<0003>     js done                       ; 03 16 00
+<0006>     cmp a, 'z'                    ; 0a 00 7a
+<0009>     js to_upper                   ; 03 12 00
+<000c>     jz to_upper                   ; 05 12 00
+<000f>     jmp done                      ; 02 16 00
+<0012> to_upper:
+<0012>     sub a, 0x20                   ; 11 00 20
+<0015>     ret                           ; 3d
+<0016> done:
+<0016>     ret                           ; 3d
+
+assemble success. 22 bytes assembled. total file size: 709 bytes. output file: 'upper.o'
 ```
 
-Thats it!
+```bash
+# create object file (elf) for "put_char.asm" using assembler.
+bin/asme8 --print --mode elf --file linker/examples/basic/put_char.asm
+```
+
+```bash
+# create object file (elf) for "main.asm" using assembler.
+bin/asme8 --print --mode elf --file linker/examples/basic/main.asm
+```
+
+### **Linking object files** 
+
+```bash
+bin/ld --print --config linker/examples/basic/linker_config --output linked.bin upper.o put_char.o main.o
+```
+
+**output:**
+
+```
+
++------------------------------+
+|     GLOBAL LINKER SYMBOLS    |
+|------------------------------|
+|  ADDR   |  SYMBOL            |
+|---------+--------------------|
+|  $0000  |  __ROM_START__     |
+|  $2000  |  __ROM_END__       |
+|  $2000  |  __RAM_START__     |
+|  $fffc  |  __RAM_END__       |
+|  $fffc  |  __SERIAL_START__  |
+|  $ffff  |  __SERIAL_END__    |
++---------+--------------------+
+
++-------------------------------------------------+
+|                 RESOLVED SYMBOLS                |
+|-------------------------------------------------|
+|  SEGMENT   |  TYPE  |  ADDR   |  SYMBOL         |
+|------------+--------+---------+-----------------|
+|  main      |   LAB  |  $0021  |  put_char       |
+|  main      |   LAB  |  $0026  |  upper          |
+|  put_char  |   VAR  |  $fffc  |  ADDR_PUT_CHAR  |
++------------+--------+---------+-----------------+
+
+Link success. files: [upper.o put_char.o main.o], output file: linked.bin
+```
+
+### **Running the program** 
+
+```bash
+bin/emu_asme8 --linker-config linker/examples/basic/linker_config --load-bin linked.bin
+
+# 'load-bin' is looking for a 'linked.sym' file in same directory in automatically resolves it
+# if you can separate symbol file you can link it using '--symbol-file' flag
+bin/emu_asme8 --linker-config linker/examples/basic/linker_config --load-bin linked.bin --symbol-file linked.sym
+```
+
+![linker demo](linker_demo.png)
+
+
+<br>
+<br>

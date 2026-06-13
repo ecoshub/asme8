@@ -25,7 +25,7 @@ func ResolveMemoryLayout(ml []*Memory) error {
 			m.Start = &NullableValue{Value: offset}
 			offset += m.Size
 		}
-		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size.Value, m.Type)
+		// fmt.Printf("%s: start=0x%04x, size=0x%04x, type=%s\n", m.Name, m.Start.Value, m.Size, m.Type)
 	}
 	return nil
 }

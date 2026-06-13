@@ -69,15 +69,20 @@ func AssembleFile(options *Options, variables ...*VariablePair) ([]byte, string,
 		return nil, "", 0, err
 	}
 
-	var codeString string
-	if options.PrintDetail {
-		if options.Mode == ASM_MODE_EXE {
-			symbolHeader := assembler.CreateSymbolsPrint()
-			codeString = assembler.CodeString()
-			codeString = symbolHeader + codeString
-			fmt.Println(codeString)
+	code := assembler.CodeString()
+
+	if options.Mode == ASM_MODE_EXE {
+		if options.PrintDetail {
+			fmt.Println()
+			fmt.Println("Assemble Completed Successfully")
+			fmt.Println()
+			fmt.Println(assembler.CreateSymbolsPrint())
+			fmt.Println(code)
 		}
-		if options.Mode == ASM_MODE_ELF {
+	}
+
+	if options.Mode == ASM_MODE_ELF {
+		if options.PrintDetail {
 			assembler.symbolTracker.Print()
 		}
 	}
@@ -87,9 +92,5 @@ func AssembleFile(options *Options, variables ...*VariablePair) ([]byte, string,
 		return nil, "", 0, err
 	}
 
-	if codeString == "" {
-		codeString = assembler.CodeString()
-	}
-
-	return out, codeString, length, nil
+	return out, code, length, nil
 }

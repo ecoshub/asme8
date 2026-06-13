@@ -42,7 +42,7 @@ func NewLinker(conf *config.Config, objects ...*object.ELF) *Linker {
 
 func (l *Linker) Link() error {
 
-	err := ResolveMemoryLayout(l.config.MemoryConfig.Configs)
+	err := ResolveMemoryLayout(l.config.Memory.Configs)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (l *Linker) OutCode(path string) (int, error) {
 }
 
 func (l *Linker) putLinkerGlobals() {
-	for _, m := range l.config.MemoryConfig.Configs {
+	for _, m := range l.config.Memory.Configs {
 		linkerGlobalSymbol := object.NewSymbol(fmt.Sprintf("__%s_START__", m.Name))
 		linkerGlobalSymbol.SetIndex(m.Start.Value)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
@@ -133,19 +133,19 @@ func ResolveMemoryLayout(ml []*config.Memory) error {
 }
 
 func (l *Linker) putSegments() error {
-	for _, s := range l.config.SegmentConfig.Configs {
+	for _, s := range l.config.Segment.Configs {
 		if s.Start == nil {
 			continue
 		}
-		m, _ := l.config.MemoryConfig.GetMemoryConfig(s.Load)
+		m, _ := l.config.Memory.GetMemoryConfig(s.Load)
 		o, _ := findObjectFile(s.Name, l.objects)
 		l.putImplicitSegments(o, m, s)
 	}
-	for _, s := range l.config.SegmentConfig.Configs {
+	for _, s := range l.config.Segment.Configs {
 		if s.Start != nil {
 			continue
 		}
-		m, ok := l.config.MemoryConfig.GetMemoryConfig(s.Load)
+		m, ok := l.config.Memory.GetMemoryConfig(s.Load)
 		if !ok {
 			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
 		}
@@ -236,7 +236,7 @@ func (l *Linker) resolveSymbols() error {
 func (l *Linker) resolveReference() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		_, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
+		_, exists := l.config.Segment.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}
@@ -263,7 +263,7 @@ func (l *Linker) resolveReference() error {
 func (l *Linker) linkSymbols() error {
 	for _, o := range l.objects {
 		segment := o.Tracker.GetSegment()
-		sc, exists := l.config.SegmentConfig.GetSegmentConfig(segment)
+		sc, exists := l.config.Segment.GetSegmentConfig(segment)
 		if !exists {
 			continue
 		}

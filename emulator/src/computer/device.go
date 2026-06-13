@@ -11,63 +11,62 @@ import (
 	"strings"
 )
 
-func (c *Computer) LoadProgram() error {
-	if len(c.Config.Program) == 0 {
+func (c *Computer) LoadProgram(program []byte) error {
+	if len(program) == 0 {
 		return errors.New("program not found")
 	}
 
-	for _, conf := range c.Config.MemoryConfig.Configs {
-		if conf.Type != config.MemoryTypeReadOnly {
-			continue
-		}
-		i, ok := c.GetDeviceInterface(conf.Name)
-		if !ok {
-			return fmt.Errorf("fatal error. device not found. dev: %s", conf.Name)
-		}
-		con, ok := i.(connectable.Connectable)
-		if !ok {
-			return fmt.Errorf("fatal error. device is not connectable. dev: %s", conf.Name)
-		}
-		start, end := con.GetRange()
-
-		buffer := make([]uint8, end-start)
-		copy(buffer[:], c.Config.Program[start:])
-		con.Load(0, buffer)
+	if len(program) > 0x10000 {
+		return errors.New("program size is bigger than 64K")
 	}
 
-	c.SetProgramLoaded()
+	buffer := make([]byte, 0x10000)
+	copy(buffer[:], program[:])
+
+	for _, dev := range c.devices {
+		start, end := dev.GetRange()
+		dev.Load(0, buffer[start:end])
+	}
+
+	c.programLoaded = true
 	return nil
 }
 
 func (c *Computer) CreateDevices() error {
 
-	err := config.ResolveMemoryLayout(c.Config.MemoryConfig.Configs)
+	err := config.ResolveMemoryLayout(c.Config.MemorySegment.Memory.Configs)
 	if err != nil {
 		return err
 	}
 
 	var term *terminal.Terminal
-	var deviceRom *rom.Rom
-	var deviceRam *ram.Ram
+	romDeviceCount := 0
+	ramDeviceCount := 0
 	var ramStart uint16
 
-	for _, mc := range c.Config.MemoryConfig.Configs {
+	for _, mc := range c.Config.MemorySegment.Memory.Configs {
 		if mc.Type == config.MemoryTypeReadOnly {
+			if strings.HasPrefix(mc.Name, "RAM") {
+				return fmt.Errorf("can not use 'RAM' prefix for readonly (ro) device. name: %s", mc.Name)
+			}
+			if strings.HasPrefix(mc.Name, "SERIAL") {
+				return fmt.Errorf("can not use 'SERIAL' prefix for readonly (ro) device. name: %s", mc.Name)
+			}
 			r := rom.New(mc.Size)
 			r.SetName(mc.Name)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
-			if deviceRom == nil {
-				deviceRom = r
-			}
+			romDeviceCount += 1
+			continue
 		}
 		if strings.HasPrefix(mc.Name, "RAM") {
 			r := ram.New(mc.Size)
 			r.SetName(mc.Name)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
-			if deviceRam == nil {
+			if ramDeviceCount == 0 {
 				ramStart = mc.Start.Value
-				deviceRam = r
 			}
+			ramDeviceCount += 1
+			continue
 		}
 		if strings.HasPrefix(mc.Name, "SERIAL") {
 			if c.Config.Headless {
@@ -81,21 +80,26 @@ func (c *Computer) CreateDevices() error {
 			c.ConnectDevice(term.Keyboard, mc.Start.Value+1, 2)
 			// screen components such as panels attaching to computer
 			c.terminal = term
+			continue
 		}
 	}
 
-	if deviceRom == nil {
+	if romDeviceCount == 0 {
 		return fmt.Errorf("memory config must define ROM")
 	}
 
-	if deviceRam == nil {
+	if ramDeviceCount == 0 {
 		return fmt.Errorf("memory config must define RAM")
 	}
 
-	c.ramStart = ramStart
 	StackStart = ramStart + 0xff
-	c.SetStackStart(StackStart)
 
+	if ramDeviceCount > 1 && c.terminal != nil {
+		term.Components.SysLogPanel.Push(fmt.Sprintf("you have more than one 'RAM' section. stack starts from: %04x", StackStart))
+	}
+
+	c.SetStackStart(StackStart)
+	c.ramStart = ramStart
 	return nil
 }
 

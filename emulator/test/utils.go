@@ -47,12 +47,14 @@ func GetComp() *computer.Computer {
 	computer.IntVec0AddrHigh = TEST_INTERRUPT_VEC_1_ADDR_HIGH
 	var err error
 	MainTestComputer, err = computer.New(&computer.Config{
-		MemoryConfig: &config.MemoryConfig{
-			Configs: []*config.Memory{
-				{Name: "ROM", Size: 0x2000, Type: config.MemoryTypeReadOnly},
-				{Name: "RAM", Size: 0xdfed, Type: config.MemoryTypeReadWrite},
-				{Name: "SERIAL", Size: 0x3, Type: config.MemoryTypeReadWrite},
-				{Name: "RAM_2", Size: 0x10, Type: config.MemoryTypeReadWrite},
+		MemorySegment: &config.Config{
+			Memory: &config.MemoryConfig{
+				Configs: []*config.Memory{
+					{Name: "ROM", Size: 0x2000, Type: config.MemoryTypeReadOnly},
+					{Name: "RAM", Size: 0xdfed, Type: config.MemoryTypeReadWrite},
+					{Name: "SERIAL", Size: 0x3, Type: config.MemoryTypeReadWrite},
+					{Name: "RAM_2", Size: 0x10, Type: config.MemoryTypeReadWrite},
+				},
 			},
 		},
 		Headless: true,

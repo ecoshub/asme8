@@ -60,6 +60,7 @@ type Computer struct {
 	stopChan        chan struct{}
 	running         bool
 	pause           bool
+	halt            bool
 	programLoaded   bool
 }
 
@@ -84,10 +85,6 @@ func New(conf *Config) (*Computer, error) {
 	if err != nil {
 		return c, err
 	}
-	err = c.LoadProgram()
-	if err != nil {
-		return c, err
-	}
 	return c, nil
 }
 
@@ -103,10 +100,6 @@ func (c *Computer) GetTerminal() *terminal.Terminal {
 	return c.terminal
 }
 
-func (c *Computer) SetProgramLoaded() {
-	c.programLoaded = true
-}
-
 func (c *Computer) IsProgramLoaded() bool {
 	return c.programLoaded
 }
@@ -119,6 +112,10 @@ func (c *Computer) SetStackStart(start uint16) {
 
 func (c *Computer) SetPause(enable bool) {
 	c.pause = enable
+}
+
+func (c *Computer) IsHalt() bool {
+	return c.halt
 }
 
 func (c *Computer) IsPause() bool {
@@ -282,6 +279,7 @@ func (c *Computer) Reset(excludeROM bool, startWithPause bool) {
 	c.stopChan = make(chan struct{}, 1)
 	c.running = false
 	c.pause = startWithPause
+	c.halt = false
 	c.clear()
 }
 
@@ -325,6 +323,7 @@ func (c *Computer) tick() bool {
 			c.haltEventHandle(c.programCounter)
 		}
 		c.running = false
+		c.halt = true
 		return false
 	}
 	return true

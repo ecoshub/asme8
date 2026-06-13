@@ -101,7 +101,7 @@ func (e *Emulator) pipeChangeHandler(pipeInput bool) {
 }
 
 func (e *Emulator) breakHandle(pc uint16) {
-	e.sysLogPanel.LogWithStyle("# code hit the 'break' computer halted", panel.WarningStyle)
+	e.sysLogPanel.LogWithStyle("# code hit the 'hlt' computer halted", panel.WarningStyle)
 	e.setTrackExecution(true)
 }
 

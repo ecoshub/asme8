@@ -1,11 +1,7 @@
 start:
-    mov a, 5
-    mov b, 5
-    add a, b
-    jmp fun
-return:
+    mov b, 0x8
+    mov c, 0x24
+    mov ip, 0x2200
+    mov [ip+b], c
+    mov d, [ip+b]
     hlt
-
-fun:
-    mov c, 4
-    jmp return

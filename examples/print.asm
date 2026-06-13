@@ -2,9 +2,13 @@ __SERIAL_START__=0xffed
 ADDR_PUT_CHAR=__SERIAL_START__
 
 start:
-    mov a, 'e'          ; move char value of 'e' to register a
+    mov a, 'h'          ; move char value of 'e' to register a
     call char_out       ; print value of register a
-    mov a, 'c'          ; move char value of 'c' to register a
+    mov a, 'e'          ; move char value of 'c' to register a
+    call char_out       ; print value of register a
+    mov a, 'l'          ; move char value of 'o' to register a
+    call char_out       ; print value of register a
+    mov a, 'l'          ; move char value of 'o' to register a
     call char_out       ; print value of register a
     mov a, 'o'          ; move char value of 'o' to register a
     call char_out       ; print value of register a

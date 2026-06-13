@@ -113,6 +113,8 @@ func (t *Tracker) GetSymbolSize(symbol string, def uint8) uint8 {
 }
 
 func (t *Tracker) Print() {
+	fmt.Println()
+
 	if t.segment != "" {
 		fmt.Println("FILE SEGMENT:")
 		fmt.Println(t.segment)

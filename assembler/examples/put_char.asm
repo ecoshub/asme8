@@ -1,4 +1,5 @@
-PUT_CHAR_ADDR=0xffec
+__SERIAL_START__=0xffed
+ADDR_PUT_CHAR=__SERIAL_START__
 
 start:
     mov a, 'A'
@@ -6,7 +7,7 @@ start:
 loop:
     inc a
 char_out:
-    mov [PUT_CHAR_ADDR], a
+    mov [ADDR_PUT_CHAR], a
     cmp a, 'Z'
     jz done
     jmp loop

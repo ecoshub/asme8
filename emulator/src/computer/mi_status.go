@@ -39,6 +39,7 @@ func setFlags(s *status.StatusRegister, result uint16) {
 }
 
 // Helper function to calculate parity (even or odd number of 1 bits)
+// NOTE not in use
 func parity(value uint8) bool {
 	// Return true if number of 1 bits is even
 	count := 0

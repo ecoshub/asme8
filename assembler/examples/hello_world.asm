@@ -1,4 +1,4 @@
-ADDR_PUT_CHAR=0xffec
+ADDR_PUT_CHAR=0xffed
 
 start:
     mov b, 0

@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	conf, err := config.ParseConfig(*flagConfigPath)
+	conf, err := config.ParseConfigPath(*flagConfigPath)
 	if err != nil {
 		fmt.Printf("Config parse failed. err: %s\n", err.Error())
 		return

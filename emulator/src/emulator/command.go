@@ -182,9 +182,7 @@ func (e *Emulator) commandLoadAsmFile(input string) {
 	codeLines, hasSymbols, err := ResolveSymbolFromFile(code)
 	e.CreateCodePanel(codeLines, hasSymbols)
 
-	e.computer.Config.Program = program
-	e.computer.LoadProgram()
-	e.computer.SetProgramLoaded()
+	e.computer.LoadProgram(program)
 
 	e.computer.Restart(true)
 	e.renderPanels()
@@ -213,9 +211,7 @@ func (e *Emulator) commandLoadBinFile(input string) {
 	codeLines, hasSymbols, err := ReadSymbolFileAndCreateCodePanel(param, "")
 	e.CreateCodePanel(codeLines, hasSymbols)
 
-	e.computer.Config.Program = program
-	e.computer.LoadProgram()
-	e.computer.SetProgramLoaded()
+	e.computer.LoadProgram(program)
 
 	e.computer.Restart(true)
 	e.renderPanels()
@@ -276,6 +272,16 @@ func (e *Emulator) commandMemory(input string) {
 		number := e.computer.GetRamStart()
 		e.memoryPanel.SetOffset(number)
 		e.sysLogPanel.LogWithStyle(fmt.Sprintf("now memory page points to 0x%x [ram]", number), panel.DefaultStyle1)
+		return
+	}
+
+	if input == CommandShortMemory+" SERIAL" || input == CommandShortMemory+" serial" {
+		c, ok := e.computer.GetDevice("SERIAL")
+		if ok {
+			start, _ := c.GetRange()
+			e.memoryPanel.SetOffset(start)
+			e.sysLogPanel.LogWithStyle(fmt.Sprintf("now memory page points to 0x%x [serial]", start), panel.DefaultStyle1)
+		}
 		return
 	}
 
@@ -373,6 +379,10 @@ func (e *Emulator) commandStartStop(_ string) {
 		e.sysLogPanel.LogWithStyle("no program load. load program with 'load-bin' or 'load-asm' command", panel.WarningStyle)
 		return
 	}
+	if e.computer.IsHalt() {
+		e.sysLogPanel.LogWithStyle("computer 'Halted'. Use 'r' (restart) command to restart computer.", style.DefaultStyleWarning)
+		return
+	}
 	if e.computer.IsPause() {
 		e.sysLogPanel.LogWithStyle("Running", style.DefaultStyleInfo)
 		e.computer.SetPause(false)
@@ -404,4 +414,5 @@ func (e *Emulator) commandHelp(_ string) {
 	e.sysLogPanel.LogWithStyle("- <n> values can be decimal or hexadecimal with a '0x' prefix", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- use Ctrl+D to direct keyboard input into the emulator", panel.HelpStyle)
 	e.sysLogPanel.LogWithStyle("- 'load-bin' auto-loads a matching .sym file", panel.HelpStyle)
+	e.sysLogPanel.LogWithStyle("Write 's' and press 'Enter' to start emulation!", panel.WarningStyle)
 }

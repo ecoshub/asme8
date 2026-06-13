@@ -9,7 +9,6 @@ import (
 
 func (a *Assembler) CreateSymbolsPrint() string {
 	builder := strings.Builder{}
-	builder.WriteString("Assemble Completed Successfully\n\n")
 
 	if len(a.labels) > 0 {
 		builder.WriteString(" Symbols:\n----------------------------\n")
@@ -27,7 +26,6 @@ func (a *Assembler) CreateSymbolsPrint() string {
 		builder.WriteString("\n")
 	}
 
-	builder.WriteString("\n")
 	return builder.String()
 }
 

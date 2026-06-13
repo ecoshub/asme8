@@ -21,3 +21,7 @@ func mInstProgramCounterHighOut(c *Computer, _ uint64) {
 func mInstProgramCounterInc(c *Computer, _ uint64) {
 	c.programCounter++
 }
+
+func mInstProgramCounterClear(c *Computer, _ uint64) {
+	c.programCounter = 0
+}

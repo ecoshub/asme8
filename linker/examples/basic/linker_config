@@ -1,11 +1,11 @@
 MEMORY {
-    ROM: size=0x2000, type=ro;
-    RAM: size=0xdffc, type=rw;
-    SERIAL: size=0x3, type=rw;
+    ROM: start=0x0000, size=0x2000, type=ro;
+    RAM: start=0x2000, size=0xdffc, type=rw;
+    SERIAL: start=0xfffc, size=0x3, type=rw;
 }
 
 SEGMENTS {
-    main: load=ROM, type=ro;
-    put_char: load=ROM, type=ro;
-    upper: load=ROM, type=ro;
+    main: load=ROM;
+    put_char: load=ROM;
+    upper: load=ROM;
 }

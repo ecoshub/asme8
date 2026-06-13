@@ -1,6 +1,7 @@
-ADDR_PUT_CHAR=0xffec
-ADDR_CHAR_RDY=0xffed
-ADDR_CHAR_READ=0xffee
+__SERIAL_START__=0xffed
+ADDR_PUT_CHAR=__SERIAL_START__
+ADDR_CHAR_RDY=__SERIAL_START__+1
+ADDR_CHAR_READ=__SERIAL_START__+2
 
 start:
     mov c, 0                    ; char index for screen

@@ -11,29 +11,29 @@ import (
 )
 
 var (
-	flagFileBin    = flag.String("load-bin", "", "load bin file to rom")
-	flagFileAsm    = flag.String("load-asm", "", "assemble and load asm file to rom")
+	flagFileBin    = flag.String("load-bin", "", "load bin file to emulator")
+	flagFileAsm    = flag.String("load-asm", "", "assemble and load asm file to emulator")
 	flagDelay      = flag.Duration("delay", 10*time.Millisecond, "delay between instruction execution cycle")
 	flagHeadless   = flag.Bool("headless", false, "run computer as 'headless'")
-	flagConfigPath = flag.String("config", "default_config", "Path to the memory config file")
+	flagConfigPath = flag.String("linker-config", "", "Path to linker configfile")
 	flagSymbolFile = flag.String("symbol-file", "", "Path to indexed code (symbol) file")
 )
 
 func main() {
 	flag.Parse()
 
+	var conf *config.Config
+	var err error
 	if *flagConfigPath == "" {
-		fmt.Println("config path required for memory mapping")
-		return
+		conf = config.DefaultConfig
+	} else {
+		conf, err = config.ParseConfigPath(*flagConfigPath)
+		if err != nil {
+			fmt.Printf("config parse failed\npath: %s\nerr: %s\n", *flagConfigPath, err.Error())
+			return
+		}
 	}
 
-	conf, err := config.ParseConfig(*flagConfigPath)
-	if err != nil {
-		fmt.Printf("config parse failed. path: %s, err: %s", *flagConfigPath, err.Error())
-		return
-	}
-
-	var program []uint8
 	program, code, path, err := utils.ResolveProgram(*flagFileBin, *flagFileAsm)
 	if err != nil {
 		fmt.Println(err)
@@ -41,11 +41,16 @@ func main() {
 	}
 
 	c, err := computer.New(&computer.Config{
-		MemoryConfig: conf.MemoryConfig,
-		Headless:     *flagHeadless,
-		Program:      program,
-		Delay:        *flagDelay,
+		MemorySegment: conf,
+		Headless:      *flagHeadless,
+		Delay:         *flagDelay,
 	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = c.LoadProgram(program)
 	if err != nil {
 		fmt.Println(err)
 		return

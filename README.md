@@ -7,6 +7,7 @@ This project is a fully custom-designed 8-bit computer, including its own instru
 - [1. Project Overview](#1-project-overview)
 - [2. Architecture Overview](#2-architecture-overview)
 - [3. Instruction Set Architecture (ISA)](#3-instruction-set-architecture-isa)
+- [Documentation References](#documentation-references)
 - [4. Hardware Specs (Planned)](#4-hardware-specs-planned)
 - [5. Try Emulator!](#5-try-emulator)
 - [6. Emulator Details](#6-emulation-details)
@@ -32,8 +33,7 @@ Goals of the project include:
 - **assembler:** contains the assembler source code and some example assemble files.
 - **common:** common contains common files that assembler, linker and emulator use like instruction definition, machine codes and linker configuration
 - **emulator:** contains emulator source code
-- **linker:**
-  - contains linker source code and some examples for understanding linker function
+- **linker:** contains linker source code and some examples for understanding linker function
 - **source:**
   - source is containing the source code for e8 computer.
   - It will eventual be the source codes for all utilities for e8 computer.
@@ -63,7 +63,7 @@ Goals of the project include:
 - Includes a virtual terminal (80x24) for text-based display output.
 - Supports keyboard input mapped to a specific memory address.
 - It has builtin command line that can use to manipulate panels around it. (write 'help' to see more)
-- It can run "headless" using `--headless` flag. in headless mode it can only print the execution. no video or keyboard access allowed
+- It can run "headless" using `--headless` flag. in headless mode it can only print the execution. no terminal or keyboard access allowed
 
 <br>
 
@@ -110,9 +110,56 @@ This 8-bit computer follows a register-memory CISC (Complex Instruction Set Comp
 - **RAM:** up to 56KB
 - **Input Buffer:**  256 bytes terminal input buffer
 - **Keyboard Buffer:** 2 bytes for input char and char ready flag
-- **Interrupt Vectors:** 16 bytes of interrupt vectors.
+- **Interrupt Vectors:** 2 bytes of interrupt vectors.
 
-**NOTE:** full memory layout is [here](MEMORY_LAYOUT.md)
+### Memory Layout
+
+Total of **64k** *(65.536 bytes)*
+
+```
+---------------------------------------------------
+|               ROM (8.196 bytes)                 |
+---------------------------------------------------
+| 0x0000 |  ROM   | init ( 32 bytes)              |
+|                    ...                          |
+| 0x001f |  ROM   | int end                       |
+---------------------------------------------------
+| 0x0020 |  ROM   | utility functions             |
+|                    ...                          |
+| 0x1fff |  ROM   | (last addr)                   |
+---------------------------------------------------
+|              RAM (57.343 bytes)                 |
+---------------------------------------------------
+| 0x2000 |  RAM   | stack end (256 bytes)         |
+|                    ...                          |
+| 0x20ff |  RAM   | stack start                   |
+---------------------------------------------------
+| 0x2100 |  RAM   | converter buffer (16 bytes)   |
+|                    ...                          |
+| 0x210f |  RAM   |                               |
+---------------------------------------------------
+| 0x2110 |  RAM   | char input buffer (256 bytes) |
+|                    ...                          |
+| 0x220f |  RAM   |                               |
+---------------------------------------------------
+| 0x2210 |  RAM   | free                          |
+| 0x2211 |  RAM   | free                          |
+|                    ...                          |
+| 0xffec |  RAM   | (last addr)                   |
+---------------------------------------------------
+| 0xffed | SERIAL | addr put char                 |
+| 0xffee | SERIAL | char ready                    |
+| 0xffef | SERIAL | get char                      |
+---------------------------------------------------
+| 0xfff0 |  RAM   | free  (14 bytes)              |
+|                    ...                          |
+| 0xfffd |  RAM   | free                          |
+---------------------------------------------------
+| 0xfffe |  VEC   | vector low addr               |
+| 0xffff |  VEC   | vector high addr              |
+---------------------------------------------------
+```
+
 
 ## I/O and Peripherals
 
@@ -144,34 +191,36 @@ The E8 CPU has a custom-designed ISA tailored for efficient execution in an 8-bi
 
 ## Instruction Formats
 
-There are 64 instructions. Instruction register is 6 bit.
-Each instruction consists of an opcode and optional operands, depending on the instruction type.
+There are 64 instruction opcodes (`0x00` to `0x3f`), represented by a 6-bit opcode field.
+Each instruction consists of an opcode and optional operands, depending on the addressing form.
 
 ### **Basic Instruction Types**
 
-- **Arithmetic Instructions:** Perform basic mathematical operations like add, sub, mul, div.
-- **Logical Instructions:** Perform bitwise operations like and, or, xor, not.
-- **Data Movement Instructions:** Load and store operations such as mov, ld, st.
-- **Branching Instructions:** Conditional and unconditional jumps (jmp, jz, jnz, call, ret).
-- **Stack Instructions:** push, pop, for stack-based operations.
-- **I/O Instructions:** Interact with peripherals such as video and keyboard.
+- **Data Movement:** `mov` across registers and memory.
+- **Arithmetic and Compare:** `add`, `adc`, `sub`, `sbb`, `inc`, `dec`, `cmp`.
+- **Bitwise and Shifts:** `and`, `or`, `xor`, `shl`, `shr`, `rol`, `ror`.
+- **Branching and Calls:** `jmp`, `js`, `jns`, `jz`, `jnz`, `jc`, `jnc`, `call`, `ret`, `rti`.
+- **Stack and Flags:** `push`, `pop`, `clc`, `cli`, `sti`.
+- **System:** `nop`, `hlt`.
+
+Note: device interaction is memory-mapped (no dedicated `in`/`out` instruction family).
 
 ## Addressing Modes Supported
 
-- Implied
-- Register
-- Immediate
-- Direct (Absolute)
-- Register Indirect
-- Indexed Absolute
-- Base-plus-Index
-- Combined Modes
+- Implied (`hlt`)
+- Implied with register (`inc a`, `inc ip`, `push sr`)
+- Immediate (`mov a, 4`, `mov ip, 0x7000`)
+- Direct memory (`mov a, [0x7000]`, `mov [0x7000], a`)
+- Indexed absolute (`mov a, [0x7000+b]`, `mov [0x7000+b], a`)
+- Register indirect (`mov a, [ip]`, `mov [bp], a`)
+- Register indirect with offset (`mov a, [ip+4]`, `mov [bp+8], a`)
+- Register-indirect with register index (`mov a, [ip+b]`, `mov [bp+c], a`)
 
 
 ### **Example Code and Addressing Modes**  
 Below are code snippets demonstrating the E8 ISA's addressing modes and instruction types:
 
-And also you can find detailed assembly documentation from [here](ASSEMBLER_KEYWORDS.md)
+Detailed assembly documentation is also available in [ASSEMBLER_KEYWORDS.md](ASSEMBLER_KEYWORDS.md) and [INSTRUCTIONS_OVERVIEW.md](INSTRUCTIONS_OVERVIEW.md).
 
 #### **1. Basic Data Movement**  
 ```asm
@@ -181,13 +230,13 @@ mov ip, 0x7000        ; Load 0x7000 into IP (16-bit register)
 
 ; Direct (absolute) addressing
 mov a, [8000]         ; Load value from address 8000 into A
-mov [0x7000], 0x10    ; Store 0x10 at address 0x7000
+mov [0x7000], a       ; Store register A into address 0x7000
 
 ; Register addressing
 mov b, a              ; Copy value of A into B
 
 ; Register indirect addressing
-mov a, [sp]           ; Load value at address in SP into A
+mov a, [ip]           ; Load value at address in IP into A
 mov [ip], a           ; Store A into address in IP
 ```
 
@@ -197,9 +246,9 @@ mov [ip], a           ; Store A into address in IP
 mov a, [8000+b]       ; Load from address (8000 + B)
 mov [8000+b], a       ; Store to address (8000 + B)
 
-; Stack-relative with displacement
-mov a, [sp+4]         ; Load from (SP + 4)
-mov [sp+4], a         ; Store to (SP + 4)
+; Base-pointer-relative with displacement
+mov a, [bp+4]         ; Load from (BP + 4)
+mov [bp+4], a         ; Store to (BP + 4)
 
 ; IP-relative with displacement
 mov a, [ip+4]         ; Load from (IP + 4)
@@ -228,7 +277,7 @@ js 0x6000             ; Jump if sign flag set
 jnz 0x6000            ; Jump if zero flag not set
 
 ; Subroutine calls
-call                  ; Call subroutine (address inferred?)
+call 0x1234           ; Call absolute address
 ret                   ; Return from subroutine
 rti                   ; Return from interrupt
 ```
@@ -244,10 +293,15 @@ pop a                 ; Pop top of stack into A
 hlt                   ; Halt execution
 clc                   ; Clear carry flag
 sti                   ; Set interrupt enable
-rol a                 ; Rotate A left through carry
+rol a                 ; Rotate A left
 ```
 
-**NOTE:** All instructions are in `common/instruction/instruction.go` file
+**NOTE:** All instructions are in [common/instruction/instruction.go](common/instruction/instruction.go) file
+
+## Documentation References
+
+- [ASSEMBLER_KEYWORDS.md](ASSEMBLER_KEYWORDS.md)
+- [INSTRUCTIONS_OVERVIEW.md](INSTRUCTIONS_OVERVIEW.md)
 
 <br>
 <br>

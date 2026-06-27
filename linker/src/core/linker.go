@@ -114,7 +114,7 @@ func (l *Linker) putLinkerGlobals() {
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
 		linkerGlobalSymbol = object.NewSymbol(fmt.Sprintf("__%s_END__", m.Name))
-		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size)
+		linkerGlobalSymbol.SetIndex(m.Start.Value + m.Size - 1)
 		linkerGlobalSymbol.SetType(object.SYMBOL_TYPE_VAR)
 		pushSymbol(m.Name, linkerGlobalSymbol, l.globals)
 		l.linkerSymbols = append(l.linkerSymbols, linkerGlobalSymbol)
@@ -275,7 +275,11 @@ func (l *Linker) linkSymbols() error {
 			index := uint16(0)
 			sym := p.GetSymbol()
 			segmentOffset := l.segmentOffsets[segment]
-			offset = segmentOffset + sc.Start.Get() + p.GetOffset()
+			if sc.Start.Get() > 0 {
+				offset = segmentOffset + sc.Start.Get()
+			} else {
+				offset = segmentOffset + sc.Start.Get() + p.GetOffset()
+			}
 			globalSegmentOffset := uint16(0)
 			_type := uint8(0)
 			if p.IsMissing() {
@@ -311,10 +315,7 @@ func (l *Linker) linkSymbols() error {
 			}
 			index += p.GetOptionalOffset()
 			data := []byte{uint8(index), uint8(index >> 8)}
-			size := uint16(1)
-			if p.GetSize() == 16 {
-				size = 2
-			}
+			size := uint16(p.GetSize() / 8)
 			copy(l.memory[offset:offset+size], data)
 			l.memoryClean = false
 			if p.IsMissing() {

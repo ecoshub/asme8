@@ -1,6 +1,7 @@
 .vscode
 result
 bin
+build.sh
 TODO.md
 assembler/TODO.md
 assembler/test.asm

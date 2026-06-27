@@ -52,7 +52,7 @@ func GetComp() *computer.Computer {
 				Configs: []*config.Memory{
 					{Name: "ROM", Size: 0x2000, Type: config.MemoryTypeReadOnly},
 					{Name: "RAM", Size: 0xdfed, Type: config.MemoryTypeReadWrite},
-					{Name: "SERIAL", Size: 0x3, Type: config.MemoryTypeReadWrite},
+					{Name: "SERIAL", Size: 0x3, Type: config.MemoryTypeSerial},
 					{Name: "RAM_2", Size: 0x10, Type: config.MemoryTypeReadWrite},
 				},
 			},

@@ -1,7 +1,11 @@
+ADDR=0x1234
+READ=ADDR+1
+
 start:
+    mov c, 0xff
     mov b, 0x8
-    mov c, 0x24
-    mov ip, 0x2200
+    mov ip, ADDR
     mov [ip+b], c
-    mov d, [ip+b]
+    mov ip, READ
+    mov [ip+b], c
     hlt

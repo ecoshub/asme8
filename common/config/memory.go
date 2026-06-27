@@ -9,6 +9,7 @@ import (
 const (
 	MemoryTypeReadOnly  string = "ro"
 	MemoryTypeReadWrite string = "rw"
+	MemoryTypeSerial    string = "sr"
 )
 
 type Memory struct {

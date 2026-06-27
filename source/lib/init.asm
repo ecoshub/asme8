@@ -47,6 +47,3 @@ WOZMON_BUFFER=__RAM_START__+0x150       ; wozmon ram area (256 bytes)
     xor iph, iph
 
     jmp WOZMON                          ; start with wozmon
-
-.org 0x1000
-.byte 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'

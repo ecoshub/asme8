@@ -49,6 +49,20 @@ RANGE_END=WOZMON_BUFFER+4
 CHAR_BUFFER=WOZMON_BUFFER+6
 
 WOZMON:
+    ; register interrupt handler
+    mov ip, interrupt_handler
+    mov [INT_VEC_0_LOW], ipl
+    mov [INT_VEC_0_HIGH], iph
+
+    call restart_wozmon
+
+    sti                                 ; enable hardware interrupts
+main_loop:
+    nop
+    jmp main_loop
+
+
+restart_wozmon:
     xor a, a                            ; clear all range values
     mov [RANGE_START], a
     mov [RANGE_START+1], a
@@ -64,16 +78,7 @@ WOZMON:
     call __PUT_CHAR__
 
     xor d, d                            ; clear buffer index
-
-; register interrupt handler
-    mov ip, interrupt_handler
-    mov [INT_VEC_0_LOW], ipl
-    mov [INT_VEC_0_HIGH], iph
-
-    sti                                 ; enable hardware interrupts
-main_loop:
-    nop
-    jmp main_loop
+    ret
 
 interrupt_handler:
     call __GET_CHAR__                   ; read char from stdin
@@ -86,26 +91,32 @@ interrupt_handler:
     jz set_mode_write                   ; set the mode MODE_WRITE
     cmp a, KEY_CODE_R                   ; check if char is 'r'
     jz set_mode_run                     ; set the mode MODE_RUN
+interrupt_done:
     mov [CHAR_BUFFER+d], a              ; add char in to buffer
+interrupt_done_no_char:
     inc d                               ; increment index
     rti
 
+
 set_mode_write:
     mov a, MODE_WRITE                   ; set mode to MODE_WRITE
-    mov [MODE], a
+    mov [MODE], a                       ; save mode (write)
     mov [SEPARATOR_INDEX], d            ; save separator index
-    jmp main_loop                       ; return to main_loop
+    mov a, KEY_CODE_COLUMN
+    jmp interrupt_done                  ; return to interrupt_done
 
 set_mode_run:
     mov a, MODE_RUN                     ; set mode to MODE_RUN
-    mov [MODE], a
-    jmp main_loop                       ; return to main_loop
+    mov [MODE], a                       ; save mode (run)
+    mov a, KEY_CODE_R
+    jmp interrupt_done_no_char          ; return to interrupt_done
 
 set_mode_read_range:
     mov a, MODE_READ_RANGE              ; set mode to MODE_READ_RANGE
-    mov [MODE], a
+    mov [MODE], a                       ; save mode (read_range)
     mov [SEPARATOR_INDEX], d            ; save separator index
-    jmp main_loop                       ; return to main_loop
+    mov a, KEY_CODE_DOT
+    jmp interrupt_done                  ; return to interrupt_done
 
 execute:
     mov a, [MODE]                       ; get mode in to a
@@ -118,6 +129,9 @@ execute:
     cmp a, MODE_WRITE
     jz execute_write
     jmp operation_failed
+execute_done:
+    call restart_wozmon
+    rti
 
 execute_write:
     push d                              ; save the buffer index to stack
@@ -167,17 +181,17 @@ write_loop:
 
 break_execute_write:
     call __RETURN__                     ; print '\n' and start over
-    jmp WOZMON
+    jmp execute_done                    ; jump to execution done
 
 execute_run:
-    call __RETURN__                     ; print '\n' and jump to given address
-    mov a, [SEPARATOR_INDEX]            ; read separator index
-    mov ip, CHAR_BUFFER                 ; pass char buffer
-    call __STR_CONV_HEX__               ; execute str_to_hex subroutine 
-    cmp a, CHAR_NOT_VALID               ; if it returns with CHAR_NOT_VALID
-    jz operation_failed                 ; jump to operation failed
-    mov ipl, [CONVERTER_BUFFER]           ; read low byte from converter buffer
-    mov iph, [CONVERTER_BUFFER+1]         ; read high byte from converter buffer
+    call __RETURN__                      ; print '\n' and jump to given address
+    mov a, [SEPARATOR_INDEX]             ; read separator index
+    mov ip, CHAR_BUFFER                  ; pass char buffer
+    call __STR_CONV_HEX__                ; execute str_to_hex subroutine 
+    cmp a, CHAR_NOT_VALID                ; if it returns with CHAR_NOT_VALID
+    jz operation_failed                  ; jump to operation failed
+    mov ipl, [CONVERTER_BUFFER]          ; read low byte from converter buffer
+    mov iph, [CONVERTER_BUFFER+1]        ; read high byte from converter buffer
     jmp ip
 
 execute_read_range:
@@ -208,8 +222,7 @@ execute_read_range:
     mov [RANGE_END+1], a                ; store it in to range_end high byte
 
     call _print_range                   ; print from range_start to range_end
-
-    jmp WOZMON                          ; start over
+    jmp execute_done                    ; jump to execution done
 
 _print_range:
     call __RETURN__                     ; print a carriage return
@@ -259,7 +272,7 @@ execute_read:
     mov iph, [CONVERTER_BUFFER+1]       ; get converted number high part from converter buffer
     call _print_byte                    ; print byte
     call __RETURN__                     ; print return char
-    jmp WOZMON                          ; start over
+    jmp execute_done                    ; jump to execution done
 
 _print_byte:
     mov a, [ip]                         ; value that ip point
@@ -274,4 +287,4 @@ operation_failed:                       ; print '?\n' and start over
     mov a, '?'
     call __PUT_CHAR__
     call __RETURN__
-    jmp WOZMON
+    jmp execute_done                    ; jump to execution done

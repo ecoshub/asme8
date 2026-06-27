@@ -27,7 +27,7 @@ var (
 			Configs: []*Memory{
 				{Name: "ROM", Start: NewNullable(0x0000), Size: 0x2000, Type: MemoryTypeReadOnly},
 				{Name: "RAM", Start: NewNullable(0x2000), Size: 0xdfed, Type: MemoryTypeReadWrite},
-				{Name: "SERIAL", Start: NewNullable(0xffed), Size: 0x3, Type: MemoryTypeReadWrite},
+				{Name: "SERIAL", Start: NewNullable(0xffed), Size: 0x3, Type: MemoryTypeSerial},
 				{Name: "VEC", Start: NewNullable(0xfff0), Size: 0x10, Type: MemoryTypeReadOnly},
 			},
 		},

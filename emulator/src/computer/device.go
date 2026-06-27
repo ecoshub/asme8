@@ -40,35 +40,28 @@ func (c *Computer) CreateDevices() error {
 	}
 
 	var term *terminal.Terminal
-	romDeviceCount := 0
-	ramDeviceCount := 0
+	roDevicesCount := 0
+	rwDevicesCount := 0
 	var ramStart uint16
 
 	for _, mc := range c.Config.MemorySegment.Memory.Configs {
-		if mc.Type == config.MemoryTypeReadOnly {
-			if strings.HasPrefix(mc.Name, "RAM") {
-				return fmt.Errorf("can not use 'RAM' prefix for readonly (ro) device. name: %s", mc.Name)
-			}
-			if strings.HasPrefix(mc.Name, "SERIAL") {
-				return fmt.Errorf("can not use 'SERIAL' prefix for readonly (ro) device. name: %s", mc.Name)
-			}
+		switch mc.Type {
+		case config.MemoryTypeReadOnly:
 			r := rom.New(mc.Size)
 			r.SetName(mc.Name)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
-			romDeviceCount += 1
+			roDevicesCount += 1
 			continue
-		}
-		if strings.HasPrefix(mc.Name, "RAM") {
+		case config.MemoryTypeReadWrite:
 			r := ram.New(mc.Size)
 			r.SetName(mc.Name)
 			c.ConnectDevice(r, mc.Start.Value, mc.Size)
-			if ramDeviceCount == 0 {
+			if rwDevicesCount == 0 {
 				ramStart = mc.Start.Value
 			}
-			ramDeviceCount += 1
+			rwDevicesCount += 1
 			continue
-		}
-		if strings.HasPrefix(mc.Name, "SERIAL") {
+		case config.MemoryTypeSerial:
 			if c.Config.Headless {
 				continue
 			}
@@ -84,17 +77,17 @@ func (c *Computer) CreateDevices() error {
 		}
 	}
 
-	if romDeviceCount == 0 {
+	if roDevicesCount == 0 {
 		return fmt.Errorf("memory config must define ROM")
 	}
 
-	if ramDeviceCount == 0 {
+	if rwDevicesCount == 0 {
 		return fmt.Errorf("memory config must define RAM")
 	}
 
 	StackStart = ramStart + 0xff
 
-	if ramDeviceCount > 1 && c.terminal != nil {
+	if rwDevicesCount > 1 && c.terminal != nil {
 		term.Components.SysLogPanel.Push(fmt.Sprintf("you have more than one 'RAM' section. stack starts from: %04x", StackStart))
 	}
 

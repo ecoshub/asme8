@@ -41,6 +41,7 @@ type Assembler struct {
 	missingSymbols      map[uint16]*types.Tag
 	machineCode         map[uint16]uint8
 	directives          map[uint16]*types.Directive
+	hasOrgDirective     bool
 	errorListener       *error_listener.CustomErrorListener
 	symbolTracker       *object.Tracker
 	hasVirtualOffset    bool
@@ -84,8 +85,19 @@ func New(mode ASM_MODE) *Assembler {
 func (a *Assembler) Assemble() ([]uint8, int, error) {
 	switch a.mode {
 	case ASM_MODE_ELF:
-		a.RestoreMissingSymbols()
-		a.ResolveReferenceVariables()
+		if a.hasOrgDirective {
+			return nil, 0, fmt.Errorf("error: '.org' directive is not compatible with elf files. use segment system  with 'start' value")
+		}
+		errs := a.RestoreMissingSymbols()
+		errs = filterErrorContains(errs, "symbol not found")
+		if len(errs) > 0 {
+			return nil, 0, error_listener.WrapErrors(errs...)
+		}
+		errs = a.ResolveReferenceVariables()
+		errs = filterErrorContains(errs, "reference not found")
+		if len(errs) > 0 {
+			return nil, 0, error_listener.WrapErrors(errs...)
+		}
 		out := a.assemble()
 		err := a.errorListener.GetError()
 		if err != nil {
@@ -460,7 +472,7 @@ func (a *Assembler) ParseAscii(text string) {
 }
 
 func (a *Assembler) ParseDirective(text string, line, column int) {
-	if strings.HasPrefix(text, DirectiveOrg) {
+	if strings.HasPrefix(text, string(types.DirectiveOrg)) {
 		if len(a.currentValueList) == 0 {
 			msg := fmt.Sprintf("value is unknown. value: '%s'", text)
 			if a.errorListener == nil {
@@ -472,47 +484,64 @@ func (a *Assembler) ParseDirective(text string, line, column int) {
 		}
 		val := a.currentValueList[0]
 		a.offset = val.GetValue()
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveOrg, Position: val.GetValue(), Offset: 0, Values: a.currentValueList}
+		d := &types.Directive{Raw: text, Type: types.DirectiveOrg, Position: val.GetValue(), Offset: 0, Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		return
 	}
-	if strings.HasPrefix(text, DirectiveReserveByte) {
+	if strings.HasPrefix(text, string(types.DirectiveReserveByte)) {
 		val := a.currentValueList[0]
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveReserveByte, Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
+		d := &types.Directive{Raw: text, Type: types.DirectiveReserveByte, Position: a.offset, Offset: val.GetValue(), Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		for i := 0; i < int(val.GetValue()); i++ {
 			a.AppendMachineCode(0)
 		}
 		return
 	}
-	if strings.HasPrefix(text, DirectiveByte) {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveByte, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+	if strings.HasPrefix(text, string(types.DirectiveByte)) {
+		d := &types.Directive{Raw: text, Type: types.DirectiveByte, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, DirectiveWord) {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveWord, Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
+	if strings.HasPrefix(text, string(types.DirectiveWord)) {
+		d := &types.Directive{Raw: text, Type: types.DirectiveWord, Position: a.offset, Offset: uint16(len(a.currentValueList) * 2), Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 			a.AppendMachineCode(v.GetHighByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, DirectiveASCIIZ) {
+	if strings.HasPrefix(text, string(types.DirectiveASCIIZ)) {
 		a.currentValueList = append(a.currentValueList, types.NewValue(0))
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveASCIIZ, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		d := &types.Directive{Raw: text, Type: types.DirectiveASCIIZ, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
-	if strings.HasPrefix(text, DirectiveASCII) {
-		a.directives[a.offset] = &types.Directive{Raw: text, Type: DirectiveASCII, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+	if strings.HasPrefix(text, string(types.DirectiveASCII)) {
+		d := &types.Directive{Raw: text, Type: types.DirectiveASCII, Position: a.offset, Offset: uint16(len(a.currentValueList)), Values: a.currentValueList}
+		a.addDirective(a.offset, d)
 		for _, v := range a.currentValueList {
 			a.AppendMachineCode(v.GetLowByte())
 		}
 		return
 	}
+}
+
+func (a *Assembler) addDirective(offset uint16, d *types.Directive) {
+	if d.Type == types.DirectiveOrg {
+		a.hasOrgDirective = true
+	}
+	old, exists := a.directives[a.offset]
+	if exists {
+		fmt.Printf("warning: one directive is overwrite with another. offset: %04x, old: '%s', new: '%s'. it is only overwriting the visible code part. can not effect execution.\n", offset, old.Raw, d.Raw)
+	}
+	a.directives[a.offset] = d
 }
 
 func (a *Assembler) ParseTag(text string, line, column int) {
@@ -732,4 +761,15 @@ func (a *Assembler) FindVariable(name string) (*types.Value, bool) {
 func (a *Assembler) FindLabel(name string) (*types.Label, bool) {
 	label, ok := a.labels[name]
 	return label, ok
+}
+
+func filterErrorContains(errs []error, str string) []error {
+	newErrs := make([]error, 0, len(errs))
+	for _, e := range errs {
+		if strings.Contains(e.Error(), str) {
+			continue
+		}
+		newErrs = append(newErrs, e)
+	}
+	return newErrs
 }

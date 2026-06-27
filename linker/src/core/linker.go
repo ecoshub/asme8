@@ -139,7 +139,10 @@ func (l *Linker) putSegments() error {
 		}
 		m, _ := l.config.Memory.GetMemoryConfig(s.Load)
 		o, _ := findObjectFile(s.Name, l.objects)
-		l.putImplicitSegments(o, m, s)
+		err := l.putImplicitSegments(o, m, s)
+		if err != nil {
+			return err
+		}
 	}
 	for _, s := range l.config.Segment.Configs {
 		if s.Start != nil {
@@ -147,13 +150,16 @@ func (l *Linker) putSegments() error {
 		}
 		m, ok := l.config.Memory.GetMemoryConfig(s.Load)
 		if !ok {
-			return fmt.Errorf("memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
+			return fmt.Errorf("error. memory config not found. segment: '%s', load: '%s'", s.Name, s.Load)
 		}
 		o, ok := findObjectFile(s.Name, l.objects)
 		if !ok {
-			return fmt.Errorf("segment not found in given object files. segment: '%s'", s.Name)
+			return fmt.Errorf("error. segment not found in given object files. segment: '%s'", s.Name)
 		}
-		l.putExplicitSegment(o, m, s)
+		err := l.putExplicitSegment(o, m, s)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -163,7 +169,7 @@ func (l *Linker) putImplicitSegments(o *object.ELF, m *config.Memory, s *config.
 	length := uint16(len(bin))
 	position := m.Start.Value + s.Start.Value
 	if position+length > m.Start.Value+m.Size {
-		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
+		return fmt.Errorf("error. segment overflow. memory: %s, segment: %s, memory_size: %d, segment_start: %d, segment_size: %d", m.Name, s.Name, m.Size, s.Start.Value, length)
 	}
 	l.segmentOffsets[s.Name] = position
 	copy(l.memory[position:position+length], bin[:length])
@@ -178,7 +184,7 @@ func (l *Linker) putExplicitSegment(o *object.ELF, m *config.Memory, s *config.S
 	position := m.Start.Value + offset
 	l.segmentOffsets[s.Name] = position
 	if position+length > m.Start.Value+m.Size {
-		return fmt.Errorf("segment overflow. memory: %s, segment: %s", m.Name, s.Load)
+		return fmt.Errorf("error. segment overflow. memory: %s, segment: %s", m.Name, s.Load)
 	}
 	copy(l.memory[position:position+length], bin[:length])
 	l.memoryLastSegmentOffset[m.Name] += length
@@ -195,11 +201,11 @@ func (l *Linker) resolveSymbols() error {
 			sym := p.GetSymbol()
 			s, ok := symbols[sym]
 			if !ok {
-				return fmt.Errorf("symbol is not found. forgot to tag as extern?. segment: %s, symbol: '%s'", segment, sym)
+				return fmt.Errorf("error. symbol is not found. forgot to tag as extern?. segment: %s, symbol: '%s'", segment, sym)
 			}
 			if p.IsMissing() {
 				if s.IsShare(object.SYMBOL_SHARE_STATUS_GLOBAL) {
-					return fmt.Errorf("symbol declared as 'global' but it is not found. segment: %s, symbol: '%s'", segment, sym)
+					return fmt.Errorf("error. symbol declared as 'global' but it is not found. segment: %s, symbol: '%s'", segment, sym)
 				}
 				pushSymbol(segment, s, l.missing)
 			}
@@ -208,7 +214,7 @@ func (l *Linker) resolveSymbols() error {
 			if s.IsShare(object.SYMBOL_SHARE_STATUS_GLOBAL) {
 				existsSymbol, existsSegment, exists := checkSameGlobal(s.GetSymbol(), l.globals)
 				if exists {
-					return fmt.Errorf("symbol is already defined in another segment. symbol: %s, segment: %s, active segment: %s", existsSymbol.GetSymbol(), existsSegment, segment)
+					return fmt.Errorf("error. symbol is already defined in another segment. symbol: %s, segment: %s, active segment: %s", existsSymbol.GetSymbol(), existsSegment, segment)
 				}
 				pushSymbol(segment, s, l.globals)
 			}
@@ -226,7 +232,7 @@ func (l *Linker) resolveSymbols() error {
 			externSymbol := ex.GetSymbol()
 			_, _, ok := findGlobal(externSymbol, l.globals)
 			if !ok {
-				return fmt.Errorf("extern symbol not found. segment: %s, symbol: '%s'", segment, externSymbol)
+				return fmt.Errorf("error. extern symbol not found. segment: %s, symbol: '%s'", segment, externSymbol)
 			}
 		}
 	}
@@ -254,7 +260,7 @@ func (l *Linker) resolveReference() error {
 				pushSymbol(segment, s, l.globals)
 				continue
 			}
-			return fmt.Errorf("reference symbol not found. segment: %s, symbol: %s, reference: %s", segment, s.GetSymbol(), ref)
+			return fmt.Errorf("error. reference symbol not found. segment: %s, symbol: %s, reference: %s", segment, s.GetSymbol(), ref)
 		}
 	}
 	return nil
@@ -268,7 +274,11 @@ func (l *Linker) linkSymbols() error {
 			continue
 		}
 
-		// symbols := o.Tracker.GetSymbols()
+		_, ok := l.config.Memory.GetMemoryConfig(sc.Load)
+		if !ok {
+			return fmt.Errorf("error. memory not found. segment: %s, load: '%s'", segment, sc.Load)
+		}
+
 		positions := o.Tracker.GetPositions()
 		for _, p := range positions {
 			offset := uint16(0)
@@ -285,7 +295,7 @@ func (l *Linker) linkSymbols() error {
 			if p.IsMissing() {
 				globalSegment, globalSymbol, ok := findGlobal(sym, l.globals)
 				if !ok {
-					return fmt.Errorf("symbol not found. segment: %s, symbol: '%s'", segment, sym)
+					return fmt.Errorf("error. symbol not found. segment: %s, symbol: '%s'", segment, sym)
 				}
 				_type = globalSymbol.GetType()
 				switch _type {
@@ -295,7 +305,7 @@ func (l *Linker) linkSymbols() error {
 					globalSegmentOffset = l.segmentOffsets[globalSegment]
 					index = globalSymbol.GetIndex() + globalSegmentOffset
 				default:
-					return fmt.Errorf("unknown symbol type for missing symbol. segment: %s, symbol: %s, type: %d", segment, sym, _type)
+					return fmt.Errorf("error. unknown symbol type for missing symbol. segment: %s, symbol: %s, type: %d", segment, sym, _type)
 				}
 			} else {
 				symbol, ok := o.Tracker.GetDefinedSymbol(sym)

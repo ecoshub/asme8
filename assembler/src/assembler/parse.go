@@ -69,7 +69,7 @@ func AssembleFile(options *Options, variables ...*VariablePair) ([]byte, string,
 		return nil, "", 0, err
 	}
 
-	code := assembler.CodeString()
+	code := assembler.symbolTracker.GetCode()
 
 	if options.Mode == ASM_MODE_EXE {
 		if options.PrintDetail {

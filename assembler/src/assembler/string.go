@@ -50,11 +50,11 @@ func (a *Assembler) CodeString() string {
 			oldIndex := index
 			s := ""
 			switch directive.Type {
-			case DirectiveOrg:
+			case types.DirectiveOrg:
 				val := directive.Values[0].GetValue()
 				index = int(val)
 				builder.WriteString(fmt.Sprintf("<%04x> %s: \n", oldIndex, directive.Raw))
-			case DirectiveReserveByte:
+			case types.DirectiveReserveByte:
 				val := directive.Values[0].GetValue()
 				index += int(val)
 				if val > 8 {
@@ -65,16 +65,16 @@ func (a *Assembler) CodeString() string {
 					}
 				}
 				builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
-			case DirectiveASCII:
+			case types.DirectiveASCII:
 				fallthrough
-			case DirectiveASCIIZ:
+			case types.DirectiveASCIIZ:
 				fallthrough
-			case DirectiveByte:
+			case types.DirectiveByte:
 				index += totalOffset(directive.Values)
 				arr := ToHexArray_1byte(directive.Values, true)
 				s = arr
 				builder.WriteString(fmt.Sprintf("<%04x> %-34s; %s\n", oldIndex, directive.Raw, s))
-			case DirectiveWord:
+			case types.DirectiveWord:
 				index += totalOffset(directive.Values)
 				arr := ToHexArray_2byte(directive.Values, true)
 				s = arr
@@ -110,11 +110,11 @@ func (a *Assembler) buildDirectivesOffsetMap() map[uint16]struct{} {
 			continue
 		}
 		switch directive.Type {
-		case DirectiveOrg:
+		case types.DirectiveOrg:
 			val := directive.Values[0].GetValue()
 			i = int(val)
 			continue
-		case DirectiveReserveByte:
+		case types.DirectiveReserveByte:
 			offset := directive.Values[0].GetValue()
 			for j := 0; j < int(offset); j++ {
 				directiveOffsets[uint16(i+j)] = struct{}{}
@@ -122,13 +122,13 @@ func (a *Assembler) buildDirectivesOffsetMap() map[uint16]struct{} {
 			i += int(offset)
 			i--
 			continue
-		case DirectiveASCII:
+		case types.DirectiveASCII:
 			fallthrough
-		case DirectiveASCIIZ:
+		case types.DirectiveASCIIZ:
 			fallthrough
-		case DirectiveByte:
+		case types.DirectiveByte:
 			fallthrough
-		case DirectiveWord:
+		case types.DirectiveWord:
 			offset := totalOffset(directive.Values)
 			for j := 0; j < int(offset); j++ {
 				directiveOffsets[uint16(i+j)] = struct{}{}

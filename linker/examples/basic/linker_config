@@ -5,7 +5,8 @@ MEMORY {
 }
 
 SEGMENTS {
-    main: start=0x00, load=ROM;
-    put_char: start=0x21, load=ROM;
-    upper: start=0x25, load=ROM;
+    main: load=ROM;
+    put_char: load=ROM;
+    upper: load=ROM;
+    buffer: start=0x1000, load=ROM;
 }
